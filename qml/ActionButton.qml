@@ -53,7 +53,11 @@ Rectangle {
                 ctx.closePath()
                 ctx.fill()
             } else if (button.icon === "replay") {
-                // cerchio aperto in alto + punta della freccia attaccata all'estremita'
+                // cerchio aperto in alto + punta attaccata; specchiato perche'
+                // il "revert time" deve girare in senso antiorario.
+                ctx.save()
+                ctx.translate(24, 0)
+                ctx.scale(-1, 1)
                 ctx.beginPath()
                 ctx.arc(12, 12, 7, -Math.PI / 3, 4 * Math.PI / 3)
                 ctx.stroke()
@@ -63,6 +67,7 @@ Rectangle {
                 ctx.lineTo(9.2, 7.8)
                 ctx.closePath()
                 ctx.fill()
+                ctx.restore()
             } else if (button.icon === "check") {
                 ctx.beginPath()
                 ctx.moveTo(4.5, 13)

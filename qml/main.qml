@@ -16,6 +16,9 @@ Window {
     property bool overviewOpen: false
     property bool languageOpen: false
     property int languageIndex: 0
+    // Dopo "segna come visto" il pulsante replay puo' sparire: il focus deve
+    // seguire il pulsante Visto, non restare sull'indice numerico.
+    property bool pendingPlayedFocus: false
     property int rowIndex: 0
     // barra superiore: si raggiunge con "su" dalla prima riga
     property bool navFocus: false
@@ -61,6 +64,12 @@ Window {
         { title: qsTr("Prossimo episodio"), desc: qsTr("Avvio automatico a fine puntata") },
         { title: qsTr("Statistiche di visione"), desc: qsTr("Tempo visto e cronologia") }
     ]
+
+    Timer {
+        id: playedFocusTimer
+        interval: 2000
+        onTriggered: root.pendingPlayedFocus = false
+    }
 
     Timer {
         id: menuHintTimer
@@ -256,7 +265,11 @@ Window {
         }
         else if (isSeries() && root.detailFocus === 1) openSeasonsPage()
         else if (!isSeries() && hasResume() && root.detailFocus === 1) app.playFromStart()
-        else if (root.detailFocus === playedIndex()) app.togglePlayed()
+        else if (root.detailFocus === playedIndex()) {
+            root.pendingPlayedFocus = true
+            playedFocusTimer.restart()
+            app.togglePlayed()
+        }
         else if (root.detailFocus === favoriteIndex()) app.toggleFavorite()
         else if (root.detailFocus === seriesIndex()) openDetail(app.detail.seriesId)
         else if (root.detailFocus === previousIndex()) app.openPreviousEpisode()
@@ -354,6 +367,15 @@ Window {
     function ensureValidFocus() {
         if (navFocus) return
         if (rowLength(rowIndex) === 0) focusContent()
+    }
+
+    Connections {
+        target: app
+        onDetailChanged: {
+            if (!root.pendingPlayedFocus) return
+            root.pendingPlayedFocus = false
+            root.detailFocus = root.playedIndex()
+        }
     }
 
     Connections {
