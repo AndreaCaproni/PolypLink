@@ -60,7 +60,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   osdTimer_.setSingleShot(true);
   osdTimer_.setInterval(osdSeconds_ * 1000);
   connect(&osdTimer_, &QTimer::timeout, this, [this]() {
-    if (playerPaused_ || settingsOpen_ || !playerActive_) return;
+    if (playerPaused_ || !playerActive_) return;
     if (!osdVisible_) return;
     osdVisible_ = false;
     emit osdChanged();
@@ -94,7 +94,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
       lastProgressMs_ = now;
       return;
     }
-    if (now - lastProgressMs_ > 5000 && !playerStalled_) {
+    if (now - lastProgressMs_ > 10000 && !playerStalled_) {
       playerStalled_ = true;
       playerStatus_ = tr("Connessione persa… riprovo");
       emit playerChanged();
@@ -328,7 +328,6 @@ void AppController::openPlayerMenu(const QString& mode) {
   if (playerMenuItems_.isEmpty()) return;
   playerMenuIndex_ = selected >= 0 ? selected : 0;
   playerMenuOpen_ = true;
-  settingsOpen_ = false;
   osdTimer_.stop();
   if (!osdVisible_) {
     osdVisible_ = true;
@@ -349,6 +348,18 @@ void AppController::playerMenuConfirm() {
   if (!playerMenuOpen_ || playerMenuItems_.isEmpty()) return;
   const QVariantMap item = playerMenuItems_.at(playerMenuIndex_).toMap();
   const int value = item.value(QStringLiteral("value")).toInt();
+  int current = -2;
+  if (playerMenuMode_ == QLatin1String("audio")) {
+    current = audioIndex_;
+  } else if (playerMenuMode_ == QLatin1String("subtitles")) {
+    current = subtitleIndex_;
+  } else if (playerMenuMode_ == QLatin1String("quality")) {
+    current = qualityKbps_;
+  }
+  if (value == current) {
+    playerMenuClose();
+    return;
+  }
   if (playerMenuMode_ == QLatin1String("audio")) {
     audioIndex_ = value;
   } else if (playerMenuMode_ == QLatin1String("subtitles")) {
@@ -1400,15 +1411,16 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                 });
           }
         });
+        // Il player segnala lo stallo dopo 5 s, ma il cartello lo mostra solo
+        // il watchdog a 10 s. Qui usiamo il segnale solo per nasconderlo
+        // appena i dati tornano.
         connect(player_, &Player::stalled, this, [this](bool stalled) {
-          if (stalled) {
-            playerStalled_ = true;
-            playerStatus_ = tr("Connessione persa… riprovo");
-          } else if (playerStalled_) {
+          if (!stalled && playerStalled_) {
             playerStalled_ = false;
             playerStatus_.clear();
+            lastProgressMs_ = QDateTime::currentMSecsSinceEpoch();
+            emit playerChanged();
           }
-          emit playerChanged();
         });
         connect(player_, &Player::failed, this, [this](const QString& message) {
           playerStatus_ = tr("Errore: %1").arg(message);
@@ -1535,58 +1547,16 @@ void AppController::cycleQuality(int delta) {
 }
 
 void AppController::showOsd() {
-  if (!playerActive_ || settingsOpen_) return;
+  if (!playerActive_) return;
   if (!seekPending_) seekPreview_ = playerPosition_;
   if (!osdVisible_) {
+    // Entrando nell'OSD il focus parte da play/pausa, non dallo slider.
     osdVisible_ = true;
+    playerFocus_ = 2;
     emit osdChanged();
   }
   osdTimer_.start();
   emit playerUiChanged();
-}
-
-void AppController::toggleSettings() {
-  if (playerMenuOpen_) {
-    playerMenuOpen_ = false;
-    emit playerMenuChanged();
-  }
-  settingsOpen_ = !settingsOpen_;
-  settingsRow_ = 0;
-  if (settingsOpen_) {
-    seekPending_ = false;
-    seekTimer_.stop();
-    seekPreview_ = playerPosition_;
-    osdTimer_.stop();
-    if (osdVisible_) {
-      osdVisible_ = false;
-      emit osdChanged();
-    }
-  } else {
-    showOsd();
-  }
-  emit settingsChanged();
-}
-
-void AppController::closeSettings() {
-  if (!settingsOpen_) return;
-  settingsOpen_ = false;
-  emit settingsChanged();
-  showOsd();
-}
-
-void AppController::moveSettings(int delta) {
-  if (!settingsOpen_) return;
-  settingsRow_ = std::max(0, std::min(2, settingsRow_ + delta));
-  emit settingsChanged();
-}
-
-void AppController::changeSetting(int delta) {
-  if (!settingsOpen_) return;
-  if (settingsRow_ == 0) cycleQuality(delta);
-  else if (settingsRow_ == 1) cycleAudio(delta);
-  else cycleSubtitle(delta);
-  // applica subito: riavvia il flusso alla posizione attuale
-  restartPlaybackAtPosition();
 }
 
 void AppController::restartPlaybackAtPosition() {
@@ -1631,12 +1601,12 @@ void AppController::playerNavigate(int dx, int dy) {
     else if (dx != 0) playerMenuClose();
     return;
   }
-  if (!playerActive_ || settingsOpen_) return;
+  if (!playerActive_) return;
 
   const bool wasHidden = !osdVisible_;
   if (wasHidden) {
     osdVisible_ = true;
-    playerFocus_ = 0;
+    playerFocus_ = 2;
     seekPreview_ = playerPosition_;
     seekPending_ = false;
     emit osdChanged();
@@ -1702,7 +1672,7 @@ void AppController::playerConfirm() {
     playerMenuConfirm();
     return;
   }
-  if (!playerActive_ || settingsOpen_) return;
+  if (!playerActive_) return;
   if (!osdVisible_) {
     // Prima le due schede "urgenti": connessione persa e prossimo episodio.
     if (playerStalled_) {

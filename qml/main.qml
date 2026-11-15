@@ -2545,7 +2545,7 @@ Window {
         Rectangle {
             id: nextCard
             visible: app.nextEpisodeVisible && !app.playerPaused && !app.osdVisible &&
-                     !app.settingsOpen && !app.statsOpen
+                     !app.statsOpen
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin: 36
@@ -2721,76 +2721,6 @@ Window {
                     font.pixelSize: 14
                     text: qsTr("Scartati (ritardo)  %1").arg(app.playerStats.dropped !== undefined ? app.playerStats.dropped : 0)
                 }
-            }
-        }
-
-        // impostazioni durante la riproduzione (Y)
-        Rectangle {
-            visible: app.settingsOpen
-            z: 6
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 180
-            width: 640
-            height: 210
-            radius: 12
-            color: "#ee0b0f14"
-            border.width: 1
-            border.color: "#2b6f8c"
-
-            Column {
-                anchors.centerIn: parent
-                spacing: 8
-
-                Text {
-                    color: "#7fd9ff"
-                    font.pixelSize: 18
-                    font.bold: true
-                    text: qsTr("Impostazioni")
-                }
-
-                Rectangle {
-                    width: 580; height: 38; radius: 7
-                    color: app.settingsRow === 0 ? "#123243" : "#101920"
-                    border.width: 1
-                    border.color: app.settingsRow === 0 ? "#00a4dc" : "#1b2733"
-                    Text { anchors.left: parent.left; anchors.leftMargin: 12
-                           anchors.verticalCenter: parent.verticalCenter
-                           color: "#9fb0c0"; font.pixelSize: 16; text: qsTr("Qualità") }
-                    Text { anchors.right: parent.right; anchors.rightMargin: 12
-                           anchors.verticalCenter: parent.verticalCenter
-                           color: "#ffffff"; font.pixelSize: 16
-                           text: (app.qualityKbps / 1000) + " Mbps" }
-                }
-
-                Rectangle {
-                    width: 580; height: 38; radius: 7
-                    color: app.settingsRow === 1 ? "#123243" : "#101920"
-                    border.width: 1
-                    border.color: app.settingsRow === 1 ? "#00a4dc" : "#1b2733"
-                    Text { anchors.left: parent.left; anchors.leftMargin: 12
-                           anchors.verticalCenter: parent.verticalCenter
-                           color: "#9fb0c0"; font.pixelSize: 16; text: qsTr("Audio") }
-                    Text { anchors.right: parent.right; anchors.rightMargin: 12
-                           anchors.verticalCenter: parent.verticalCenter
-                           color: "#ffffff"; font.pixelSize: 16
-                           text: root.audioLabel() }
-                }
-
-                Rectangle {
-                    width: 580; height: 38; radius: 7
-                    color: app.settingsRow === 2 ? "#123243" : "#101920"
-                    border.width: 1
-                    border.color: app.settingsRow === 2 ? "#00a4dc" : "#1b2733"
-                    Text { anchors.left: parent.left; anchors.leftMargin: 12
-                           anchors.verticalCenter: parent.verticalCenter
-                           color: "#9fb0c0"; font.pixelSize: 16; text: qsTr("Sottotitoli") }
-                    Text { anchors.right: parent.right; anchors.rightMargin: 12
-                           anchors.verticalCenter: parent.verticalCenter
-                           color: "#ffffff"; font.pixelSize: 16
-                           text: root.subtitleLabel() }
-                }
-
             }
         }
 

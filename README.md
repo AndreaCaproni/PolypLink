@@ -39,7 +39,8 @@ understand MKV, HEVC, 4K or HDR.
   server.
 - **Player** with a navigable OSD: seek bar with cursor and time preview,
   acceleration up to 5 minutes, pause, -10/+30 seconds, audio track, subtitles,
-  quality, stats, a connection-lost card and a next-episode card.
+  quality with dedicated dropdown menus, stats, a connection-lost card and a
+  next-episode card.
 - **Sign in**: automatic server discovery (Jellyfin UDP + LAN scan), manual
   address, username/password with the on-screen keyboard, Quick Connect.
 - **Favorites** as a tab in the top bar.
@@ -84,7 +85,7 @@ Full list in **[docs/CONTROLS.md](docs/CONTROLS.md)**. Quick summary:
 |---|---|
 | Home | arrows to move, **A** opens, **B** back, **up** from the first row goes to the top bar |
 | Top bar | left/right selects Home/Favorites/Account/Settings, **A** opens, **down** returns to content |
-| Player | **A** confirms/selects, **left/right** move the cursor, **up** hides the OSD, **down** goes to the buttons, **B** hides/exits, **Y** settings, **Start** stats |
+| Player | **A** confirms/selects, **left/right** move the cursor, **up** hides the OSD, **down** goes to the buttons, **B** hides/exits, **Start** stats |
 
 ---
 

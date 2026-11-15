@@ -4,9 +4,12 @@
 
 ### Added
 
-- Player OSD: a visible connection-lost card and a next-episode card in the
-  last minute.
-- Player OSD: dedicated dropdown menus for audio, subtitles and quality.
+- Player OSD: a visible connection-lost card after 10 seconds and a
+  next-episode card in the last minute.
+- Player OSD: dedicated dropdown menus for audio, subtitles and quality;
+  selecting the current option does not restart the stream.
+- Player OSD opens with the focus on play/pause instead of the seek bar.
+- Removed the Y settings panel; the dropdown menus replace it.
 
 ## 0.2.1-beta — 2026-11-15
 

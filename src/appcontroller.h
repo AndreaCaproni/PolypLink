@@ -71,8 +71,6 @@ class AppController : public QObject {
   Q_PROPERTY(int qualityKbps READ qualityKbps NOTIFY tracksChanged)
   Q_PROPERTY(int qualityDefaultKbps READ qualityDefaultKbps NOTIFY tracksChanged)
   Q_PROPERTY(int osdSeconds READ osdSeconds NOTIFY tracksChanged)
-  Q_PROPERTY(bool settingsOpen READ settingsOpen NOTIFY settingsChanged)
-  Q_PROPERTY(int settingsRow READ settingsRow NOTIFY settingsChanged)
 
   Q_PROPERTY(QVariantList seasons READ seasons NOTIFY seasonsChanged)
   Q_PROPERTY(QString seriesTitle READ seriesTitle NOTIFY seasonsChanged)
@@ -130,13 +128,11 @@ class AppController : public QObject {
   int qualityKbps() const { return qualityKbps_; }
   int qualityDefaultKbps() const { return defaultQualityKbps_; }
   int osdSeconds() const { return osdSeconds_; }
-  bool settingsOpen() const { return settingsOpen_; }
   bool osdVisible() const { return osdVisible_; }
   int playerFocus() const { return playerFocus_; }
   double seekPreview() const { return seekPreview_; }
   bool seekPending() const { return seekPending_; }
   bool statsOpen() const { return statsOpen_; }
-  int settingsRow() const { return settingsRow_; }
   QVariantList seasons() const { return seasons_; }
   QString seriesTitle() const { return seriesTitle_; }
   QString seriesPoster() const { return seriesPoster_; }
@@ -176,7 +172,6 @@ class AppController : public QObject {
   Q_INVOKABLE void cycleSubtitle(int delta);
   Q_INVOKABLE void cycleQuality(int delta);
   Q_INVOKABLE void restartPlaybackAtPosition();
-  Q_INVOKABLE void toggleSettings();
   // OSD navigabile (tasti instradati da main.cpp)
   Q_INVOKABLE void playerNavigate(int dx, int dy);
   Q_INVOKABLE void playerConfirm();
@@ -188,9 +183,6 @@ class AppController : public QObject {
   Q_INVOKABLE void playerMenuMove(int delta);
   Q_INVOKABLE void playerMenuConfirm();
   Q_INVOKABLE void playerMenuClose();
-  Q_INVOKABLE void moveSettings(int delta);
-  Q_INVOKABLE void changeSetting(int delta);
-  Q_INVOKABLE void closeSettings();
   Q_INVOKABLE void openSeason(int index);
   Q_INVOKABLE void reopenSeries();
   Q_INVOKABLE void togglePlayed();
@@ -214,7 +206,6 @@ class AppController : public QObject {
   void playerPositionChanged();
   void playerStatsChanged();
   void tracksChanged();
-  void settingsChanged();
   void osdChanged();
   void playerUiChanged();
   void nextEpisodeChanged();
@@ -325,8 +316,6 @@ class AppController : public QObject {
   int qualityKbps_ = 12000;
   int defaultQualityKbps_ = 12000;
   int osdSeconds_ = 5;
-  bool settingsOpen_ = false;
-  int settingsRow_ = 0;
   QString playingItemId_;
   qint64 lastReportMs_ = 0;
 

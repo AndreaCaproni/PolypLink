@@ -38,8 +38,8 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
   col server.
 - **Player** con OSD navigabile: barra di seek con cursore e anteprima del
   tempo, passo accelerato fino a 5 minuti, pausa, -10/+30 secondi, traccia
-  audio, sottotitoli, qualità, statistiche, cartello connessione persa e scheda
-  prossimo episodio.
+  audio, sottotitoli, qualità con menu dedicati, statistiche, cartello
+  connessione persa e scheda prossimo episodio.
 - **Accesso**: ricerca automatica del server (UDP Jellyfin + scansione della
   LAN), indirizzo manuale, utente/password con tastiera a schermo, Quick
   Connect.
@@ -86,7 +86,7 @@ Elenco completo in **[docs/CONTROLS.md](docs/CONTROLS.md)**. In sintesi:
 |---|---|
 | Home | frecce per muoversi, **A** apre, **B** indietro, **su** dalla prima riga va alla barra superiore |
 | Barra superiore | sinistra/destra scelgono Home/Preferiti/Account/Impostazioni, **A** apre, **giù** torna al contenuto |
-| Player | **A** conferma/seleziona, **sinistra/destra** spostano il cursore, **su** nasconde l'OSD, **giù** va ai pulsanti, **B** nasconde/esce, **Y** impostazioni, **Start** statistiche |
+| Player | **A** conferma/seleziona, **sinistra/destra** spostano il cursore, **su** nasconde l'OSD, **giù** va ai pulsanti, **B** nasconde/esce, **Start** statistiche |
 
 ---
 

@@ -214,20 +214,6 @@ int main(int argc, char** argv) {
 
   QObject::connect(input, &InputPump::keyPressed, window, [window, &controller](int key) {
     if (controller.playerActive()) {
-      if (controller.settingsOpen()) {
-        switch (key) {
-          case Qt::Key_Up: controller.moveSettings(-1); break;
-          case Qt::Key_Down: controller.moveSettings(1); break;
-          case Qt::Key_Left: controller.changeSetting(-1); break;
-          case Qt::Key_Right: controller.changeSetting(1); break;
-          case Qt::Key_Return: controller.changeSetting(1); break;
-          case Qt::Key_Escape:
-          case Qt::Key_Backspace:
-          case Qt::Key_Menu: controller.closeSettings(); break;
-          default: break;
-        }
-        return;
-      }
       switch (key) {
         // OSD navigabile come nel client Jellyfin: la barra e i pulsanti
         // ricevono il focus, il seek parte alla conferma o a fine corsa.
@@ -238,7 +224,6 @@ int main(int argc, char** argv) {
         case Qt::Key_Down: controller.playerNavigate(0, 1); break;
         case Qt::Key_Escape:
         case Qt::Key_Backspace: controller.playerBack(); break;
-        case Qt::Key_Y: controller.toggleSettings(); break;
         case Qt::Key_Menu: controller.toggleStats(); break;
         default: break;
       }
