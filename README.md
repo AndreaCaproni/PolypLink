@@ -163,6 +163,9 @@ build.sh        build + USB package
   must be entered manually.
 - **The UI is available in Italian and English**; the language can be changed
   in Settings and is remembered across restarts.
+- **Titles, plots and genres follow the server's metadata language**, which is
+  configured per library in Jellyfin. The interface language does not translate
+  item metadata.
 
 ---
 

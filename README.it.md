@@ -164,6 +164,8 @@ build.sh        build + pacchetto USB
   VLAN si inseriscono a mano.
 - **Interfaccia in italiano e inglese**; la lingua si cambia dalle
   Impostazioni e resta memorizzata tra un avvio e l'altro.
+- **Titoli, trame e generi seguono la lingua dei metadati del server**, impostata
+  per libreria in Jellyfin. La lingua dell'interfaccia non traduce i metadati.
 
 ---
 

@@ -247,7 +247,7 @@
         <translation>Seeking and acceleration</translation>
     </message>
     <message>
-        <source>Passo iniziale e tetto dell&apos;accelerazione</source>
+        <source>Passo iniziale e tetto dell'accelerazione</source>
         <translation>Initial step and acceleration cap</translation>
     </message>
     <message>
@@ -259,15 +259,11 @@
         <translation>Duration, contents and behavior when paused</translation>
     </message>
     <message>
-        <source>Lingua dell&apos;interfaccia</source>
+        <source>Lingua dell'interfaccia</source>
         <translation>Interface language</translation>
     </message>
     <message>
-        <source>Italiano, English</source>
-        <translation>Italian, English</translation>
-    </message>
-    <message>
-        <source>Scala dell&apos;interfaccia</source>
+        <source>Scala dell'interfaccia</source>
         <translation>Interface scale</translation>
     </message>
     <message>
@@ -367,7 +363,7 @@
         <translation>Quick Connect</translation>
     </message>
     <message>
-        <source>Associa l&apos;app senza digitare la password</source>
+        <source>Associa l'app senza digitare la password</source>
         <translation>Link the app without typing the password</translation>
     </message>
     <message>
@@ -479,12 +475,12 @@
         <translation>Saved server</translation>
     </message>
     <message>
-        <source>Inserisci l&apos;indirizzo del server…</source>
+        <source>Inserisci l'indirizzo del server…</source>
         <translation>Enter the server address…</translation>
     </message>
     <message>
         <source>A: seleziona    X/R: cerca in rete (LAN + UDP)    B: esci
-L&apos;indirizzo si può anche mettere in
+L'indirizzo si può anche mettere in
 steamlink/config/system/jellyfin-server.txt sulla chiavetta</source>
         <translation>A: select    X/R: search the network (LAN + UDP)    B: exit
 You can also put the address in
@@ -563,7 +559,7 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
         <translation>Episodes</translation>
     </message>
     <message>
-        <source>Guarda dall&apos;inizio</source>
+        <source>Guarda dall'inizio</source>
         <translation>Play from the beginning</translation>
     </message>
     <message>
@@ -607,7 +603,7 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
         <translation>Seasons</translation>
     </message>
     <message>
-        <source>Riproduci dall&apos;inizio</source>
+        <source>Riproduci dall'inizio</source>
         <translation>Play from the beginning</translation>
     </message>
     <message>
@@ -685,6 +681,10 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
     <message>
         <source>Bitrate       %1 Mbps (richiesti 12)</source>
         <translation>Bitrate       %1 Mbps (requested 12)</translation>
+    </message>
+    <message>
+        <source>Italiano, English — titoli e trame seguono il server</source>
+        <translation>Italian, English — titles and plots follow the server</translation>
     </message>
 </context>
 </TS>

@@ -101,6 +101,18 @@ QNetworkRequest JellyfinClient::makeRequestUrl(const QUrl& url, bool withToken) 
   }
   req.setRawHeader("Authorization", auth.toUtf8());
   req.setRawHeader("Accept", "application/json");
+  // La lingua dell'interfaccia viene comunicata anche al server: localizza i
+  // messaggi generati dall'API (non i metadati delle schede, che dipendono
+  // dalla lingua impostata sulle librerie Jellyfin).
+  {
+    QSettings settings;
+    const QString lang = settings.value(QStringLiteral("language"),
+                                       QStringLiteral("it")).toString();
+    req.setRawHeader("Accept-Language",
+                     lang == QLatin1String("en")
+                         ? "en-US,en;q=0.9,it;q=0.8"
+                         : "it-IT,it;q=0.9,en;q=0.8");
+  }
   req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
   return req;
 }

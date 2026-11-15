@@ -38,7 +38,7 @@ Window {
         { title: qsTr("Precaricamento"), desc: qsTr("Quanti segmenti tenere pronti prima di partire") },
         { title: qsTr("Seek e accelerazione"), desc: qsTr("Passo iniziale e tetto dell'accelerazione") },
         { title: qsTr("OSD"), desc: qsTr("Durata, contenuti e comportamento in pausa"), action: "osd" },
-        { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Italiano, English"), action: "language" },
+        { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Italiano, English — titoli e trame seguono il server"), action: "language" },
         { title: qsTr("Scala dell'interfaccia"), desc: qsTr("Dimensione di testi e card") },
         { title: qsTr("Tema"), desc: qsTr("Scuro, chiaro, automatico") },
         { title: qsTr("Rete e certificati"), desc: qsTr("Proxy e certificati HTTPS non firmati") },
