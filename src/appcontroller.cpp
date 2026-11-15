@@ -203,7 +203,7 @@ bool AppController::nextEpisodeVisible() const {
   if (!playerActive_ || nextEpisode_.isEmpty() || nextEpisodeDismissed_) return false;
   if (playerDuration_ <= 1.0 || playerPaused_) return false;
   const double remaining = playerDuration_ - playerPosition_;
-  return remaining > 0.0 && remaining <= 20.0;
+  return remaining > 0.0 && remaining <= 60.0;
 }
 
 void AppController::loadNextEpisode(const QString& seriesId,
