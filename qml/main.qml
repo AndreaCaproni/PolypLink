@@ -379,12 +379,11 @@ Window {
         if (app.state === "quickconnect") return
 
         if (detailOpen) {
-            if (app.detail.type === "Series") openSeasonsPage()
-            else detailAction()
+            detailAction()
             return
         }
 
-        if (page === "library") {
+        if (page === "library" || page === "favorites") {
             if (app.libraryItems.length === 0) return
             var it = app.libraryItems[gridIndex]
             if (it !== undefined) openDetail(it.id)
