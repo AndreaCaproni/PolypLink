@@ -301,7 +301,6 @@ class AppController : public QObject {
   quint64 homeGen_ = 0;
   quint64 seasonsGen_ = 0;
   quint64 episodesGen_ = 0;
-  QTimer seekTimer_;
   double playerPosition_ = 0.0;
   double playerDuration_ = 0.0;
   QString playerTitle_;

@@ -66,8 +66,8 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     emit osdChanged();
   });
 
-  // Il seek parte solo quando il cursore si ferma (o si conferma con A):
-  // niente riavvio del flusso a ogni pressione.
+  // Il seek parte solo quando si conferma con A: muovendo il cursore il
+  // video non si interrompe e non c'e' alcun salto automatico per inattivita'.
   noticeTimer_.setSingleShot(true);
   noticeTimer_.setInterval(3000);
   connect(&noticeTimer_, &QTimer::timeout, this, [this]() {
@@ -75,10 +75,6 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     notice_.clear();
     emit noticeChanged();
   });
-
-  seekTimer_.setSingleShot(true);
-  seekTimer_.setInterval(700);
-  connect(&seekTimer_, &QTimer::timeout, this, &AppController::commitSeek);
 
   // Rete caduta: il player puo' restare bloccato in una fetch e non emettere
   // "stalled". Questo watchdog guarda la posizione e mostra il cartello dopo
@@ -1490,7 +1486,6 @@ void AppController::teardownPlayer() {
   playerMenuOpen_ = false;
   osdVisible_ = false;
   seekPending_ = false;
-  seekTimer_.stop();
   statsOpen_ = false;
   progressInFlight_ = false;
   emit playerChanged();
@@ -1572,7 +1567,6 @@ void AppController::togglePause() {
     playerPaused_ = true;
     player_->setPaused(true);
     seekPending_ = false;
-    seekTimer_.stop();
     seekPreview_ = playerPosition_;
     showOsd();
     emit playerChanged();
@@ -1583,7 +1577,6 @@ void AppController::togglePause() {
   playerPaused_ = false;
   player_->setPaused(false);
   seekPending_ = false;
-  seekTimer_.stop();
   seekPreview_ = playerPosition_;
   showOsd();
   emit playerChanged();
@@ -1617,6 +1610,8 @@ void AppController::playerNavigate(int dx, int dy) {
   if (!wasHidden) {
     if (dy < 0) {
       if (playerFocus_ == 0) {
+        seekPending_ = false;
+        seekPreview_ = playerPosition_;
         osdVisible_ = false;
         osdTimer_.stop();
         emit osdChanged();
@@ -1625,6 +1620,9 @@ void AppController::playerNavigate(int dx, int dy) {
       }
       playerFocus_ = 0;
     } else if (dy > 0 && playerFocus_ == 0) {
+      // Lasciando lo slider senza OK il seek in sospeso viene annullato.
+      seekPending_ = false;
+      seekPreview_ = playerPosition_;
       playerFocus_ = 2;   // play/pausa, al centro della riga
     }
   }
@@ -1653,10 +1651,8 @@ void AppController::playerNavigate(int dx, int dy) {
       seekPreview_ = qBound(0.0, seekPreview_ + step, maxPos);
       if (qAbs(seekPreview_ - playerPosition_) < 0.4) {
         seekPending_ = false;
-        seekTimer_.stop();
       } else {
         seekPending_ = true;
-        seekTimer_.start();
       }
     } else {
       playerFocus_ = qBound(1, playerFocus_ + dx, 7);
@@ -1692,10 +1688,10 @@ void AppController::playerConfirm() {
       if (seekPending_) commitSeek();
       else togglePause();
       break;
-    case 1:  // -10 s: sposta il cursore, il seek parte a fine corsa
+    case 1:  // -10 s
       seekPreview_ = qBound(0.0, playerPosition_ - 10.0, maxPos);
       seekPending_ = true;
-      seekTimer_.start();
+      commitSeek();
       break;
     case 2:  // play / pausa
       togglePause();
@@ -1703,7 +1699,7 @@ void AppController::playerConfirm() {
     case 3:  // +30 s
       seekPreview_ = qBound(0.0, playerPosition_ + 30.0, maxPos);
       seekPending_ = true;
-      seekTimer_.start();
+      commitSeek();
       break;
     case 4:
       openPlayerMenu(QStringLiteral("audio"));
@@ -1724,7 +1720,6 @@ void AppController::playerConfirm() {
 }
 
 void AppController::commitSeek() {
-  seekTimer_.stop();
   seekSteps_ = 0;
   seekDirection_ = 0;
   if (!seekPending_) return;
@@ -1748,7 +1743,6 @@ void AppController::playerBack() {
   }
   if (osdVisible_) {
     seekPending_ = false;
-    seekTimer_.stop();
     seekSteps_ = 0;
     seekDirection_ = 0;
     seekPreview_ = playerPosition_;
