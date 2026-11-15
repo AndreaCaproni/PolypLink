@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Player OSD: loading spinner on start/seek/track changes, a visible
+  connection-lost card, a next-episode card in the last 20 seconds, and
+  toasts for audio/subtitle/quality changes.
+
 ## 0.2.1-beta — 2026-11-15
 
 ### Added
