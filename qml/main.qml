@@ -250,8 +250,21 @@ Window {
     function menuValue(e) {
         if (e.action === "quality") return (app.qualityDefaultKbps / 1000) + " Mbps"
         if (e.action === "osd") return app.osdSeconds + " secondi"
-        if (e.action === "test") return app.serverLabel.length > 0 ? app.serverLabel : e.desc
-        return e.desc
+        if (e.action === "test")
+            return app.serverLabel.length > 0 ? app.serverLabel : "Nessun server"
+        if (e.action === "info") {
+            if (page === "account")
+                return e.title === "Profilo" ? app.userName : app.serverLabel
+            return "JellyLink " + appVersion
+        }
+        return ""
+    }
+
+    function currentMenuEntry() {
+        var list = (page === "settings") ? settingsMenu : accountMenu
+        if (menuIndex < 0 || menuIndex >= list.length)
+            return { title: "", desc: "", action: "" }
+        return list[menuIndex]
     }
 
     function savedServerRow() {
@@ -1187,136 +1200,148 @@ Window {
         anchors.topMargin: header.height
         visible: app.state === "home" && (page === "settings" || page === "account")
 
-        // il pannello entra da destra quando si apre la pagina
         onVisibleChanged: {
-            menuPanel.panelShift = visible ? 0 : menuPanel.width
             if (visible) menuList.positionViewAtIndex(0, ListView.Beginning)
         }
 
-        // lato sinistro: titolo della sezione
+        // --- colonna sinistra: elenco
         Text {
-            x: 48
-            y: 170
+            x: 40
+            y: 12
             color: "#ffffff"
-            font.pixelSize: 44
+            font.pixelSize: 30
             font.bold: true
-            text: page === "settings" ? "IMPOSTAZIONI" : "ACCOUNT"
+            text: page === "settings" ? "Impostazioni" : "Account"
         }
         Text {
-            x: 48
-            y: 236
+            x: 40
+            y: 52
             width: 540
             color: "#6f8090"
-            font.pixelSize: 16
-            wrapMode: Text.WordWrap
+            font.pixelSize: 14
+            elide: Text.ElideRight
             text: page === "settings"
-                  ? "Connessione, qualità, audio, interfaccia e diagnostica del client."
+                  ? "Percorso verso la versione stabile"
                   : (app.userName + "   ·   " + app.serverLabel)
         }
-        Text {
-            x: 48
-            y: 292
-            width: 520
-            color: "#4a5a68"
-            font.pixelSize: 14
-            wrapMode: Text.WordWrap
-            text: "L'elenco a destra è quello che manca per la versione stabile: per ora le voci sono segnaposto."
-        }
-        Text {
-            x: 48
-            y: 354
-            color: "#3f4c58"
-            font.pixelSize: 13
-            text: "JellyLink " + appVersion
+
+        ListView {
+            id: menuList
+            x: 40
+            y: 90
+            width: 540
+            height: parent.height - 126
+            clip: true
+            model: page === "settings" ? root.settingsMenu : root.accountMenu
+            spacing: 4
+            boundsBehavior: Flickable.StopAtBounds
+
+            delegate: Rectangle {
+                width: menuList.width
+                height: 48
+                radius: 8
+                color: index === root.menuIndex
+                       ? "#123243"
+                       : (index % 2 === 0 ? "#121c26" : "#101922")
+                border.width: index === root.menuIndex ? 2 : 0
+                border.color: "#00a4dc"
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 14
+                    anchors.right: parent.right
+                    anchors.rightMargin: root.menuValue(modelData).length > 0 ? 150 : 14
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: index === root.menuIndex ? "#ffffff" : "#dbe5ef"
+                    font.pixelSize: 16
+                    font.bold: index === root.menuIndex
+                    elide: Text.ElideRight
+                    text: modelData.title
+                }
+
+                Text {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 14
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: "#7fd9ff"
+                    font.pixelSize: 14
+                    visible: root.menuValue(modelData).length > 0
+                    text: root.menuValue(modelData)
+                }
+            }
         }
 
-        // menu a scomparsa dal lato destro
+        Text {
+            x: 40
+            y: parent.height - 28
+            width: 540
+            color: "#7fd9ff"
+            font.pixelSize: 13
+            elide: Text.ElideRight
+            visible: root.menuHint.length > 0
+            text: root.menuHint
+        }
+
+        // --- colonna destra: dettaglio della voce selezionata
         Rectangle {
-            id: menuPanel
-            width: 640
-            height: parent.height
-            y: 0
-            x: parent.width - width + panelShift
+            x: 620
+            y: 16
+            width: 620
+            height: parent.height - 32
+            radius: 16
             color: "#0e1620"
             border.width: 1
             border.color: "#1c2a38"
-            Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
-            property real panelShift: width
+            Rectangle {
+                x: 28
+                y: 34
+                width: 4
+                height: 54
+                radius: 2
+                color: "#00a4dc"
+            }
 
             Column {
-                anchors.fill: parent
-                anchors.leftMargin: 22
-                anchors.rightMargin: 22
-                anchors.topMargin: 16
-                anchors.bottomMargin: 16
-                spacing: 8
+                x: 48
+                y: 28
+                width: parent.width - 88
+                spacing: 10
 
                 Text {
-                    color: "#7fd9ff"
-                    font.pixelSize: 20
-                    font.bold: true
-                    text: page === "settings" ? "Voci delle impostazioni" : "Voci dell'account"
-                }
-                Text {
-                    color: "#6f8090"
-                    font.pixelSize: 13
-                    text: "Percorso verso la versione stabile"
-                }
-
-                ListView {
-                    id: menuList
                     width: parent.width
-                    height: parent.height - 88
-                    clip: true
-                    model: page === "settings" ? root.settingsMenu : root.accountMenu
-                    spacing: 4
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    delegate: Rectangle {
-                        width: menuList.width
-                        height: 58
-                        radius: 8
-                        color: index === root.menuIndex
-                               ? "#123243"
-                               : (index % 2 === 0 ? "#121c26" : "#101922")
-                        border.width: index === root.menuIndex ? 2 : 0
-                        border.color: "#00a4dc"
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 14
-                            anchors.right: parent.right
-                            anchors.rightMargin: 14
-                            anchors.top: parent.top
-                            anchors.topMargin: 8
-                            color: index === root.menuIndex ? "#ffffff" : "#dbe5ef"
-                            font.pixelSize: 16
-                            font.bold: index === root.menuIndex
-                            elide: Text.ElideRight
-                            text: modelData.title
-                        }
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 14
-                            anchors.right: parent.right
-                            anchors.rightMargin: 14
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 8
-                            color: "#7f8c9b"
-                            font.pixelSize: 13
-                            elide: Text.ElideRight
-                            text: root.menuValue(modelData)
-                        }
-                    }
+                    color: "#ffffff"
+                    font.pixelSize: 28
+                    font.bold: true
+                    wrapMode: Text.WordWrap
+                    text: root.currentMenuEntry().title
                 }
-
                 Text {
-                    visible: root.menuHint.length > 0
+                    width: parent.width
                     color: "#7fd9ff"
-                    font.pixelSize: 13
-                    text: root.menuHint
+                    font.pixelSize: 22
+                    font.bold: true
+                    visible: root.menuValue(root.currentMenuEntry()).length > 0
+                    text: root.menuValue(root.currentMenuEntry())
                 }
+                Text {
+                    width: parent.width
+                    color: "#8fa3b6"
+                    font.pixelSize: 15
+                    lineHeight: 1.2
+                    wrapMode: Text.WordWrap
+                    text: root.currentMenuEntry().desc
+                }
+            }
+
+            Text {
+                anchors.left: parent.left
+                anchors.leftMargin: 28
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 22
+                color: "#3f4c58"
+                font.pixelSize: 13
+                text: "JellyLink " + appVersion
             }
         }
     }
