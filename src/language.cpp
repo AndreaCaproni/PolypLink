@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QLocale>
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QVariantMap>
@@ -46,14 +47,39 @@ const LanguageEntry* FindLanguage(const QString& code) {
   return nullptr;
 }
 
+// Alla prima apertura segue la lingua del sistema, se disponibile.
+QString DetectSystemLanguage() {
+  const QStringList uiLanguages = QLocale::system().uiLanguages();
+  for (QString tag : uiLanguages) {
+    tag.replace(QLatin1Char('_'), QLatin1Char('-'));
+    if (const LanguageEntry* exact = FindLanguage(tag)) {
+      return QString::fromLatin1(exact->code);
+    }
+    const QString base = tag.section(QLatin1Char('-'), 0, 0);
+    if (base == QLatin1String("no")) return QStringLiteral("nb");
+    if (base == QLatin1String("pt")) return QStringLiteral("pt-BR");
+    for (const LanguageEntry& entry : kLanguages) {
+      const QString entryBase =
+          QString::fromLatin1(entry.code).section(QLatin1Char('-'), 0, 0);
+      if (base.compare(entryBase, Qt::CaseInsensitive) == 0) {
+        return QString::fromLatin1(entry.code);
+      }
+    }
+  }
+  return QStringLiteral("en");
+}
+
 }  // namespace
 
 Language::Language(QQmlApplicationEngine* engine, QObject* parent)
     : QObject(parent), engine_(engine) {
   QSettings settings;
-  const QString saved =
-      settings.value(QStringLiteral("language"), QStringLiteral("it")).toString();
-  if (FindLanguage(saved) != nullptr) current_ = saved;
+  const QString saved = settings.value(QStringLiteral("language")).toString();
+  if (FindLanguage(saved) != nullptr) {
+    current_ = saved;
+  } else {
+    current_ = DetectSystemLanguage();
+  }
   apply();
 }
 
@@ -95,6 +121,9 @@ void Language::apply() {
     engine_->retranslate();
   }
 
-  qInfo("[i18n] lingua %s, esempio: %s", qPrintable(current_),
-        QCoreApplication::translate("main", "Preferiti").toUtf8().constData());
+  qInfo("[i18n] lingua %s (%s)", qPrintable(current_),
+        current_ == QLatin1String("it")
+            ? "sorgente"
+            : (translator_.isEmpty() ? "traduzione mancante"
+                                     : "traduzione caricata"));
 }

@@ -165,7 +165,8 @@ build.sh        build + USB package
   German, Portuguese (Brazil and Portugal), Russian, Dutch, Polish, Swedish,
   Danish, Norwegian Bokmål, Czech, Ukrainian, Catalan, Turkish, Romanian, Greek,
   Hungarian and Finnish. The language is changed in Settings and remembered
-  across restarts. Translations are a first pass, not native-reviewed.
+  across restarts; on first start it follows the system language, with English
+  as fallback. Translations are a first pass, not native-reviewed.
 - **Titles, plots and genres follow the server's metadata language**, which is
   configured per library in Jellyfin. The interface language does not translate
   item metadata.

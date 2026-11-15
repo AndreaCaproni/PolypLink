@@ -9,6 +9,7 @@
 - Languages: Italian, English, Spanish, French, German, Portuguese (Brazil and
   Portugal), Russian, Dutch, Polish, Swedish, Danish, Norwegian Bokmål, Czech,
   Ukrainian, Catalan, Turkish, Romanian, Greek, Hungarian, Finnish.
+- On first start the interface follows the system language (English fallback).
 - Qt translation files (`i18n/jellylink_*.ts`), ready for more languages.
 
 ## 0.2.0-beta — 2026-11-15

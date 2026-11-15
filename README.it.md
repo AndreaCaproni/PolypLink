@@ -166,7 +166,8 @@ build.sh        build + pacchetto USB
   portoghese (Brasile e Portogallo), russo, olandese, polacco, svedese, danese,
   norvegese bokmål, ceco, ucraino, catalano, turco, rumeno, greco, ungherese e
   finlandese. La lingua si cambia dalle Impostazioni e resta memorizzata tra un
-  avvio e l'altro. Le traduzioni sono un primo passaggio, non revisionate da
+  avvio e l'altro; al primo avvio segue la lingua di sistema, con l'inglese come
+  fallback. Le traduzioni sono un primo passaggio, non revisionate da
   madrelingua.
 - **Titoli, trame e generi seguono la lingua dei metadati del server**, impostata
   per libreria in Jellyfin. La lingua dell'interfaccia non traduce i metadati.
