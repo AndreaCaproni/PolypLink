@@ -1175,6 +1175,18 @@ Window {
         }
     }
 
+    // ------------------------------------------------------- LIBRERIA VUOTA
+    Text {
+        anchors.centerIn: parent
+        visible: app.state === "home" && (page === "library" || page === "favorites") &&
+                 app.libraryItems.length === 0 && !app.loading
+        horizontalAlignment: Text.AlignHCenter
+        color: "#6f8090"
+        font.pixelSize: 18
+        text: (page === "favorites" ? "Nessun preferito" : "Nessuna voce in questa libreria") +
+              "\n\nB: indietro"
+    }
+
     // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
     Item {
         id: menuPage
@@ -1518,6 +1530,17 @@ Window {
         }
     }
 
+    // -------------------------------------------------------- STAGIONE VUOTA
+    Text {
+        anchors.centerIn: parent
+        visible: app.state === "home" && page === "episodes" && !root.detailOpen &&
+                 app.episodes.length === 0 && !app.loading
+        horizontalAlignment: Text.AlignHCenter
+        color: "#6f8090"
+        font.pixelSize: 18
+        text: "Nessun episodio in questa stagione\n\nB: indietro"
+    }
+
     // ----------------------------------------------------------------- STAGIONI
     Item {
         anchors.fill: parent
@@ -1577,6 +1600,17 @@ Window {
                 }
             }
         }
+    }
+
+    // --------------------------------------------------------- STAGIONI VUOTE
+    Text {
+        anchors.centerIn: parent
+        visible: app.state === "home" && page === "seasons" &&
+                 app.seasons.length === 0 && !app.loading
+        horizontalAlignment: Text.AlignHCenter
+        color: "#6f8090"
+        font.pixelSize: 18
+        text: "Nessuna stagione\n\nB: indietro"
     }
 
     // ----------------------------------------------------------------- DETTAGLIO
@@ -1865,7 +1899,35 @@ Window {
         }
     }
 
+
+    // ------------------------------------------------------------------- toast
+    Rectangle {
+        id: toast
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 44
+        width: toastLabel.implicitWidth + 40
+        height: 38
+        radius: 19
+        color: "#e6123243"
+        border.width: 1
+        border.color: "#00a4dc"
+        opacity: app.notice.length > 0 ? 1 : 0
+        visible: opacity > 0
+        z: 30
+        Behavior on opacity { NumberAnimation { duration: 250 } }
+
+        Text {
+            id: toastLabel
+            anchors.centerIn: parent
+            color: "#e6f7ff"
+            font.pixelSize: 15
+            text: app.notice
+        }
     }
+
+    }
+
     // ------------------------------------------------------------------ PLAYER
     Item {
         id: playerLayer

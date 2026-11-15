@@ -53,6 +53,14 @@ AppController::AppController(QObject* parent) : QObject(parent) {
 
   // Il seek parte solo quando il cursore si ferma (o si conferma con A):
   // niente riavvio del flusso a ogni pressione.
+  noticeTimer_.setSingleShot(true);
+  noticeTimer_.setInterval(3000);
+  connect(&noticeTimer_, &QTimer::timeout, this, [this]() {
+    if (notice_.isEmpty()) return;
+    notice_.clear();
+    emit noticeChanged();
+  });
+
   seekTimer_.setSingleShot(true);
   seekTimer_.setInterval(700);
   connect(&seekTimer_, &QTimer::timeout, this, &AppController::commitSeek);
@@ -753,8 +761,8 @@ void AppController::togglePlayed() {
     // "Continua a guardare" e "Prossimo episodio" vanno ricalcolati dal
     // server: una serie puo' far avanzare l'episodio successivo.
     QTimer::singleShot(400, this, &AppController::refreshHome);
-    setStatus(!played ? QStringLiteral("Segnato come visto")
-                      : QStringLiteral("Segnato come non visto"));
+    showNotice(!played ? QStringLiteral("Segnato come visto")
+                       : QStringLiteral("Segnato come non visto"));
   });
 }
 
@@ -771,8 +779,8 @@ void AppController::toggleFavorite() {
                         detail_.insert(QStringLiteral("favorite"), !favorite);
                         emit detailChanged();
                         patchLists(id, QStringLiteral("favorite"), !favorite);
-                        setStatus(!favorite ? QStringLiteral("Aggiunto ai preferiti")
-                                            : QStringLiteral("Rimosso dai preferiti"));
+                        showNotice(!favorite ? QStringLiteral("Aggiunto ai preferiti")
+                                             : QStringLiteral("Rimosso dai preferiti"));
                       });
 }
 
@@ -849,8 +857,8 @@ void AppController::toggleSeasonPlayed(const QString& seasonId) {
                       }
                       emit seasonsChanged();
                       emit episodesChanged();
-                      setStatus(!played ? QStringLiteral("Stagione segnata come vista")
-                                        : QStringLiteral("Stagione segnata come non vista"));
+                      showNotice(!played ? QStringLiteral("Stagione segnata come vista")
+                                         : QStringLiteral("Stagione segnata come non vista"));
                       QTimer::singleShot(400, this, &AppController::refreshHome);
                     });
 }
@@ -877,8 +885,8 @@ void AppController::toggleSeasonFavorite(const QString& seasonId) {
                         }
                         emit seasonsChanged();
                         emit episodesChanged();
-                        setStatus(!favorite ? QStringLiteral("Stagione aggiunta ai preferiti")
-                                            : QStringLiteral("Stagione rimossa dai preferiti"));
+                        showNotice(!favorite ? QStringLiteral("Stagione aggiunta ai preferiti")
+                                             : QStringLiteral("Stagione rimossa dai preferiti"));
                       });
 }
 
@@ -1444,6 +1452,13 @@ void AppController::setState(const QString& s) {
   if (state_ == s) return;
   state_ = s;
   emit stateChanged();
+}
+
+void AppController::showNotice(const QString& message) {
+  if (message.isEmpty()) return;
+  notice_ = message;
+  emit noticeChanged();
+  noticeTimer_.start();
 }
 
 void AppController::setStatus(const QString& s) {

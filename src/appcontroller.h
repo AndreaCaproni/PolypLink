@@ -17,6 +17,7 @@ class AppController : public QObject {
 
   Q_PROPERTY(QString state READ state NOTIFY stateChanged)
   Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusChanged)
+  Q_PROPERTY(QString notice READ notice NOTIFY noticeChanged)
   Q_PROPERTY(QString serverLabel READ serverLabel NOTIFY stateChanged)
   Q_PROPERTY(QString userName READ userName NOTIFY stateChanged)
 
@@ -74,6 +75,7 @@ class AppController : public QObject {
 
   QString state() const { return state_; }
   QString statusMessage() const { return status_; }
+  QString notice() const { return notice_; }
   QString serverLabel() const;
   QString userName() const { return client_.userName(); }
 
@@ -163,6 +165,7 @@ class AppController : public QObject {
  signals:
   void stateChanged();
   void statusChanged();
+  void noticeChanged();
   void serversChanged();
   void quickConnectChanged();
   void viewsChanged();
@@ -184,6 +187,7 @@ class AppController : public QObject {
 
  private:
   void showOsd();
+  void showNotice(const QString& message);
   void playEpisode(const QJsonObject& episode);
   void teardownPlayer();
   void loadLatest(quint64 gen);
@@ -201,6 +205,8 @@ class AppController : public QObject {
 
   QString state_ = QStringLiteral("login");
   QString status_;
+  QString notice_;
+  QTimer noticeTimer_;
   QString qcCode_;
   QString qcStatus_;
 
