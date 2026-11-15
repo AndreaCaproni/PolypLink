@@ -1,0 +1,48 @@
+#!/bin/sh
+# Launcher di Jellyfin Link sul Valve Steam Link.
+#
+# Scrive un log dettagliato nella cartella dell'app (che sta su /home/apps, una
+# immagine disco persistente). La chiavetta NON e' montata mentre l'app gira:
+# il firmware la smonta dopo l'installazione. I log vengono copiati sulla
+# chiavetta all'avvio successivo dallo script factory_test/run.sh.
+
+APP_DIR=$(dirname "$0")
+cd "$APP_DIR" 2>/dev/null || exit 1
+
+# librerie ffmpeg (decoder AAC) incluse nel pacchetto
+export LD_LIBRARY_PATH="$APP_DIR/lib:$LD_LIBRARY_PATH"
+
+LOG="$APP_DIR/jellyfin-link-run.log"
+if ! ( : > "$LOG" ) 2>/dev/null; then
+    LOG=/tmp/jellyfin-link-run.log
+    ( : > "$LOG" ) 2>/dev/null || LOG=/dev/null
+fi
+
+log() { echo "$@" >> "$LOG"; }
+
+log "=== avvio $(date) ==="
+log "script: $0"
+log "app dir: $(pwd)"
+log "uname: $(uname -a)"
+log "usb montata: $(grep -c /mnt/disk /proc/mounts 2>/dev/null) (0 = no, ed e' normale)"
+log "contenuto:"
+ls -la >> "$LOG" 2>&1
+log "binario:"
+ls -l ./bin/jellyfin-link >> "$LOG" 2>&1
+log "ldd:"
+ldd ./bin/jellyfin-link >> "$LOG" 2>&1
+
+export HOME=/usr/local/jellyfin-link
+mkdir -p "$HOME" 2>>"$LOG"
+
+export QT_QPA_PLATFORM=eglfs
+# EGLFS disegna un cursore software in alto a sinistra: qui non serve
+export QT_QPA_EGLFS_HIDECURSOR=1
+log "QT_QPA_PLATFORM=$QT_QPA_PLATFORM"
+
+renice -10 -p "$(pidof PE_Single_CPU)" >> "$LOG" 2>&1
+
+log "--- esecuzione ---"
+nice -n -10 ./bin/jellyfin-link >> "$LOG" 2>&1
+rc=$?
+log "--- uscita: $rc ($(date)) ---"

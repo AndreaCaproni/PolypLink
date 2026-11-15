@@ -1,0 +1,16 @@
+# artefatti di build e pacchetti
+/build/
+/dist/
+src/buildstamp.h
+
+# dati personali: NON devono finire nel repository
+/keys/
+deploy/factory_test/run.sh
+
+# file di sistema / editor
+*.o
+*.d
+*.qmlc
+*.jsc
+*.user
+.DS_Store

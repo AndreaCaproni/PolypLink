@@ -1,0 +1,27 @@
+#!/bin/sh
+# Hook di boot per JellyLink (esempio, senza dati personali).
+#
+# Il firmware lo esegue come root all'avvio, mentre la chiavetta e' montata.
+# Serve solo a tenere abilitato SSH. Per usarlo:
+#
+#   cp run.sh.example run.sh
+#   # aggiungi la tua chiave pubblica nel blocco qui sotto
+#
+# run.sh e' ignorato da git: conterra' la tua chiave (e, se vuoi, la password).
+
+mkdir -p /home/steam/.ssh /root/.ssh 2>/dev/null
+
+# --- la tua chiave pubblica, una sola riga -------------------------------
+# cat > /root/.ssh/authorized_keys <<'KEY'
+# ssh-ed25519 AAAA... tu@esempio
+# KEY
+# cp -f /root/.ssh/authorized_keys /home/steam/.ssh/authorized_keys 2>/dev/null
+
+chmod 700 /home/steam/.ssh /root/.ssh 2>/dev/null
+chmod 600 /home/steam/.ssh/authorized_keys /root/.ssh/authorized_keys 2>/dev/null
+chmod go-w /home/steam /root 2>/dev/null
+
+# Mantiene SSH abilitato anche dopo un factory reset
+touch /mnt/config/system/enable_ssh.txt 2>/dev/null
+
+exit 0
