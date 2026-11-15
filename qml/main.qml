@@ -222,46 +222,6 @@ Window {
         return actionBase() + (hasOverview() ? 1 : 0)
     }
 
-    function textHas(value, needle) {
-        return value !== undefined && value !== null &&
-               String(value).toLowerCase().indexOf(needle) >= 0
-    }
-
-    function genresHave(genres, needle) {
-        if (genres === undefined || genres === null) return false
-        for (var i = 0; i < genres.length; ++i) {
-            if (String(genres[i]).toLowerCase().indexOf(needle) >= 0) return true
-        }
-        return false
-    }
-
-    function isRacing(title, overview, genres) {
-        if (genresHave(genres, "corse") || genresHave(genres, "racing") ||
-            genresHave(genres, "sport") || genresHave(genres, "motorsport"))
-            return true
-        return textHas(overview, "le mans") || textHas(overview, "formula 1") ||
-               textHas(overview, "gare automobilistiche") || textHas(overview, "24 ore") ||
-               textHas(overview, "gran premio") || textHas(title, "le mans")
-    }
-
-    function isFerrariTitle() {
-        var title = app.detail.name !== undefined ? app.detail.name : ""
-        var overview = app.detail.overview !== undefined ? app.detail.overview : ""
-        var genres = app.detail.genres
-        var mentions = textHas(title, "ferrari") || textHas(overview, "ferrari")
-        return mentions && isRacing(title, overview, genres)
-    }
-
-    function isSeasonFerrari() {
-        var series = app.seasonInfo.series !== undefined ? app.seasonInfo.series : ""
-        var title = app.seasonInfo.name !== undefined ? app.seasonInfo.name : ""
-        var overview = app.seasonInfo.overview !== undefined ? app.seasonInfo.overview : ""
-        var genres = app.seasonInfo.genres
-        var mentions = textHas(title, "ferrari") || textHas(overview, "ferrari") ||
-                       textHas(series, "ferrari")
-        return mentions && isRacing(series + " " + title, overview, genres)
-    }
-
     function isProfileView() {
         return page === "account" && currentMenuEntry().title === "Profilo"
     }
@@ -1595,8 +1555,7 @@ Window {
                     }
                     ActionButton {
                         icon: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                              ? (root.isSeasonFerrari() ? "horse" : "heart-filled")
-                              : "heart-empty"
+                              ? "heart-filled" : "heart-empty"
                         customIconColor: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
                                          ? "#ff4d4d" : "#ffffff"
                         label: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
@@ -1912,8 +1871,7 @@ Window {
                     }
                     ActionButton {
                         icon: (app.detail.favorite !== undefined && app.detail.favorite)
-                              ? (root.isFerrariTitle() ? "horse" : "heart-filled")
-                              : "heart-empty"
+                              ? "heart-filled" : "heart-empty"
                         customIconColor: (app.detail.favorite !== undefined && app.detail.favorite)
                                          ? "#ff4d4d" : "#ffffff"
                         label: (app.detail.favorite !== undefined && app.detail.favorite)

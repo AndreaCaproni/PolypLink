@@ -31,11 +31,6 @@ used here only to indicate that JellyLink is a Jellyfin-compatible client.
 **JellyLink is an independent project, not affiliated with or endorsed by the
 Jellyfin project.**
 
-## Prancing horse silhouette
-
-`qml/assets/horse.png` — CC0 (public domain), based on the "RearingHorse"
-silhouette from freesvg.org. Used only as a small easter egg.
-
 ## Fonts
 
 The UI uses the firmware's system fonts (Noto Sans). No fonts are

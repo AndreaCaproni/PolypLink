@@ -6,7 +6,7 @@ Rectangle {
     id: button
 
     property string label: ""
-    // play | replay | check | heart-empty | heart-filled | horse | series | previous
+    // play | replay | check | check-double | heart-empty | heart-filled | series | previous | text
     property string icon: "play"
     property bool active: false
     property bool primary: false
@@ -29,7 +29,6 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         width: 24
         height: 24
-        visible: button.icon !== "horse"
 
         property color tint: button.customIconColor.a > 0
                               ? button.customIconColor
@@ -114,17 +113,6 @@ Rectangle {
                 ctx.fill()
             }
         }
-    }
-
-    Image {
-        visible: button.icon === "horse"
-        source: "qrc:/qml/assets/horse.png"
-        x: 16
-        anchors.verticalCenter: parent.verticalCenter
-        width: 24
-        height: 24
-        fillMode: Image.PreserveAspectFit
-        smooth: true
     }
 
     Text {
