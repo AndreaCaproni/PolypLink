@@ -9,8 +9,7 @@ the Link's hardware decoder.
 > **Status: beta 0.1.0** — already usable for movies and TV shows, still being
 > polished. Not affiliated with the Jellyfin project or Valve.
 >
-> Built with AI assistance: see [Development and
-> transparency](#development-and-transparency).
+> **Vibecoded** with AI assistance; tested on real Steam Link hardware.
 
 ---
 
@@ -163,24 +162,6 @@ build.sh        build + USB package
 - Automatic server discovery covers the **local /24**; servers on other VLANs
   must be entered manually.
 - **The UI is currently in Italian only.**
-
----
-
-## Development and transparency
-
-JellyLink was developed by **Andrea Caproni** with the assistance of an **AI
-assistant** (DeepSeek V4.1 Flash, via OpenCode). In practice:
-
-- **the AI** wrote most of the code, the documentation and the build
-  iterations;
-- **the person** defined requirements and behaviour, tested everything on real
-  hardware, decided what to keep and what to drop, and takes responsibility for
-  the project.
-
-The generated code has been compiled, installed and tested on a real Steam
-Link; the known limitations are listed above and in the
-[CHANGELOG](CHANGELOG.md). Like any software, it may contain bugs: reports are
-welcome.
 
 ---
 

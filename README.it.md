@@ -9,8 +9,7 @@ direttamente con il decoder hardware del Link.
 > **Stato: beta 0.1.0** — già usabile per guardare film e serie, ancora in
 > rifinitura. Progetto non affiliato al progetto Jellyfin né a Valve.
 >
-> Sviluppato con l'assistenza di un'AI: leggi [Sviluppo e
-> trasparenza](#sviluppo-e-trasparenza).
+> **Vibecoded** con l'assistenza di un'AI; testato su hardware Steam Link reale.
 
 ---
 
@@ -164,23 +163,6 @@ build.sh        build + pacchetto USB
 - La ricerca automatica del server copre la **/24 locale**; server su altre
   VLAN si inseriscono a mano.
 - Interfaccia solo in italiano.
-
----
-
-## Sviluppo e trasparenza
-
-JellyLink è stato sviluppato da **Andrea Caproni** con l'assistenza di un
-**assistente AI** (DeepSeek V4.1 Flash, tramite OpenCode). In pratica:
-
-- **l'AI** ha scritto la maggior parte del codice, della documentazione e delle
-  iterazioni di build;
-- **la persona** ha definito requisiti e comportamento, ha provato tutto sul
-  dispositivo reale, ha scelto cosa tenere e cosa buttare, e si assume la
-  responsabilità del progetto.
-
-Il codice generato è stato compilato, installato e provato su un vero Steam
-Link; i limiti noti sono elencati sopra e nel [CHANGELOG](CHANGELOG.md). Come
-ogni software, può contenere errori: le segnalazioni sono benvenute.
 
 ---
 
