@@ -596,7 +596,7 @@ Window {
                 width: 34
                 height: 34
                 anchors.verticalCenter: parent.verticalCenter
-                source: "qrc:/qml/assets/jellyfin-logo.png"
+                source: "qrc:/qml/assets/jellylink-logo.png"
                 fillMode: Image.PreserveAspectFit
                 smooth: true
             }
