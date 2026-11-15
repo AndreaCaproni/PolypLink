@@ -2442,10 +2442,15 @@ Window {
         Timer {
             id: loadingDelay
             interval: 350
+            // Deve restare attivo: un Timer non ripetuto si ferma subito dopo
+            // onTriggered e il conseguente running=false nascondeva la rotellina.
+            repeat: true
             running: app.playerLoading && !app.playerStalled
             onTriggered: {
-                loadingOverlay.shown = true
-                console.log("[osd] rotellina visibile")
+                if (!loadingOverlay.shown) {
+                    loadingOverlay.shown = true
+                    console.log("[osd] rotellina visibile")
+                }
             }
             onRunningChanged: {
                 if (!running) {
