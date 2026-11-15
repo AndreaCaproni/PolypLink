@@ -2382,57 +2382,59 @@ Window {
         }
 
         // ---------------------------------------------------------- CARICAMENTO
+        // In alto al centro: resta visibile anche quando il pannello delle
+        // impostazioni video e' aperto (il centro dello schermo e' occupato).
         Item {
             id: loadingOverlay
             property bool shown: false
             anchors.fill: parent
-            z: 5
+            z: 30
             visible: shown
 
             Rectangle {
-                anchors.centerIn: parent
-                width: 250
-                height: 120
-                radius: 16
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 22
+                width: 238
+                height: 62
+                radius: 31
                 color: "#ee0b0f14"
                 border.width: 1
                 border.color: "#2b6f8c"
-            }
 
-            Column {
-                anchors.centerIn: parent
-                spacing: 10
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 12
 
-                Item {
-                    width: 44
-                    height: 44
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    Item {
+                        width: 34
+                        height: 34
 
-                    Canvas {
-                        anchors.fill: parent
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            ctx.strokeStyle = "#7fd9ff"
-                            ctx.lineWidth = 4
-                            ctx.lineCap = "round"
-                            ctx.beginPath()
-                            ctx.arc(22, 22, 16, 0.6, 5.2)
-                            ctx.stroke()
-                        }
-                        RotationAnimation on rotation {
-                            from: 0; to: 360; duration: 900
-                            loops: Animation.Infinite
-                            running: loadingOverlay.shown
+                        Canvas {
+                            anchors.fill: parent
+                            onPaint: {
+                                var ctx = getContext("2d")
+                                ctx.reset()
+                                ctx.strokeStyle = "#7fd9ff"
+                                ctx.lineWidth = 3.5
+                                ctx.lineCap = "round"
+                                ctx.beginPath()
+                                ctx.arc(17, 17, 12, 0.6, 5.2)
+                                ctx.stroke()
+                            }
+                            RotationAnimation on rotation {
+                                from: 0; to: 360; duration: 900
+                                loops: Animation.Infinite
+                                running: loadingOverlay.shown
+                            }
                         }
                     }
-                }
 
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    color: "#c9d4df"
-                    font.pixelSize: 16
-                    text: qsTr("caricamento…")
+                    Text {
+                        color: "#c9d4df"
+                        font.pixelSize: 16
+                        text: qsTr("caricamento…")
+                    }
                 }
             }
         }
