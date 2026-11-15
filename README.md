@@ -6,7 +6,7 @@
 No Chromium, no Electron, no browser: a Qt Quick/C++ app that talks directly to
 the Link's hardware decoder.
 
-> **Status: beta 0.1.0** — already usable for movies and TV shows, still being
+> **Status: beta 0.2.0** — already usable for movies and TV shows, still being
 > polished. Not affiliated with the Jellyfin project or Valve.
 >
 > **Vibecoded:** the code was generated with an AI assistant, then tested and

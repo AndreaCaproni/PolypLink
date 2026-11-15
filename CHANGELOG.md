@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.2.0-beta — 2026-11-15
+
+UI update: settings, account and detail pages.
+
+### Added
+
+- Two-column Settings and Account: menu on the left, detail panel on the right.
+- Account profile: avatar, username, server and library stats (movies, series,
+  episodes, favorites).
+- Compact action buttons: icon only, expanding to icon + label on focus.
+- Episode detail: *Go to full series* and *Previous episode*.
+- Full plot view (*Read more*) with scrolling.
+- Watched icon: double check when the item is watched.
+- Favorite icon: empty outline or filled red heart.
+- Persistent default quality and OSD duration; connection test; reset
+  defaults; change server.
+- Action toasts and empty states for library, seasons and episodes.
+- **Up** from the first Settings/Account entry returns to the top bar.
+
+### Changed
+
+- Removed the A/B/Y hint texts across the UI; they remain only on the server
+  selection screen.
+- Season page actions use the compact icon buttons.
+- Settings and Account entries now show their current value.
+
+### Fixed
+
+- Opening a favorite no longer shows the previously selected title.
+- Removed the duplicate `seasonHeader` id that prevented QML from loading.
+- Network errors stay visible; action feedback fades after a few seconds.
+
+Same known limitations as 0.1.0-beta.
+
 ## 0.1.0-beta — 2026-11-15
 
 First public beta.
