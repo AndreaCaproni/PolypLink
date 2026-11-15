@@ -192,6 +192,36 @@ QString AppController::serverLabel() const {
   return client_.server();
 }
 
+QString AppController::userImage() const { return client_.userImageUrl(); }
+
+void AppController::refreshUserStats() {
+  if (client_.userId().isEmpty()) return;
+  userStats_.clear();
+  emit userStatsChanged();
+  struct Def {
+    const char* types;
+    const char* filters;
+    const char* key;
+  };
+  static const Def defs[] = {
+      {"Movie", "", "movies"},
+      {"Series", "", "series"},
+      {"Episode", "", "episodes"},
+      {"Movie,Series", "IsFavorite", "favorites"},
+  };
+  for (const Def& d : defs) {
+    const QString key = QString::fromLatin1(d.key);
+    client_.fetchItemCount(
+        QString::fromLatin1(d.types), QString::fromLatin1(d.filters),
+        [this, key](const QJsonDocument& doc, const QString& err) {
+          if (!err.isEmpty()) return;
+          userStats_.insert(key,
+                            doc.object().value(QStringLiteral("TotalRecordCount")).toInt());
+          emit userStatsChanged();
+        });
+  }
+}
+
 QVariantList AppController::servers() const { return discovery_.servers(); }
 
 void AppController::discover() {
@@ -282,6 +312,7 @@ void AppController::logout() {
   latest_.clear();
   libraryItems_.clear();
   detail_.clear();
+  userStats_.clear();
   emit viewsChanged();
   emit homeChanged();
   emit libraryChanged();

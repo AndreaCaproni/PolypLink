@@ -69,6 +69,8 @@ class JellyfinClient : public QObject {
   // Header di autorizzazione completo: serve anche al player, che scarica
   // playlist e segmenti con richieste proprie.
   QString authHeader() const;
+  QString userImageUrl() const;
+  void fetchItemCount(const QString& includeTypes, const QString& filters, JsonCallback cb);
   QString imageUrl(const QString& itemId, const QString& type = QStringLiteral("Primary"),
                    int maxWidth = 400, const QString& tag = QString()) const;
 

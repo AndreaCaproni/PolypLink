@@ -20,6 +20,8 @@ class AppController : public QObject {
   Q_PROPERTY(QString notice READ notice NOTIFY noticeChanged)
   Q_PROPERTY(QString serverLabel READ serverLabel NOTIFY stateChanged)
   Q_PROPERTY(QString userName READ userName NOTIFY stateChanged)
+  Q_PROPERTY(QString userImage READ userImage NOTIFY stateChanged)
+  Q_PROPERTY(QVariantMap userStats READ userStats NOTIFY userStatsChanged)
 
   Q_PROPERTY(QVariantList servers READ servers NOTIFY serversChanged)
   Q_PROPERTY(bool searching READ searching NOTIFY serversChanged)
@@ -80,6 +82,8 @@ class AppController : public QObject {
   QString notice() const { return notice_; }
   QString serverLabel() const;
   QString userName() const { return client_.userName(); }
+  QString userImage() const;
+  QVariantMap userStats() const { return userStats_; }
 
   QVariantList servers() const;
   bool searching() const { return discovery_.searching(); }
@@ -142,6 +146,7 @@ class AppController : public QObject {
   Q_INVOKABLE void cycleOsdSeconds(int delta);
   Q_INVOKABLE void testConnection();
   Q_INVOKABLE void resetSettings();
+  Q_INVOKABLE void refreshUserStats();
   Q_INVOKABLE void openItem(const QString& itemId);
   Q_INVOKABLE void playItem(const QString& itemId);
   Q_INVOKABLE void playFromStart();
@@ -174,6 +179,7 @@ class AppController : public QObject {
   void stateChanged();
   void statusChanged();
   void noticeChanged();
+  void userStatsChanged();
   void serversChanged();
   void quickConnectChanged();
   void viewsChanged();
@@ -215,6 +221,7 @@ class AppController : public QObject {
   QString state_ = QStringLiteral("login");
   QString status_;
   QString notice_;
+  QVariantMap userStats_;
   QTimer noticeTimer_;
   QString qcCode_;
   QString qcStatus_;

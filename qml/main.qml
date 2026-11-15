@@ -328,6 +328,7 @@ Window {
             navFocus = false
             menuIndex = 0
             menuHint = ""
+            app.refreshUserStats()
         } else {
             page = "settings"
             navFocus = false
@@ -1271,17 +1272,6 @@ Window {
             }
         }
 
-        Text {
-            x: 40
-            y: parent.height - 28
-            width: 540
-            color: "#7fd9ff"
-            font.pixelSize: 13
-            elide: Text.ElideRight
-            visible: root.menuHint.length > 0
-            text: root.menuHint
-        }
-
         // --- colonna destra: dettaglio della voce selezionata
         Rectangle {
             x: 620
@@ -1300,11 +1290,132 @@ Window {
                 height: 54
                 radius: 2
                 color: "#00a4dc"
+                visible: page === "settings"
+            }
+
+            // profilo utente
+            Row {
+                x: 28
+                y: 24
+                spacing: 18
+                visible: page === "account"
+
+                Item {
+                    width: 84
+                    height: 84
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 42
+                        color: "#182430"
+                        border.width: 1
+                        border.color: "#243040"
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        color: "#c9d4df"
+                        font.pixelSize: 34
+                        font.bold: true
+                        text: app.userName.length > 0 ? app.userName.charAt(0).toUpperCase() : "?"
+                    }
+                    RoundedImage {
+                        anchors.fill: parent
+                        radius: 42
+                        source: app.userImage
+                        sourceSizeWidth: 168
+                    }
+                }
+
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 4
+                    Text {
+                        color: "#ffffff"
+                        font.pixelSize: 24
+                        font.bold: true
+                        text: app.userName
+                    }
+                    Text {
+                        color: "#6f8090"
+                        font.pixelSize: 14
+                        text: app.serverLabel
+                    }
+                }
+            }
+
+            // statistiche
+            Row {
+                x: 28
+                y: 124
+                spacing: 10
+                visible: page === "account"
+
+                Rectangle {
+                    width: 130; height: 64; radius: 10
+                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 2
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               text: app.userStats.movies !== undefined ? app.userStats.movies : "–" }
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#6f8090"; font.pixelSize: 12; text: "Film" }
+                    }
+                }
+                Rectangle {
+                    width: 130; height: 64; radius: 10
+                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 2
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               text: app.userStats.series !== undefined ? app.userStats.series : "–" }
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#6f8090"; font.pixelSize: 12; text: "Serie" }
+                    }
+                }
+                Rectangle {
+                    width: 130; height: 64; radius: 10
+                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 2
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               text: app.userStats.episodes !== undefined ? app.userStats.episodes : "–" }
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#6f8090"; font.pixelSize: 12; text: "Episodi" }
+                    }
+                }
+                Rectangle {
+                    width: 130; height: 64; radius: 10
+                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 2
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               text: app.userStats.favorites !== undefined ? app.userStats.favorites : "–" }
+                        Text { anchors.horizontalCenter: parent.horizontalCenter
+                               color: "#6f8090"; font.pixelSize: 12; text: "Preferiti" }
+                    }
+                }
+            }
+
+            Rectangle {
+                x: 28
+                y: 202
+                width: parent.width - 56
+                height: 1
+                color: "#1c2a38"
+                visible: page === "account"
             }
 
             Column {
                 x: 48
-                y: 28
+                y: page === "account" ? 222 : 28
                 width: parent.width - 88
                 spacing: 10
 

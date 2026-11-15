@@ -526,6 +526,30 @@ void JellyfinClient::reportPlaybackStopped(const QString& itemId,
   sendPost(QStringLiteral("/Sessions/Playing/Stopped"), o, true, nullptr);
 }
 
+QString JellyfinClient::userImageUrl() const {
+  if (server_.isEmpty() || userId_.isEmpty()) return QString();
+  QUrlQuery q;
+  q.addQueryItem(QStringLiteral("maxWidth"), QStringLiteral("160"));
+  q.addQueryItem(QStringLiteral("quality"), QStringLiteral("90"));
+  if (!token_.isEmpty()) q.addQueryItem(QStringLiteral("api_key"), token_);
+  return QStringLiteral("%1/Users/%2/Images/Primary?%3")
+      .arg(server_, userId_, q.toString(QUrl::FullyEncoded));
+}
+
+void JellyfinClient::fetchItemCount(const QString& includeTypes,
+                                    const QString& filters, JsonCallback cb) {
+  QUrlQuery q;
+  q.addQueryItem(QStringLiteral("userId"), userId_);
+  q.addQueryItem(QStringLiteral("recursive"), QStringLiteral("true"));
+  q.addQueryItem(QStringLiteral("includeItemTypes"), includeTypes);
+  if (!filters.isEmpty()) q.addQueryItem(QStringLiteral("filters"), filters);
+  q.addQueryItem(QStringLiteral("limit"), QStringLiteral("1"));
+  q.addQueryItem(QStringLiteral("enableTotalRecordCount"), QStringLiteral("true"));
+  sendGet(QStringLiteral("/Users/%1/Items?").arg(userId_) +
+              q.toString(QUrl::FullyEncoded),
+          true, cb);
+}
+
 QString JellyfinClient::imageUrl(const QString& itemId, const QString& type,
                                  int maxWidth, const QString& tag) const {
   if (server_.isEmpty() || itemId.isEmpty()) return QString();
