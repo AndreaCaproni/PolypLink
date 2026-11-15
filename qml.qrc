@@ -9,5 +9,6 @@
         <file>qml/assets/jellyfin-logo.png</file>
         <file>qml/Keyboard.qml</file>
         <file>qml/RoundedImage.qml</file>
+        <file>i18n/jellylink_en.qm</file>
     </qresource>
 </RCC>

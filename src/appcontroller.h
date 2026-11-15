@@ -256,6 +256,7 @@ class AppController : public QObject {
   Player* player_ = nullptr;
   bool playerActive_ = false;
   bool playerPaused_ = false;
+  bool playerStalled_ = false;
   bool osdVisible_ = false;
   QTimer osdTimer_;
   int playerFocus_ = 0;

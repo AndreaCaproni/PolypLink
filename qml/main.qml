@@ -14,6 +14,8 @@ Window {
     property string page: "home"
     property bool detailOpen: false
     property bool overviewOpen: false
+    property bool languageOpen: false
+    property int languageIndex: 0
     property int rowIndex: 0
     // barra superiore: si raggiunge con "su" dalla prima riga
     property bool navFocus: false
@@ -28,36 +30,36 @@ Window {
     property string menuHint: ""
 
     property var settingsMenu: [
-        { title: "Server e connessione", desc: "Indirizzo, porta, HTTPS e riconnessione automatica", action: "test" },
-        { title: "Qualità massima", desc: "Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico", action: "quality" },
-        { title: "Risoluzione massima", desc: "720p, 1080p o automatica" },
-        { title: "Audio preferito", desc: "Lingua e canali (stereo / 5.1)" },
-        { title: "Sottotitoli", desc: "Lingua predefinita, attivazione e burn-in" },
-        { title: "Precaricamento", desc: "Quanti segmenti tenere pronti prima di partire" },
-        { title: "Seek e accelerazione", desc: "Passo iniziale e tetto dell'accelerazione" },
-        { title: "OSD", desc: "Durata, contenuti e comportamento in pausa", action: "osd" },
-        { title: "Lingua dell'interfaccia", desc: "Italiano, English" },
-        { title: "Scala dell'interfaccia", desc: "Dimensione di testi e card" },
-        { title: "Tema", desc: "Scuro, chiaro, automatico" },
-        { title: "Rete e certificati", desc: "Proxy e certificati HTTPS non firmati" },
-        { title: "Cache immagini", desc: "Dimensione massima e pulizia" },
-        { title: "Diagnostica e log", desc: "Livello dei log ed esportazione su USB" },
-        { title: "Aggiornamenti", desc: "Canale beta e controllo manuale" },
-        { title: "Ripristino", desc: "Riporta le impostazioni ai valori predefiniti", action: "reset" },
-        { title: "Informazioni", desc: "Versione, build, licenze e componenti", action: "info" }
+        { title: qsTr("Server e connessione"), desc: qsTr("Indirizzo, porta, HTTPS e riconnessione automatica"), action: "test" },
+        { title: qsTr("Qualità massima"), desc: qsTr("Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico"), action: "quality" },
+        { title: qsTr("Risoluzione massima"), desc: qsTr("720p, 1080p o automatica") },
+        { title: qsTr("Audio preferito"), desc: qsTr("Lingua e canali (stereo / 5.1)") },
+        { title: qsTr("Sottotitoli"), desc: qsTr("Lingua predefinita, attivazione e burn-in") },
+        { title: qsTr("Precaricamento"), desc: qsTr("Quanti segmenti tenere pronti prima di partire") },
+        { title: qsTr("Seek e accelerazione"), desc: qsTr("Passo iniziale e tetto dell'accelerazione") },
+        { title: qsTr("OSD"), desc: qsTr("Durata, contenuti e comportamento in pausa"), action: "osd" },
+        { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Italiano, English"), action: "language" },
+        { title: qsTr("Scala dell'interfaccia"), desc: qsTr("Dimensione di testi e card") },
+        { title: qsTr("Tema"), desc: qsTr("Scuro, chiaro, automatico") },
+        { title: qsTr("Rete e certificati"), desc: qsTr("Proxy e certificati HTTPS non firmati") },
+        { title: qsTr("Cache immagini"), desc: qsTr("Dimensione massima e pulizia") },
+        { title: qsTr("Diagnostica e log"), desc: qsTr("Livello dei log ed esportazione su USB") },
+        { title: qsTr("Aggiornamenti"), desc: qsTr("Canale beta e controllo manuale") },
+        { title: qsTr("Ripristino"), desc: qsTr("Riporta le impostazioni ai valori predefiniti"), action: "reset" },
+        { title: qsTr("Informazioni"), desc: qsTr("Versione, build, licenze e componenti"), action: "info" }
     ]
 
     property var accountMenu: [
-        { title: "Profilo", desc: "Nome utente, avatar e server collegato", action: "info" },
-        { title: "Cambia utente", desc: "Torna alla schermata di accesso", action: "logout" },
-        { title: "Esci", desc: "Chiude la sessione e cancella il token", action: "logout" },
-        { title: "Cambia server", desc: "Scegli un altro Jellyfin", action: "switchserver" },
-        { title: "Quick Connect", desc: "Associa l'app senza digitare la password" },
-        { title: "Sessione e server", desc: "Stato della connessione e versione del server", action: "info" },
-        { title: "Ripresa", desc: "Sincronizza la posizione di visione" },
-        { title: "Righe della home", desc: "Scegli quali righe mostrare" },
-        { title: "Prossimo episodio", desc: "Avvio automatico a fine puntata" },
-        { title: "Statistiche di visione", desc: "Tempo visto e cronologia" }
+        { title: qsTr("Profilo"), desc: qsTr("Nome utente, avatar e server collegato"), action: "profile" },
+        { title: qsTr("Cambia utente"), desc: qsTr("Torna alla schermata di accesso"), action: "logout" },
+        { title: qsTr("Esci"), desc: qsTr("Chiude la sessione e cancella il token"), action: "logout" },
+        { title: qsTr("Cambia server"), desc: qsTr("Scegli un altro Jellyfin"), action: "switchserver" },
+        { title: qsTr("Quick Connect"), desc: qsTr("Associa l'app senza digitare la password") },
+        { title: qsTr("Sessione e server"), desc: qsTr("Stato della connessione e versione del server"), action: "info" },
+        { title: qsTr("Ripresa"), desc: qsTr("Sincronizza la posizione di visione") },
+        { title: qsTr("Righe della home"), desc: qsTr("Scegli quali righe mostrare") },
+        { title: qsTr("Prossimo episodio"), desc: qsTr("Avvio automatico a fine puntata") },
+        { title: qsTr("Statistiche di visione"), desc: qsTr("Tempo visto e cronologia") }
     ]
 
     Timer {
@@ -121,8 +123,20 @@ Window {
     }
 
     function subtitleLabel() {
-        if (app.subtitleIndex < 0) return "Spenti"
+        if (app.subtitleIndex < 0) return qsTr("Spenti")
         return root.trackLabel(app.subtitleTracks, app.subtitleIndex)
+    }
+
+    function countItems(n) {
+        return n === 1 ? qsTr("1 elemento") : qsTr("%1 elementi").arg(n)
+    }
+
+    function countEpisodes(n) {
+        return n === 1 ? qsTr("1 episodio") : qsTr("%1 episodi").arg(n)
+    }
+
+    function countSeasons(n) {
+        return n === 1 ? qsTr("1 stagione") : qsTr("%1 stagioni").arg(n)
     }
 
     function metaLine(d) {
@@ -223,7 +237,7 @@ Window {
     }
 
     function isProfileView() {
-        return page === "account" && currentMenuEntry().title === "Profilo"
+        return page === "account" && currentMenuEntry().action === "profile"
     }
 
     function playedIndex() {
@@ -281,15 +295,25 @@ Window {
 
     function menuValue(e) {
         if (e.action === "quality") return (app.qualityDefaultKbps / 1000) + " Mbps"
-        if (e.action === "osd") return app.osdSeconds + " secondi"
+        if (e.action === "osd") return qsTr("%1 secondi").arg(app.osdSeconds)
         if (e.action === "test")
-            return app.serverLabel.length > 0 ? app.serverLabel : "Nessun server"
-        if (e.action === "info") {
-            if (page === "account")
-                return e.title === "Profilo" ? app.userName : app.serverLabel
+            return app.serverLabel.length > 0 ? app.serverLabel : qsTr("Nessun server")
+        if (e.action === "language")
+            return language.current === "en" ? "English" : "Italiano"
+        if (e.action === "profile" || e.action === "info") {
+            if (page === "account") {
+                if (e.action === "profile") return app.userName
+                return app.serverLabel
+            }
             return "JellyLink " + appVersion
         }
         return ""
+    }
+
+    function currentLanguageIndex() {
+        for (var i = 0; i < language.available.length; ++i)
+            if (language.available[i].code === language.current) return i
+        return 0
     }
 
     function currentMenuEntry() {
@@ -474,6 +498,7 @@ Window {
     }
 
     function goBack() {
+        if (languageOpen) { languageOpen = false; return }
         if (overviewOpen) { overviewOpen = false; return }
         if (keyboardOpen) { keyboardOpen = false; return }
         if (detailOpen) { detailOpen = false; return }
@@ -596,7 +621,7 @@ Window {
             border.color: "#00a4dc"
             Text {
                 anchors.centerIn: parent
-                text: "Home"
+                text: qsTr("Home")
                 font.pixelSize: 17
                 font.bold: root.page === "home"
                 color: root.page === "home" ? "#ffffff" : "#93a4b5"
@@ -616,7 +641,7 @@ Window {
             border.color: "#00a4dc"
             Text {
                 anchors.centerIn: parent
-                text: "Preferiti"
+                text: qsTr("Preferiti")
                 font.pixelSize: 17
                 font.bold: root.page === "favorites"
                 color: root.page === "favorites" ? "#ffffff" : "#93a4b5"
@@ -630,7 +655,7 @@ Window {
             color: "#6f8090"
             font.pixelSize: 17
             visible: app.state !== "home"
-            text: app.state === "login" ? "scegli il server" : app.serverLabel
+            text: app.state === "login" ? qsTr("scegli il server") : app.serverLabel
         }
 
         // account: avatar + nome utente, pillola che cresce verso sinistra
@@ -743,7 +768,7 @@ Window {
                 color: "#ffffff"
                 font.pixelSize: 30
                 font.bold: true
-                text: "Scegli il tuo server Jellyfin"
+                text: qsTr("Scegli il tuo server Jellyfin")
             }
 
             Text {
@@ -753,10 +778,10 @@ Window {
                 font.pixelSize: 17
                 wrapMode: Text.WordWrap
                 text: app.searching
-                      ? "Ricerca sulla rete locale…"
+                      ? qsTr("Ricerca sulla rete locale…")
                       : (app.servers.length === 0
-                         ? "Nessun server rilevato automaticamente."
-                         : "Premi A per connetterti.")
+                         ? qsTr("Nessun server rilevato automaticamente.")
+                         : qsTr("Premi A per connetterti."))
             }
 
             // server già salvato: si rientra senza ridigitare l'indirizzo
@@ -774,7 +799,7 @@ Window {
                     anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2
-                    Text { color: "#ffffff"; font.pixelSize: 20; text: "Server salvato" }
+                    Text { color: "#ffffff"; font.pixelSize: 20; text: qsTr("Server salvato") }
                     Text { color: "#6f8090"; font.pixelSize: 15; text: app.serverLabel }
                 }
             }
@@ -812,7 +837,7 @@ Window {
                     anchors.centerIn: parent
                     color: "#9fb0c0"
                     font.pixelSize: 17
-                    text: "Inserisci l'indirizzo del server…"
+                    text: qsTr("Inserisci l'indirizzo del server…")
                 }
             }
 
@@ -822,9 +847,7 @@ Window {
                 color: "#4a5a68"
                 font.pixelSize: 15
                 wrapMode: Text.WordWrap
-                text: "A: seleziona    X/R: cerca in rete (LAN + UDP)    B: esci\n"
-                      + "L'indirizzo si può anche mettere in\n"
-                      + "steamlink/config/system/jellyfin-server.txt sulla chiavetta"
+                text: qsTr("A: seleziona    X/R: cerca in rete (LAN + UDP)    B: esci\nL'indirizzo si può anche mettere in\nsteamlink/config/system/jellyfin-server.txt sulla chiavetta")
             }
         }
     }
@@ -846,7 +869,7 @@ Window {
                 color: "#ffffff"
                 font.pixelSize: 28
                 font.bold: true
-                text: "Accedi a " + app.serverLabel
+                text: qsTr("Accedi a %1").arg(app.serverLabel)
             }
 
             Text {
@@ -874,7 +897,7 @@ Window {
                         anchors.centerIn: parent
                         color: "#ffffff"
                         font.pixelSize: 20
-                        text: "Nome utente e password"
+                        text: qsTr("Nome utente e password")
                     }
                 }
 
@@ -889,7 +912,7 @@ Window {
                         anchors.centerIn: parent
                         color: "#ffffff"
                         font.pixelSize: 20
-                        text: "Quick Connect (codice a 6 cifre)"
+                        text: qsTr("Quick Connect (codice a 6 cifre)")
                     }
                 }
 
@@ -916,7 +939,7 @@ Window {
                         anchors.topMargin: 8
                         color: "#6f8090"
                         font.pixelSize: 14
-                        text: "nome utente"
+                        text: qsTr("nome utente")
                     }
                     Text {
                         anchors.left: parent.left
@@ -944,7 +967,7 @@ Window {
                         anchors.topMargin: 8
                         color: "#6f8090"
                         font.pixelSize: 14
-                        text: "password"
+                        text: qsTr("password")
                     }
                     Text {
                         anchors.left: parent.left
@@ -970,7 +993,7 @@ Window {
                         color: root.authIndex === 2 ? "#00121a" : "#ffffff"
                         font.pixelSize: 19
                         font.bold: true
-                        text: "Entra"
+                        text: qsTr("Entra")
                     }
                 }
 
@@ -995,7 +1018,7 @@ Window {
                 color: "#ffffff"
                 font.pixelSize: 28
                 font.bold: true
-                text: "Collega questo dispositivo"
+                text: qsTr("Collega questo dispositivo")
             }
 
             Text {
@@ -1040,7 +1063,7 @@ Window {
             MediaRow {
                 id: rowResume
                 width: parent.width
-                title: "Continua a guardare"
+                title: qsTr("Continua a guardare")
                 items: app.resume
                 landscape: true
                 active: root.rowIndex === 0 && !root.navFocus
@@ -1051,7 +1074,7 @@ Window {
             MediaRow {
                 id: rowNextUp
                 width: parent.width
-                title: "Prossimo episodio"
+                title: qsTr("Prossimo episodio")
                 items: app.nextUp
                 landscape: true
                 active: root.rowIndex === 1 && !root.navFocus
@@ -1062,7 +1085,7 @@ Window {
             MediaRow {
                 id: rowLatest
                 width: parent.width
-                title: "Aggiunti di recente"
+                title: qsTr("Aggiunti di recente")
                 items: app.latest
                 showLibrary: true
                 active: root.rowIndex === 2 && !root.navFocus
@@ -1084,7 +1107,7 @@ Window {
                     color: root.rowIndex === 3 ? "#ffffff" : "#93a4b5"
                     font.pixelSize: 24
                     font.bold: true
-                    text: "Librerie"
+                    text: qsTr("Librerie")
                 }
 
                 ListView {
@@ -1181,7 +1204,7 @@ Window {
             anchors.topMargin: 16
             color: "#5b6b7c"
             font.pixelSize: 15
-            text: app.libraryItems.length + " elementi"
+            text: root.countItems(app.libraryItems.length)
         }
 
         GridView {
@@ -1224,7 +1247,7 @@ Window {
         horizontalAlignment: Text.AlignHCenter
         color: "#6f8090"
         font.pixelSize: 18
-        text: page === "favorites" ? "Nessun preferito" : "Nessuna voce in questa libreria"
+        text: page === "favorites" ? qsTr("Nessun preferito") : qsTr("Nessuna voce in questa libreria")
     }
 
     // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
@@ -1245,7 +1268,7 @@ Window {
             color: "#ffffff"
             font.pixelSize: 30
             font.bold: true
-            text: page === "settings" ? "Impostazioni" : "Account"
+            text: page === "settings" ? qsTr("Impostazioni") : qsTr("Account")
         }
         Text {
             x: 40
@@ -1255,7 +1278,7 @@ Window {
             font.pixelSize: 14
             elide: Text.ElideRight
             text: page === "settings"
-                  ? "Percorso verso la versione stabile"
+                  ? qsTr("Percorso verso la versione stabile")
                   : (app.userName + "   ·   " + app.serverLabel)
         }
 
@@ -1393,7 +1416,7 @@ Window {
                                color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
                                text: app.userStats.movies !== undefined ? app.userStats.movies : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: "Film" }
+                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Film") }
                     }
                 }
                 Rectangle {
@@ -1406,7 +1429,7 @@ Window {
                                color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
                                text: app.userStats.series !== undefined ? app.userStats.series : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: "Serie" }
+                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Serie") }
                     }
                 }
                 Rectangle {
@@ -1419,7 +1442,7 @@ Window {
                                color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
                                text: app.userStats.episodes !== undefined ? app.userStats.episodes : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: "Episodi" }
+                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Episodi") }
                     }
                 }
                 Rectangle {
@@ -1432,7 +1455,7 @@ Window {
                                color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
                                text: app.userStats.favorites !== undefined ? app.userStats.favorites : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: "Preferiti" }
+                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Preferiti") }
                     }
                 }
             }
@@ -1534,7 +1557,7 @@ Window {
                     color: "#6f8090"
                     font.pixelSize: 15
                     elide: Text.ElideRight
-                    text: app.seriesTitle + "   ·   " + app.episodes.length + " episodi"
+                    text: app.seriesTitle + "   ·   " + root.countEpisodes(app.episodes.length)
                 }
 
                 Row {
@@ -1542,7 +1565,7 @@ Window {
 
                     ActionButton {
                         icon: "replay"
-                        label: "Guarda dall'inizio"
+                        label: qsTr("Guarda dall'inizio")
                         primary: true
                         active: root.seasonActionsFocus && root.seasonAction === 0
                     }
@@ -1550,7 +1573,7 @@ Window {
                         icon: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
                               ? "check-double" : "check"
                         label: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
-                               ? "Segna come non visto" : "Segna come visto"
+                               ? qsTr("Segna come non visto") : qsTr("Segna come visto")
                         active: root.seasonActionsFocus && root.seasonAction === 1
                     }
                     ActionButton {
@@ -1559,7 +1582,7 @@ Window {
                         customIconColor: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
                                          ? "#ff4d4d" : "#ffffff"
                         label: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                               ? "Togli preferito" : "Preferito"
+                               ? qsTr("Togli preferito") : qsTr("Preferito")
                         active: root.seasonActionsFocus && root.seasonAction === 2
                     }
                 }
@@ -1659,7 +1682,7 @@ Window {
                     border.width: 1
                     border.color: "#2b6f8c"
                     visible: modelData.played !== undefined && modelData.played
-                    Text { anchors.centerIn: parent; color: "#7fd9ff"; font.pixelSize: 12; text: "VISTO" }
+                    Text { anchors.centerIn: parent; color: "#7fd9ff"; font.pixelSize: 12; text: qsTr("VISTO") }
                 }
 
                 Rectangle {
@@ -1692,7 +1715,7 @@ Window {
         horizontalAlignment: Text.AlignHCenter
         color: "#6f8090"
         font.pixelSize: 18
-        text: "Nessun episodio in questa stagione"
+        text: qsTr("Nessun episodio in questa stagione")
     }
 
     // ----------------------------------------------------------------- STAGIONI
@@ -1719,7 +1742,7 @@ Window {
             anchors.topMargin: 2
             color: "#6f8090"
             font.pixelSize: 15
-            text: app.seasons.length + " stagioni"
+            text: root.countSeasons(app.seasons.length)
         }
 
         GridView {
@@ -1746,7 +1769,7 @@ Window {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 150
                     title: modelData.name !== undefined ? modelData.name : ""
-                    subtitle: (modelData.childCount !== undefined ? modelData.childCount : 0) + " episodi"
+                    subtitle: root.countEpisodes(modelData.childCount !== undefined ? modelData.childCount : 0)
                     image: (modelData.image !== undefined && modelData.image.length > 0)
                            ? modelData.image : app.seriesPoster
                     played: modelData.played !== undefined ? modelData.played : false
@@ -1764,7 +1787,7 @@ Window {
         horizontalAlignment: Text.AlignHCenter
         color: "#6f8090"
         font.pixelSize: 18
-        text: "Nessuna stagione"
+        text: qsTr("Nessuna stagione")
     }
 
     // ----------------------------------------------------------------- DETTAGLIO
@@ -1846,19 +1869,19 @@ Window {
 
                     ActionButton {
                         icon: "play"
-                        label: (root.hasResume() && !root.isSeries()) ? "Riprendi" : "Riproduci"
+                        label: (root.hasResume() && !root.isSeries()) ? qsTr("Riprendi") : qsTr("Riproduci")
                         active: root.detailFocus === 0
                         primary: true
                     }
                     ActionButton {
                         icon: "series"
-                        label: "Stagioni"
+                        label: qsTr("Stagioni")
                         visible: root.isSeries()
                         active: root.detailFocus === 1
                     }
                     ActionButton {
                         icon: "replay"
-                        label: "Riproduci dall'inizio"
+                        label: qsTr("Riproduci dall'inizio")
                         visible: root.hasResume() && !root.isSeries()
                         active: root.detailFocus === 1
                     }
@@ -1866,7 +1889,7 @@ Window {
                         icon: (app.detail.played !== undefined && app.detail.played)
                               ? "check-double" : "check"
                         label: (app.detail.played !== undefined && app.detail.played)
-                               ? "Segna come non visto" : "Segna come visto"
+                               ? qsTr("Segna come non visto") : qsTr("Segna come visto")
                         active: root.detailFocus === root.playedIndex()
                     }
                     ActionButton {
@@ -1875,24 +1898,24 @@ Window {
                         customIconColor: (app.detail.favorite !== undefined && app.detail.favorite)
                                          ? "#ff4d4d" : "#ffffff"
                         label: (app.detail.favorite !== undefined && app.detail.favorite)
-                               ? "Togli preferito" : "Preferito"
+                               ? qsTr("Togli preferito") : qsTr("Preferito")
                         active: root.detailFocus === root.favoriteIndex()
                     }
                     ActionButton {
                         icon: "series"
-                        label: "Vai alla serie completa"
+                        label: qsTr("Vai alla serie completa")
                         visible: root.hasSeriesLink()
                         active: root.detailFocus === root.seriesIndex()
                     }
                     ActionButton {
                         icon: "previous"
-                        label: "Episodio precedente"
+                        label: qsTr("Episodio precedente")
                         visible: root.isEpisode()
                         active: root.detailFocus === root.previousIndex()
                     }
                     ActionButton {
                         icon: "text"
-                        label: "Leggi tutto"
+                        label: qsTr("Leggi tutto")
                         visible: root.hasOverview()
                         active: root.detailFocus === root.readMoreIndex()
                     }
@@ -1920,7 +1943,7 @@ Window {
                         border.color: root.detailFocus === root.settingsStart() ? "#00a4dc" : "#1b2733"
                         Text { anchors.left: parent.left; anchors.leftMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#9fb0c0"; font.pixelSize: 15; text: "Qualità" }
+                               color: "#9fb0c0"; font.pixelSize: 15; text: qsTr("Qualità") }
                         Text { anchors.right: parent.right; anchors.rightMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
                                color: "#ffffff"; font.pixelSize: 15
@@ -1934,7 +1957,7 @@ Window {
                         border.color: root.detailFocus === root.settingsStart() + 1 ? "#00a4dc" : "#1b2733"
                         Text { anchors.left: parent.left; anchors.leftMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#9fb0c0"; font.pixelSize: 15; text: "Audio" }
+                               color: "#9fb0c0"; font.pixelSize: 15; text: qsTr("Audio") }
                         Text { anchors.right: parent.right; anchors.rightMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
                                color: "#ffffff"; font.pixelSize: 15
@@ -1948,7 +1971,7 @@ Window {
                         border.color: root.detailFocus === root.settingsStart() + 2 ? "#00a4dc" : "#1b2733"
                         Text { anchors.left: parent.left; anchors.leftMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#9fb0c0"; font.pixelSize: 15; text: "Sottotitoli" }
+                               color: "#9fb0c0"; font.pixelSize: 15; text: qsTr("Sottotitoli") }
                         Text { anchors.right: parent.right; anchors.rightMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
                                color: "#ffffff"; font.pixelSize: 15
@@ -2042,7 +2065,7 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             color: "#8fa3b6"
             font.pixelSize: 15
-            text: app.loading ? "caricamento…" : app.statusMessage
+            text: app.loading ? qsTr("caricamento…") : app.statusMessage
         }
     }
 
@@ -2120,6 +2143,52 @@ Window {
         }
     }
 
+    }
+
+    // ------------------------------------------------------- LINGUA INTERFACCIA
+    Item {
+        anchors.fill: parent
+        visible: root.languageOpen
+        z: 60
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#f20b0f14"
+        }
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 12
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: "#ffffff"
+                font.pixelSize: 28
+                font.bold: true
+                text: qsTr("Lingua dell'interfaccia")
+            }
+
+            Repeater {
+                model: language.available
+
+                Rectangle {
+                    width: 420
+                    height: 58
+                    radius: 29
+                    color: index === root.languageIndex ? "#123243" : "#141e28"
+                    border.width: index === root.languageIndex ? 2 : 1
+                    border.color: index === root.languageIndex ? "#00a4dc" : "#1e2b38"
+
+                    Text {
+                        anchors.centerIn: parent
+                        color: index === root.languageIndex ? "#ffffff" : "#dbe5ef"
+                        font.pixelSize: 20
+                        font.bold: index === root.languageIndex
+                        text: modelData.name
+                    }
+                }
+            }
+        }
     }
 
     // ------------------------------------------------------------------ PLAYER
@@ -2284,10 +2353,10 @@ Window {
                     active: app.playerFocus === 3
                 }
                 Item { width: 18; height: 1 }
-                PlayerButton { text: "Audio"; active: app.playerFocus === 4 }
-                PlayerButton { text: "Sottotitoli"; active: app.playerFocus === 5 }
-                PlayerButton { text: "Qualità"; active: app.playerFocus === 6 }
-                PlayerButton { text: "Statistiche"; active: app.playerFocus === 7 }
+                PlayerButton { text: qsTr("Audio"); active: app.playerFocus === 4 }
+                PlayerButton { text: qsTr("Sottotitoli"); active: app.playerFocus === 5 }
+                PlayerButton { text: qsTr("Qualità"); active: app.playerFocus === 6 }
+                PlayerButton { text: qsTr("Statistiche"); active: app.playerFocus === 7 }
             }
 
         }
@@ -2326,54 +2395,55 @@ Window {
                     color: "#7fd9ff"
                     font.pixelSize: 16
                     font.bold: true
-                    text: "Transcodifica (server)"
+                    text: qsTr("Transcodifica (server)")
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Risoluzione   " + (app.playerStats.resolution !== undefined ? app.playerStats.resolution : "?")
+                    text: qsTr("Risoluzione   %1").arg(app.playerStats.resolution !== undefined ? app.playerStats.resolution : "?")
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Bitrate       " + (app.playerStats.bandwidth !== undefined
-                          ? (app.playerStats.bandwidth / 1000000).toFixed(1) + " Mbps (richiesti 12)" : "?")
+                    text: app.playerStats.bandwidth !== undefined
+                          ? qsTr("Bitrate       %1 Mbps (richiesti 12)").arg((app.playerStats.bandwidth / 1000000).toFixed(1))
+                          : qsTr("Bitrate       %1").arg("?")
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Codec         " + (app.playerStats.codecs !== undefined ? app.playerStats.codecs : "?")
+                    text: qsTr("Codec         %1").arg(app.playerStats.codecs !== undefined ? app.playerStats.codecs : "?")
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "FPS inviati   " + (app.playerStats.fps !== undefined ? app.playerStats.fps : 0)
+                    text: qsTr("FPS inviati   %1").arg(app.playerStats.fps !== undefined ? app.playerStats.fps : 0)
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Coda video    " + (app.playerStats.queueVideo !== undefined ? app.playerStats.queueVideo : 0) + " frame"
+                    text: qsTr("Coda video    %1 frame").arg(app.playerStats.queueVideo !== undefined ? app.playerStats.queueVideo : 0)
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Coda audio    " + (app.playerStats.queueAudio !== undefined
-                          ? Math.round(app.playerStats.queueAudio / 48) : 0) + " ms"
+                    text: qsTr("Coda audio    %1 ms").arg(app.playerStats.queueAudio !== undefined
+                          ? Math.round(app.playerStats.queueAudio / 48) : 0)
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Segmento      " + (app.playerStats.segmentMs !== undefined ? app.playerStats.segmentMs : 0) + " ms (download+demux)"
+                    text: qsTr("Segmento      %1 ms (download+demux)").arg(app.playerStats.segmentMs !== undefined ? app.playerStats.segmentMs : 0)
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Frame rifiutati  " + (app.playerStats.failed !== undefined ? app.playerStats.failed : 0)
+                    text: qsTr("Frame rifiutati  %1").arg(app.playerStats.failed !== undefined ? app.playerStats.failed : 0)
                 }
                 Text {
                     color: "#c9d4df"
                     font.pixelSize: 14
-                    text: "Scartati (ritardo)  " + (app.playerStats.dropped !== undefined ? app.playerStats.dropped : 0)
+                    text: qsTr("Scartati (ritardo)  %1").arg(app.playerStats.dropped !== undefined ? app.playerStats.dropped : 0)
                 }
             }
         }
@@ -2399,7 +2469,7 @@ Window {
                     color: "#7fd9ff"
                     font.pixelSize: 18
                     font.bold: true
-                    text: "Impostazioni"
+                    text: qsTr("Impostazioni")
                 }
 
                 Rectangle {
@@ -2409,7 +2479,7 @@ Window {
                     border.color: app.settingsRow === 0 ? "#00a4dc" : "#1b2733"
                     Text { anchors.left: parent.left; anchors.leftMargin: 12
                            anchors.verticalCenter: parent.verticalCenter
-                           color: "#9fb0c0"; font.pixelSize: 16; text: "Qualità" }
+                           color: "#9fb0c0"; font.pixelSize: 16; text: qsTr("Qualità") }
                     Text { anchors.right: parent.right; anchors.rightMargin: 12
                            anchors.verticalCenter: parent.verticalCenter
                            color: "#ffffff"; font.pixelSize: 16
@@ -2423,7 +2493,7 @@ Window {
                     border.color: app.settingsRow === 1 ? "#00a4dc" : "#1b2733"
                     Text { anchors.left: parent.left; anchors.leftMargin: 12
                            anchors.verticalCenter: parent.verticalCenter
-                           color: "#9fb0c0"; font.pixelSize: 16; text: "Audio" }
+                           color: "#9fb0c0"; font.pixelSize: 16; text: qsTr("Audio") }
                     Text { anchors.right: parent.right; anchors.rightMargin: 12
                            anchors.verticalCenter: parent.verticalCenter
                            color: "#ffffff"; font.pixelSize: 16
@@ -2437,7 +2507,7 @@ Window {
                     border.color: app.settingsRow === 2 ? "#00a4dc" : "#1b2733"
                     Text { anchors.left: parent.left; anchors.leftMargin: 12
                            anchors.verticalCenter: parent.verticalCenter
-                           color: "#9fb0c0"; font.pixelSize: 16; text: "Sottotitoli" }
+                           color: "#9fb0c0"; font.pixelSize: 16; text: qsTr("Sottotitoli") }
                     Text { anchors.right: parent.right; anchors.rightMargin: 12
                            anchors.verticalCenter: parent.verticalCenter
                            color: "#ffffff"; font.pixelSize: 16
@@ -2505,6 +2575,27 @@ Window {
                 if (event.key === Qt.Key_Return) { activateNav(); event.accepted = true; return }
                 if (event.key === Qt.Key_Escape) { root.navFocus = false; event.accepted = true; return }
                 event.accepted = false
+                return
+            }
+
+            if (root.languageOpen) {
+                if (event.key === Qt.Key_Up) {
+                    root.languageIndex = Math.max(0, root.languageIndex - 1)
+                } else if (event.key === Qt.Key_Down) {
+                    root.languageIndex = Math.min(language.available.length - 1,
+                                                  root.languageIndex + 1)
+                } else if (event.key === Qt.Key_Return) {
+                    if (root.languageIndex >= 0 &&
+                        root.languageIndex < language.available.length) {
+                        language.setCurrent(language.available[root.languageIndex].code)
+                    }
+                    root.languageOpen = false
+                } else if (event.key === Qt.Key_Escape ||
+                           event.key === Qt.Key_Left ||
+                           event.key === Qt.Key_Backspace) {
+                    root.languageOpen = false
+                }
+                event.accepted = true
                 return
             }
 
@@ -2666,6 +2757,9 @@ Window {
                         app.cycleOsdSeconds(1)
                     } else if (action === "test") {
                         app.testConnection()
+                    } else if (action === "language") {
+                        root.languageIndex = root.currentLanguageIndex()
+                        root.languageOpen = true
                     } else if (action === "reset") {
                         app.resetSettings()
                     } else if (action === "info") {
@@ -2674,7 +2768,7 @@ Window {
                             : ("JellyLink " + appVersion)
                         menuHintTimer.restart()
                     } else {
-                        menuHint = "Voce in preparazione: " + entry.title
+                        menuHint = qsTr("Voce in preparazione: %1").arg(entry.title)
                         menuHintTimer.restart()
                     }
                 } else if (event.key === Qt.Key_Escape || event.key === Qt.Key_Left) {

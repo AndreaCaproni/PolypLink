@@ -26,6 +26,7 @@ SOURCES += src/main.cpp \
            src/inputpump.cpp \
            src/jellyfinclient.cpp \
            src/discovery.cpp \
+           src/language.cpp \
            src/appcontroller.cpp \
            src/tsdemux.cpp \
            src/player.cpp
@@ -33,6 +34,7 @@ SOURCES += src/main.cpp \
 HEADERS += src/inputpump.h \
            src/jellyfinclient.h \
            src/discovery.h \
+           src/language.h \
            src/appcontroller.h \
            src/tsdemux.h \
            src/player.h

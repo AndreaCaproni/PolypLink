@@ -80,7 +80,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     if (qcSecret_.isEmpty()) return;
     if (++qcAttempts_ > 90) {
       qcTimer_.stop();
-      qcStatus_ = QStringLiteral("Tempo scaduto. Riprova.");
+      qcStatus_ = tr("Tempo scaduto. Riprova.");
       emit quickConnectChanged();
       return;
     }
@@ -89,7 +89,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
       const QJsonObject o = doc.object();
       if (!o.value(QStringLiteral("Authenticated")).toBool()) return;
       qcTimer_.stop();
-      qcStatus_ = QStringLiteral("Autorizzato, accesso in corso…");
+      qcStatus_ = tr("Autorizzato, accesso in corso…");
       emit quickConnectChanged();
       client_.quickConnectAuthenticate(
           qcSecret_, [this](const QJsonDocument&, const QString& err2) {
@@ -169,12 +169,12 @@ void AppController::applyConfigFile() {
 
   if (!user.isEmpty() && !pass.isEmpty()) {
     setState(QStringLiteral("quickconnect"));
-    qcStatus_ = QStringLiteral("Accesso in corso…");
+    qcStatus_ = tr("Accesso in corso…");
     emit quickConnectChanged();
     client_.authenticate(user, pass, [this](const QJsonDocument&, const QString& err) {
       if (!err.isEmpty()) {
         setStatus(err);
-        qcStatus_ = QStringLiteral("Accesso fallito: %1").arg(err);
+        qcStatus_ = tr("Accesso fallito: %1").arg(err);
         emit quickConnectChanged();
         setState(QStringLiteral("login"));
         return;
@@ -226,7 +226,7 @@ void AppController::openPreviousEpisode() {
           }
         }
         if (pos <= 0) {
-          showNotice(QStringLiteral("Nessun episodio precedente"));
+          showNotice(tr("Nessun episodio precedente"));
           return;
         }
         openItem(eps.at(pos - 1).value(QStringLiteral("Id")).toString());
@@ -264,7 +264,7 @@ void AppController::refreshUserStats() {
 QVariantList AppController::servers() const { return discovery_.servers(); }
 
 void AppController::discover() {
-  setStatus(QStringLiteral("Cerco il server Jellyfin sulla rete…"));
+  setStatus(tr("Cerco il server Jellyfin sulla rete…"));
   discovery_.start();
 }
 
@@ -287,14 +287,14 @@ void AppController::setManualServer(const QString& url) {
 
 void AppController::loginWithPassword(const QString& user, const QString& pass) {
   if (user.trimmed().isEmpty()) {
-    setStatus(QStringLiteral("Inserisci il nome utente"));
+    setStatus(tr("Inserisci il nome utente"));
     return;
   }
-  setStatus(QStringLiteral("Accesso in corso…"));
+  setStatus(tr("Accesso in corso…"));
   client_.authenticate(user.trimmed(), pass,
                        [this](const QJsonDocument&, const QString& err) {
                          if (!err.isEmpty()) {
-                           setStatus(QStringLiteral("Accesso fallito: %1").arg(err));
+                           setStatus(tr("Accesso fallito: %1").arg(err));
                            return;
                          }
                          afterLogin();
@@ -312,7 +312,7 @@ void AppController::selectServer(int index) {
 
 void AppController::beginQuickConnect() {
   qcCode_.clear();
-  qcStatus_ = QStringLiteral("Preparo il codice…");
+  qcStatus_ = tr("Preparo il codice…");
   emit quickConnectChanged();
   setState(QStringLiteral("quickconnect"));
 
@@ -326,7 +326,7 @@ void AppController::beginQuickConnect() {
     qcCode_ = o.value(QStringLiteral("Code")).toString();
     qcSecret_ = o.value(QStringLiteral("Secret")).toString();
     qcAttempts_ = 0;
-    qcStatus_ = QStringLiteral(
+    qcStatus_ = tr(
         "Apri Jellyfin sul telefono o sul PC: Impostazioni → Quick Connect, "
         "e inserisci questo codice.");
     emit quickConnectChanged();
@@ -686,7 +686,7 @@ void AppController::openItem(const QString& itemId) {
     setLoading(false);
     if (!err.isEmpty()) {
       setStatus(err);
-      detail_.insert(QStringLiteral("name"), QStringLiteral("Impossibile caricare"));
+      detail_.insert(QStringLiteral("name"), tr("Impossibile caricare"));
       detail_.insert(QStringLiteral("overview"), err);
       emit detailChanged();
       return;
@@ -729,7 +729,7 @@ void AppController::openItem(const QString& itemId) {
           audioTracks_.append(tr);
           if (audioIndex_ < 0 || st.value(QStringLiteral("IsDefault")).toBool()) audioIndex_ = index;
         } else if (type == QLatin1String("Subtitle")) {
-          QString label = lang.isEmpty() ? QStringLiteral("Sottotitoli %1").arg(index) : lang;
+          QString label = lang.isEmpty() ? tr("Sottotitoli %1").arg(index) : lang;
           const QString title = st.value(QStringLiteral("DisplayTitle")).toString();
           if (!title.isEmpty()) label += QStringLiteral(" · ") + title;
           QVariantMap tr;
@@ -848,8 +848,8 @@ void AppController::togglePlayed() {
     // "Continua a guardare" e "Prossimo episodio" vanno ricalcolati dal
     // server: una serie puo' far avanzare l'episodio successivo.
     QTimer::singleShot(400, this, &AppController::refreshHome);
-    showNotice(!played ? QStringLiteral("Segnato come visto")
-                       : QStringLiteral("Segnato come non visto"));
+    showNotice(!played ? tr("Segnato come visto")
+                       : tr("Segnato come non visto"));
   });
 }
 
@@ -866,8 +866,8 @@ void AppController::toggleFavorite() {
                         detail_.insert(QStringLiteral("favorite"), !favorite);
                         emit detailChanged();
                         patchLists(id, QStringLiteral("favorite"), !favorite);
-                        showNotice(!favorite ? QStringLiteral("Aggiunto ai preferiti")
-                                             : QStringLiteral("Rimosso dai preferiti"));
+                        showNotice(!favorite ? tr("Aggiunto ai preferiti")
+                                             : tr("Rimosso dai preferiti"));
                       });
 }
 
@@ -894,7 +894,7 @@ void AppController::playSeries(const QString& seriesId) {
               }
               const QJsonArray eps = d2.object().value(QStringLiteral("Items")).toArray();
               if (eps.isEmpty()) {
-                setStatus(QStringLiteral("La serie non ha episodi"));
+                setStatus(tr("La serie non ha episodi"));
                 return;
               }
               QJsonObject pick = eps.at(0).toObject();
@@ -944,8 +944,8 @@ void AppController::toggleSeasonPlayed(const QString& seasonId) {
                       }
                       emit seasonsChanged();
                       emit episodesChanged();
-                      showNotice(!played ? QStringLiteral("Stagione segnata come vista")
-                                         : QStringLiteral("Stagione segnata come non vista"));
+                      showNotice(!played ? tr("Stagione segnata come vista")
+                                         : tr("Stagione segnata come non vista"));
                       QTimer::singleShot(400, this, &AppController::refreshHome);
                     });
 }
@@ -972,14 +972,14 @@ void AppController::toggleSeasonFavorite(const QString& seasonId) {
                         }
                         emit seasonsChanged();
                         emit episodesChanged();
-                        showNotice(!favorite ? QStringLiteral("Stagione aggiunta ai preferiti")
-                                             : QStringLiteral("Stagione rimossa dai preferiti"));
+                        showNotice(!favorite ? tr("Stagione aggiunta ai preferiti")
+                                             : tr("Stagione rimossa dai preferiti"));
                       });
 }
 
 void AppController::playSeasonFromStart() {
   if (episodes_.isEmpty()) {
-    setStatus(QStringLiteral("Gli episodi non sono ancora caricati"));
+    setStatus(tr("Gli episodi non sono ancora caricati"));
     return;
   }
   const QVariantMap ep = episodes_.first().toMap();
@@ -1147,7 +1147,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           playerActive_ = false;
           playerPaused_ = false;
           osdVisible_ = false;
-          setStatus(err.isEmpty() ? QStringLiteral("Impossibile avviare la riproduzione")
+          setStatus(err.isEmpty() ? tr("Impossibile avviare la riproduzione")
                                   : err);
           emit playerChanged();
           emit osdChanged();
@@ -1192,14 +1192,16 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         });
         connect(player_, &Player::stalled, this, [this](bool stalled) {
           if (stalled) {
-            playerStatus_ = QStringLiteral("Connessione persa… riprovo");
-          } else if (playerStatus_.startsWith(QStringLiteral("Connessione persa"))) {
+            playerStalled_ = true;
+            playerStatus_ = tr("Connessione persa… riprovo");
+          } else if (playerStalled_) {
+            playerStalled_ = false;
             playerStatus_.clear();
           }
           emit playerChanged();
         });
         connect(player_, &Player::failed, this, [this](const QString& message) {
-          playerStatus_ = QStringLiteral("Errore: %1").arg(message);
+          playerStatus_ = tr("Errore: %1").arg(message);
           playerActive_ = false;
           setStatus(playerStatus_);
           emit playerChanged();
@@ -1557,7 +1559,7 @@ void AppController::cycleDefaultQuality(int delta) {
   defaultQualityKbps_ = values[pos];
   saveDefaults();
   emit tracksChanged();
-  showNotice(QStringLiteral("Qualità predefinita: %1 Mbps").arg(defaultQualityKbps_ / 1000));
+  showNotice(tr("Qualità predefinita: %1 Mbps").arg(defaultQualityKbps_ / 1000));
 }
 
 void AppController::cycleOsdSeconds(int delta) {
@@ -1569,7 +1571,7 @@ void AppController::cycleOsdSeconds(int delta) {
   osdTimer_.setInterval(osdSeconds_ * 1000);
   saveDefaults();
   emit tracksChanged();
-  showNotice(QStringLiteral("OSD: %1 secondi").arg(osdSeconds_));
+  showNotice(tr("OSD: %1 secondi").arg(osdSeconds_));
 }
 
 void AppController::resetSettings() {
@@ -1578,22 +1580,22 @@ void AppController::resetSettings() {
   osdTimer_.setInterval(5000);
   saveDefaults();
   emit tracksChanged();
-  showNotice(QStringLiteral("Impostazioni ripristinate"));
+  showNotice(tr("Impostazioni ripristinate"));
 }
 
 void AppController::testConnection() {
   if (client_.server().isEmpty()) {
-    showNotice(QStringLiteral("Nessun server configurato"));
+    showNotice(tr("Nessun server configurato"));
     return;
   }
-  showNotice(QStringLiteral("Verifico la connessione…"));
+  showNotice(tr("Verifico la connessione…"));
   client_.fetchViews([this](const QJsonDocument& doc, const QString& err) {
     if (!err.isEmpty()) {
       setStatus(err);
       return;
     }
     const int n = doc.object().value(QStringLiteral("Items")).toArray().size();
-    showNotice(QStringLiteral("Connessione OK · %1 librerie").arg(n));
+    showNotice(tr("Connessione OK · %1 librerie").arg(n));
   });
 }
 

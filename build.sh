@@ -56,6 +56,18 @@ set -u
 [[ -n "${MARVELL_ROOTFS:-}" && -d "$MARVELL_ROOTFS" ]] || die "rootfs dello SDK non valida"
 command -v qmake >/dev/null || die "qmake non trovato: setenv.sh non ha aggiunto Qt al PATH"
 
+# Le traduzioni .ts sono la fonte; il .qm va rigenerato prima di qmake,
+# cosi' la risorsa compilata nel binario e' sempre aggiornata.
+if [[ -f "$ROOT/i18n/jellylink_en.ts" ]]; then
+  LRELEASE_BIN="${LRELEASE:-$(command -v lrelease || true)}"
+  if [[ -n "$LRELEASE_BIN" ]]; then
+    echo "==> traduzioni"
+    "$LRELEASE_BIN" "$ROOT/i18n/jellylink_en.ts" -qm "$ROOT/i18n/jellylink_en.qm"
+  else
+    echo "avviso: lrelease non trovato, uso il .qm esistente" >&2
+  fi
+fi
+
 echo "==> spec qmake: $(qmake -query QMAKE_SPEC)"
 
 mkdir -p "$BUILD"

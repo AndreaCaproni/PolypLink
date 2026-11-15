@@ -92,7 +92,7 @@ Item {
                 color: "#7fd9ff"
                 font.pixelSize: 11
                 font.bold: true
-                text: "VISTO"
+                text: qsTr("VISTO")
             }
         }
 

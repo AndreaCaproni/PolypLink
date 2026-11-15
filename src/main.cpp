@@ -17,6 +17,7 @@
 #include "appcontroller.h"
 #include "buildstamp.h"
 #include "inputpump.h"
+#include "language.h"
 #include "version.h"
 
 // ---------------------------------------------------------------------------
@@ -173,9 +174,11 @@ int main(int argc, char** argv) {
   qInfo("[avvio] font disponibili: %d", families.size());
 
   FpsCounter counter;
-  AppController controller;
 
   QQmlApplicationEngine engine;
+  Language language(&engine);
+  AppController controller;
+
   QObject::connect(
       &engine, &QQmlApplicationEngine::warnings, &app,
       [](const QList<QQmlError>& warnings) {
@@ -184,6 +187,7 @@ int main(int argc, char** argv) {
       Qt::DirectConnection);
 
   engine.rootContext()->setContextProperty(QStringLiteral("fpsCounter"), &counter);
+  engine.rootContext()->setContextProperty(QStringLiteral("language"), &language);
   engine.rootContext()->setContextProperty(QStringLiteral("app"), &controller);
   engine.rootContext()->setContextProperty(QStringLiteral("appVersion"),
                                            QStringLiteral(APP_VERSION));

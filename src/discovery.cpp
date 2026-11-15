@@ -39,7 +39,7 @@ void Discovery::start() {
     if (!socket_.bind(QHostAddress::AnyIPv4, 0, QUdpSocket::ShareAddress)) {
       searching_ = false;
       emit searchingChanged();
-      emit error(QStringLiteral("impossibile aprire la rete: %1").arg(socket_.errorString()));
+      emit error(tr("impossibile aprire la rete: %1").arg(socket_.errorString()));
       return;
     }
     socket_.setSocketOption(QAbstractSocket::MulticastTtlOption, 1);

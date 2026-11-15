@@ -111,7 +111,7 @@ QNetworkRequest JellyfinClient::makeRequest(const QString& pathAndQuery, bool wi
 
 void JellyfinClient::sendGet(const QString& pathAndQuery, bool withToken, JsonCallback cb) {
   if (server_.isEmpty()) {
-    if (cb) cb(QJsonDocument(), QStringLiteral("server non configurato"));
+    if (cb) cb(QJsonDocument(), tr("server non configurato"));
     return;
   }
   auto* reply = net_.get(makeRequest(pathAndQuery, withToken));
@@ -122,7 +122,7 @@ void JellyfinClient::sendGet(const QString& pathAndQuery, bool withToken, JsonCa
     const QByteArray raw = reply->readAll();
     if (reply->property("timedOut").toBool()) {
       qWarning("[api] timeout GET %s", qPrintable(pathAndQuery.left(160)));
-      if (cb) cb(QJsonDocument(), QStringLiteral("il server non risponde (timeout)"));
+      if (cb) cb(QJsonDocument(), tr("il server non risponde (timeout)"));
       return;
     }
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -140,7 +140,7 @@ void JellyfinClient::sendGet(const QString& pathAndQuery, bool withToken, JsonCa
 void JellyfinClient::sendPost(const QString& pathAndQuery, const QJsonObject& body,
                               bool withToken, JsonCallback cb) {
   if (server_.isEmpty()) {
-    if (cb) cb(QJsonDocument(), QStringLiteral("server non configurato"));
+    if (cb) cb(QJsonDocument(), tr("server non configurato"));
     return;
   }
   QNetworkRequest req = makeRequest(pathAndQuery, withToken);
@@ -153,7 +153,7 @@ void JellyfinClient::sendPost(const QString& pathAndQuery, const QJsonObject& bo
     const QByteArray raw = reply->readAll();
     if (reply->property("timedOut").toBool()) {
       qWarning("[api] timeout POST %s", qPrintable(pathAndQuery.left(160)));
-      if (cb) cb(QJsonDocument(), QStringLiteral("il server non risponde (timeout)"));
+      if (cb) cb(QJsonDocument(), tr("il server non risponde (timeout)"));
       return;
     }
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -171,7 +171,7 @@ void JellyfinClient::sendPost(const QString& pathAndQuery, const QJsonObject& bo
 void JellyfinClient::sendDelete(const QString& pathAndQuery, bool withToken,
                                 JsonCallback cb) {
   if (server_.isEmpty()) {
-    if (cb) cb(QJsonDocument(), QStringLiteral("server non configurato"));
+    if (cb) cb(QJsonDocument(), tr("server non configurato"));
     return;
   }
   auto* reply = net_.deleteResource(makeRequest(pathAndQuery, withToken));
@@ -182,7 +182,7 @@ void JellyfinClient::sendDelete(const QString& pathAndQuery, bool withToken,
     const QByteArray raw = reply->readAll();
     if (reply->property("timedOut").toBool()) {
       qWarning("[api] timeout DELETE %s", qPrintable(pathAndQuery.left(160)));
-      if (cb) cb(QJsonDocument(), QStringLiteral("il server non risponde (timeout)"));
+      if (cb) cb(QJsonDocument(), tr("il server non risponde (timeout)"));
       return;
     }
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -201,11 +201,11 @@ QString JellyfinClient::parseError(const QJsonDocument& doc, const QByteArray& r
                                    int status) {
   // Messaggi utili invece di "errore HTTP 0". 401 e 403 hanno gia' il loro
   // percorso (logout/login), qui servono per la UI.
-  if (status == 0) return QStringLiteral("Server non raggiungibile");
-  if (status == 401) return QStringLiteral("Sessione scaduta");
-  if (status == 403) return QStringLiteral("Accesso negato");
-  if (status == 404) return QStringLiteral("Risorsa non trovata sul server");
-  if (status >= 500) return QStringLiteral("Errore del server (%1)").arg(status);
+  if (status == 0) return tr("Server non raggiungibile");
+  if (status == 401) return tr("Sessione scaduta");
+  if (status == 403) return tr("Accesso negato");
+  if (status == 404) return tr("Risorsa non trovata sul server");
+  if (status >= 500) return tr("Errore del server (%1)").arg(status);
 
   const QJsonObject o = doc.object();
   for (const char* key : {"Message", "message", "error", "Error"}) {
@@ -214,7 +214,7 @@ QString JellyfinClient::parseError(const QJsonDocument& doc, const QByteArray& r
   }
   const QString text = QString::fromUtf8(raw).trimmed();
   if (!text.isEmpty() && text.size() < 200) return text;
-  return QStringLiteral("errore HTTP %1").arg(status);
+  return tr("errore HTTP %1").arg(status);
 }
 
 void JellyfinClient::authenticate(const QString& username, const QString& password,

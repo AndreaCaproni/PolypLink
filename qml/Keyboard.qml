@@ -49,7 +49,10 @@ Item {
 
     function display(k) {
         if (shift && k.length === 1 && k >= "a" && k <= "z") return k.toUpperCase()
-        if (k === "MAIUSC") return shift ? "minus" : "MAIUSC"
+        if (k === "MAIUSC") return qsTr("MAIUSC")
+        if (k === "spazio") return qsTr("spazio")
+        if (k === "CANCELLA") return qsTr("CANCELLA")
+        if (k === "ANNULLA") return qsTr("ANNULLA")
         return k
     }
 
