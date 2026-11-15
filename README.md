@@ -161,8 +161,11 @@ build.sh        build + USB package
   audio track**; the episode's tracks load when you open its detail page.
 - Automatic server discovery covers the **local /24**; servers on other VLANs
   must be entered manually.
-- **The UI is available in Italian and English**; the language can be changed
-  in Settings and is remembered across restarts.
+- **The UI is available in 21 languages**: Italian, English, Spanish, French,
+  German, Portuguese (Brazil and Portugal), Russian, Dutch, Polish, Swedish,
+  Danish, Norwegian Bokmål, Czech, Ukrainian, Catalan, Turkish, Romanian, Greek,
+  Hungarian and Finnish. The language is changed in Settings and remembered
+  across restarts. Translations are a first pass, not native-reviewed.
 - **Titles, plots and genres follow the server's metadata language**, which is
   configured per library in Jellyfin. The interface language does not translate
   item metadata.

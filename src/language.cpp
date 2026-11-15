@@ -6,34 +6,71 @@
 #include <QSettings>
 #include <QVariantMap>
 
+namespace {
+
+struct LanguageEntry {
+  const char* code;
+  const char* name;
+};
+
+// Nome della lingua nella lingua stessa: cosi' il selettore resta leggibile
+// anche quando l'interfaccia e' in una lingua che non conosci.
+const LanguageEntry kLanguages[] = {
+    {"it", "Italiano"},
+    {"en", "English"},
+    {"es", "Español"},
+    {"fr", "Français"},
+    {"de", "Deutsch"},
+    {"pt-BR", "Português (Brasil)"},
+    {"ru", "Русский"},
+    {"nl", "Nederlands"},
+    {"pl", "Polski"},
+    {"pt-PT", "Português (Portugal)"},
+    {"sv", "Svenska"},
+    {"da", "Dansk"},
+    {"nb", "Norsk bokmål"},
+    {"cs", "Čeština"},
+    {"uk", "Українська"},
+    {"ca", "Català"},
+    {"tr", "Türkçe"},
+    {"ro", "Română"},
+    {"el", "Ελληνικά"},
+    {"hu", "Magyar"},
+    {"fi", "Suomi"},
+};
+
+const LanguageEntry* FindLanguage(const QString& code) {
+  for (const LanguageEntry& entry : kLanguages) {
+    if (code == QLatin1String(entry.code)) return &entry;
+  }
+  return nullptr;
+}
+
+}  // namespace
+
 Language::Language(QQmlApplicationEngine* engine, QObject* parent)
     : QObject(parent), engine_(engine) {
   QSettings settings;
-  const QString saved = settings.value(QStringLiteral("language")).toString();
-  current_ = (saved == QLatin1String("en")) ? QStringLiteral("en")
-                                            : QStringLiteral("it");
+  const QString saved =
+      settings.value(QStringLiteral("language"), QStringLiteral("it")).toString();
+  if (FindLanguage(saved) != nullptr) current_ = saved;
   apply();
 }
 
 QVariantList Language::available() const {
   QVariantList list;
-
-  QVariantMap italian;
-  italian.insert(QStringLiteral("code"), QStringLiteral("it"));
-  italian.insert(QStringLiteral("name"), QStringLiteral("Italiano"));
-  list.append(italian);
-
-  QVariantMap english;
-  english.insert(QStringLiteral("code"), QStringLiteral("en"));
-  english.insert(QStringLiteral("name"), QStringLiteral("English"));
-  list.append(english);
-
+  for (const LanguageEntry& entry : kLanguages) {
+    QVariantMap item;
+    item.insert(QStringLiteral("code"), QString::fromLatin1(entry.code));
+    item.insert(QStringLiteral("name"), QString::fromUtf8(entry.name));
+    list.append(item);
+  }
   return list;
 }
 
 void Language::setCurrent(const QString& code) {
   if (code == current_) return;
-  if (code != QLatin1String("it") && code != QLatin1String("en")) return;
+  if (FindLanguage(code) == nullptr) return;
 
   current_ = code;
   QSettings().setValue(QStringLiteral("language"), current_);
@@ -59,5 +96,5 @@ void Language::apply() {
   }
 
   qInfo("[i18n] lingua %s, esempio: %s", qPrintable(current_),
-        qPrintable(QCoreApplication::translate("main", "Preferiti")));
+        QCoreApplication::translate("main", "Preferiti").toUtf8().constData());
 }

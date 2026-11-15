@@ -38,7 +38,7 @@ Window {
         { title: qsTr("Precaricamento"), desc: qsTr("Quanti segmenti tenere pronti prima di partire") },
         { title: qsTr("Seek e accelerazione"), desc: qsTr("Passo iniziale e tetto dell'accelerazione") },
         { title: qsTr("OSD"), desc: qsTr("Durata, contenuti e comportamento in pausa"), action: "osd" },
-        { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Italiano, English — titoli e trame seguono il server"), action: "language" },
+        { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Lingua dell'interfaccia; titoli e trame seguono il server"), action: "language" },
         { title: qsTr("Scala dell'interfaccia"), desc: qsTr("Dimensione di testi e card") },
         { title: qsTr("Tema"), desc: qsTr("Scuro, chiaro, automatico") },
         { title: qsTr("Rete e certificati"), desc: qsTr("Proxy e certificati HTTPS non firmati") },
@@ -2158,7 +2158,7 @@ Window {
 
         Column {
             anchors.centerIn: parent
-            spacing: 12
+            spacing: 18
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -2168,23 +2168,36 @@ Window {
                 text: qsTr("Lingua dell'interfaccia")
             }
 
-            Repeater {
+            GridView {
+                id: languageGrid
+                width: 1110
+                height: 454
+                cellWidth: 370
+                cellHeight: 62
+                interactive: false
+                clip: true
                 model: language.available
 
-                Rectangle {
-                    width: 420
-                    height: 58
-                    radius: 29
-                    color: index === root.languageIndex ? "#123243" : "#141e28"
-                    border.width: index === root.languageIndex ? 2 : 1
-                    border.color: index === root.languageIndex ? "#00a4dc" : "#1e2b38"
+                delegate: Item {
+                    width: languageGrid.cellWidth
+                    height: languageGrid.cellHeight
 
-                    Text {
+                    Rectangle {
+                        width: 350
+                        height: 54
                         anchors.centerIn: parent
-                        color: index === root.languageIndex ? "#ffffff" : "#dbe5ef"
-                        font.pixelSize: 20
-                        font.bold: index === root.languageIndex
-                        text: modelData.name
+                        radius: 27
+                        color: index === root.languageIndex ? "#123243" : "#141e28"
+                        border.width: index === root.languageIndex ? 2 : 1
+                        border.color: index === root.languageIndex ? "#00a4dc" : "#1e2b38"
+
+                        Text {
+                            anchors.centerIn: parent
+                            color: index === root.languageIndex ? "#ffffff" : "#dbe5ef"
+                            font.pixelSize: 19
+                            font.bold: index === root.languageIndex
+                            text: modelData.name
+                        }
                     }
                 }
             }
@@ -2579,11 +2592,17 @@ Window {
             }
 
             if (root.languageOpen) {
-                if (event.key === Qt.Key_Up) {
+                var langCols = 3
+                if (event.key === Qt.Key_Left) {
                     root.languageIndex = Math.max(0, root.languageIndex - 1)
-                } else if (event.key === Qt.Key_Down) {
+                } else if (event.key === Qt.Key_Right) {
                     root.languageIndex = Math.min(language.available.length - 1,
                                                   root.languageIndex + 1)
+                } else if (event.key === Qt.Key_Up) {
+                    root.languageIndex = Math.max(0, root.languageIndex - langCols)
+                } else if (event.key === Qt.Key_Down) {
+                    root.languageIndex = Math.min(language.available.length - 1,
+                                                  root.languageIndex + langCols)
                 } else if (event.key === Qt.Key_Return) {
                     if (root.languageIndex >= 0 &&
                         root.languageIndex < language.available.length) {

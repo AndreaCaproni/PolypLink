@@ -4,9 +4,12 @@
 
 ### Added
 
-- Italian/English interface with a language selector in Settings; the choice is
-  saved and applied without restarting the app.
-- Qt translation files (`i18n/jellylink_en.ts`), ready for more languages.
+- Interface in 21 languages, with a language selector in Settings; the choice
+  is saved and applied without restarting the app.
+- Languages: Italian, English, Spanish, French, German, Portuguese (Brazil and
+  Portugal), Russian, Dutch, Polish, Swedish, Danish, Norwegian Bokmål, Czech,
+  Ukrainian, Catalan, Turkish, Romanian, Greek, Hungarian, Finnish.
+- Qt translation files (`i18n/jellylink_*.ts`), ready for more languages.
 
 ## 0.2.0-beta — 2026-11-15
 

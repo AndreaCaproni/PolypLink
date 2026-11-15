@@ -9,6 +9,26 @@
         <file>qml/assets/jellyfin-logo.png</file>
         <file>qml/Keyboard.qml</file>
         <file>qml/RoundedImage.qml</file>
+
+        <file>i18n/jellylink_ca.qm</file>
+        <file>i18n/jellylink_cs.qm</file>
+        <file>i18n/jellylink_da.qm</file>
+        <file>i18n/jellylink_de.qm</file>
+        <file>i18n/jellylink_el.qm</file>
         <file>i18n/jellylink_en.qm</file>
+        <file>i18n/jellylink_es.qm</file>
+        <file>i18n/jellylink_fi.qm</file>
+        <file>i18n/jellylink_fr.qm</file>
+        <file>i18n/jellylink_hu.qm</file>
+        <file>i18n/jellylink_nb.qm</file>
+        <file>i18n/jellylink_nl.qm</file>
+        <file>i18n/jellylink_pl.qm</file>
+        <file>i18n/jellylink_pt-BR.qm</file>
+        <file>i18n/jellylink_pt-PT.qm</file>
+        <file>i18n/jellylink_ro.qm</file>
+        <file>i18n/jellylink_ru.qm</file>
+        <file>i18n/jellylink_sv.qm</file>
+        <file>i18n/jellylink_tr.qm</file>
+        <file>i18n/jellylink_uk.qm</file>
     </qresource>
 </RCC>

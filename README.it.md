@@ -162,8 +162,12 @@ build.sh        build + pacchetto USB
   aprendone la scheda.
 - La ricerca automatica del server copre la **/24 locale**; server su altre
   VLAN si inseriscono a mano.
-- **Interfaccia in italiano e inglese**; la lingua si cambia dalle
-  Impostazioni e resta memorizzata tra un avvio e l'altro.
+- **Interfaccia in 21 lingue**: italiano, inglese, spagnolo, francese, tedesco,
+  portoghese (Brasile e Portogallo), russo, olandese, polacco, svedese, danese,
+  norvegese bokmål, ceco, ucraino, catalano, turco, rumeno, greco, ungherese e
+  finlandese. La lingua si cambia dalle Impostazioni e resta memorizzata tra un
+  avvio e l'altro. Le traduzioni sono un primo passaggio, non revisionate da
+  madrelingua.
 - **Titoli, trame e generi seguono la lingua dei metadati del server**, impostata
   per libreria in Jellyfin. La lingua dell'interfaccia non traduce i metadati.
 

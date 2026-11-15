@@ -683,8 +683,8 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
         <translation>Bitrate       %1 Mbps (requested 12)</translation>
     </message>
     <message>
-        <source>Italiano, English — titoli e trame seguono il server</source>
-        <translation>Italian, English — titles and plots follow the server</translation>
+        <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
+        <translation>Interface language; titles and plots follow the server</translation>
     </message>
 </context>
 </TS>

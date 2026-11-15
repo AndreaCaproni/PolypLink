@@ -58,13 +58,15 @@ command -v qmake >/dev/null || die "qmake non trovato: setenv.sh non ha aggiunto
 
 # Le traduzioni .ts sono la fonte; il .qm va rigenerato prima di qmake,
 # cosi' la risorsa compilata nel binario e' sempre aggiornata.
-if [[ -f "$ROOT/i18n/jellylink_en.ts" ]]; then
+if [[ -d "$ROOT/i18n" ]] && compgen -G "$ROOT/i18n/*.ts" >/dev/null; then
   LRELEASE_BIN="${LRELEASE:-$(command -v lrelease || true)}"
   if [[ -n "$LRELEASE_BIN" ]]; then
     echo "==> traduzioni"
-    "$LRELEASE_BIN" "$ROOT/i18n/jellylink_en.ts" -qm "$ROOT/i18n/jellylink_en.qm"
+    for ts in "$ROOT"/i18n/*.ts; do
+      "$LRELEASE_BIN" "$ts" -qm "${ts%.ts}.qm"
+    done
   else
-    echo "avviso: lrelease non trovato, uso il .qm esistente" >&2
+    echo "avviso: lrelease non trovato, uso i .qm esistenti" >&2
   fi
 fi
 
