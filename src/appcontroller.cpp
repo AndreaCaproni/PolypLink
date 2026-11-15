@@ -1132,6 +1132,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                         ? durationSec
                         : detail_.value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
   playerPosition_ = startTicks / 1e7;
+  playerStartPosition_ = playerPosition_;
   playerStatus_.clear();
   playerActive_ = true;
   playerPaused_ = false;
@@ -1271,7 +1272,9 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         });
         connect(player_, &Player::positionChanged, this, [this](double seconds) {
           playerPosition_ = seconds;
-          if (playerLoading_) {
+          // La posizione viene emessa ogni 500 ms anche prima del primo frame:
+          // consideriamo finito il caricamento solo quando il tempo avanza.
+          if (playerLoading_ && qAbs(seconds - playerStartPosition_) > 0.05) {
             playerLoading_ = false;
             emit playerChanged();
           }
