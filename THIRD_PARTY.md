@@ -27,9 +27,11 @@ under the license Qt is distributed with in the firmware (LGPL/GPL/commercial).
 ## Jellyfin name and logo
 
 The *Jellyfin* name and logo are trademarks of the Jellyfin project. They are
-used here only to indicate that JellyLink is a Jellyfin-compatible client.
-**JellyLink is an independent project, not affiliated with or endorsed by the
-Jellyfin project.**
+used here only to indicate that JellyLink is a Jellyfin-compatible client and
+are not JellyLink's own branding. No endorsement is implied. **JellyLink is an
+independent, unofficial project, not affiliated with, endorsed by, sponsored
+by, or supported by the Jellyfin project.** If the Jellyfin project requests a
+change or removal, the project will comply.
 
 ## Fonts
 
