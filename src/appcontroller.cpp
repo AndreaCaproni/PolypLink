@@ -194,6 +194,45 @@ QString AppController::serverLabel() const {
 
 QString AppController::userImage() const { return client_.userImageUrl(); }
 
+void AppController::openPreviousEpisode() {
+  const QString current = detail_.value(QStringLiteral("id")).toString();
+  const QString seriesId = detail_.value(QStringLiteral("seriesId")).toString();
+  if (current.isEmpty() || seriesId.isEmpty()) return;
+  setLoading(true);
+  client_.fetchEpisodes(
+      seriesId, QString(),
+      [this, current](const QJsonDocument& doc, const QString& err) {
+        setLoading(false);
+        if (!err.isEmpty()) {
+          setStatus(err);
+          return;
+        }
+        QVector<QJsonObject> eps;
+        for (const QJsonValue& v : doc.object().value(QStringLiteral("Items")).toArray()) {
+          eps.append(v.toObject());
+        }
+        std::sort(eps.begin(), eps.end(), [](const QJsonObject& a, const QJsonObject& b) {
+          const int sa = a.value(QStringLiteral("ParentIndexNumber")).toInt();
+          const int sb = b.value(QStringLiteral("ParentIndexNumber")).toInt();
+          if (sa != sb) return sa < sb;
+          return a.value(QStringLiteral("IndexNumber")).toInt() <
+                 b.value(QStringLiteral("IndexNumber")).toInt();
+        });
+        int pos = -1;
+        for (int i = 0; i < eps.size(); ++i) {
+          if (eps.at(i).value(QStringLiteral("Id")).toString() == current) {
+            pos = i;
+            break;
+          }
+        }
+        if (pos <= 0) {
+          showNotice(QStringLiteral("Nessun episodio precedente"));
+          return;
+        }
+        openItem(eps.at(pos - 1).value(QStringLiteral("Id")).toString());
+      });
+}
+
 void AppController::refreshUserStats() {
   if (client_.userId().isEmpty()) return;
   userStats_.clear();

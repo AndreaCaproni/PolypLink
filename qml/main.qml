@@ -187,13 +187,28 @@ Window {
         return hasSeriesLink() ? (hasResume() ? 4 : 3) : -1
     }
 
+    function isEpisode() {
+        return app.detail.type === "Episode"
+    }
+
+    function previousIndex() {
+        if (!isEpisode()) return -1
+        return (hasResume() ? 4 : 3) + (hasSeriesLink() ? 1 : 0)
+    }
+
     // Per le serie: 0 Riproduci, 1 Stagioni, 2 Visto, 3 Preferito (niente
     // impostazioni di riproduzione). Per film/episodi restano gli indici di
     // prima, con lo slot extra per la serie quando serve.
     function settingsStart() {
         if (isSeries()) return -1
-        var base = hasResume() ? 4 : 3
-        return hasSeriesLink() ? base + 1 : base
+        var s = hasResume() ? 4 : 3
+        if (hasSeriesLink()) s += 1
+        if (isEpisode()) s += 1
+        return s
+    }
+
+    function isProfileView() {
+        return page === "account" && currentMenuEntry().title === "Profilo"
     }
 
     function playedIndex() {
@@ -215,6 +230,7 @@ Window {
         else if (root.detailFocus === playedIndex()) app.togglePlayed()
         else if (root.detailFocus === favoriteIndex()) app.toggleFavorite()
         else if (root.detailFocus === seriesIndex()) openDetail(app.detail.seriesId)
+        else if (root.detailFocus === previousIndex()) app.openPreviousEpisode()
         else if (s >= 0 && root.detailFocus === s) app.cycleQuality(1)
         else if (s >= 0 && root.detailFocus === s + 1) app.cycleAudio(1)
         else if (s >= 0 && root.detailFocus === s + 2) app.cycleSubtitle(1)
@@ -1298,7 +1314,7 @@ Window {
                 x: 28
                 y: 24
                 spacing: 18
-                visible: page === "account"
+                visible: root.isProfileView()
 
                 Item {
                     width: 84
@@ -1348,7 +1364,7 @@ Window {
                 x: 28
                 y: 124
                 spacing: 10
-                visible: page === "account"
+                visible: root.isProfileView()
 
                 Rectangle {
                     width: 130; height: 64; radius: 10
@@ -1410,14 +1426,15 @@ Window {
                 width: parent.width - 56
                 height: 1
                 color: "#1c2a38"
-                visible: page === "account"
+                visible: root.isProfileView()
             }
 
             Column {
                 x: 48
-                y: page === "account" ? 222 : 28
+                y: 28
                 width: parent.width - 88
                 spacing: 10
+                visible: !root.isProfileView()
 
                 Text {
                     width: parent.width
@@ -1506,35 +1523,23 @@ Window {
                 Row {
                     spacing: 10
 
-                    Rectangle {
-                        width: 230; height: 44; radius: 22
-                        color: root.seasonActionsFocus && root.seasonAction === 0 ? "#1d5a75" : "#00a4dc"
-                        border.width: root.seasonActionsFocus && root.seasonAction === 0 ? 2 : 1
-                        border.color: "#7fd9ff"
-                        Text { anchors.centerIn: parent
-                               color: root.seasonActionsFocus && root.seasonAction === 0 ? "#ffffff" : "#00121a"
-                               font.pixelSize: 15; font.bold: true
-                               text: "Guarda dall'inizio" }
+                    ActionButton {
+                        icon: "replay"
+                        label: "Guarda dall'inizio"
+                        primary: true
+                        active: root.seasonActionsFocus && root.seasonAction === 0
                     }
-
-                    Rectangle {
-                        width: 215; height: 44; radius: 22
-                        color: root.seasonActionsFocus && root.seasonAction === 1 ? "#123243" : "#101920"
-                        border.width: root.seasonActionsFocus && root.seasonAction === 1 ? 2 : 1
-                        border.color: root.seasonActionsFocus && root.seasonAction === 1 ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
-                                     ? "Segna come non visto" : "Segna come visto" }
+                    ActionButton {
+                        icon: "check"
+                        label: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
+                               ? "Segna come non visto" : "Segna come visto"
+                        active: root.seasonActionsFocus && root.seasonAction === 1
                     }
-
-                    Rectangle {
-                        width: 190; height: 44; radius: 22
-                        color: root.seasonActionsFocus && root.seasonAction === 2 ? "#123243" : "#101920"
-                        border.width: root.seasonActionsFocus && root.seasonAction === 2 ? 2 : 1
-                        border.color: root.seasonActionsFocus && root.seasonAction === 2 ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                                     ? "Togli preferito" : "Preferito" }
+                    ActionButton {
+                        icon: "heart"
+                        label: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
+                               ? "Togli preferito" : "Preferito"
+                        active: root.seasonActionsFocus && root.seasonAction === 2
                     }
                 }
 
@@ -1814,77 +1819,51 @@ Window {
                     }
                 }
 
-                // azioni affiancate, come nel client Jellyfin
+                // azioni: solo icona, si allargano con il focus
                 Row {
                     spacing: 10
 
-                    Rectangle {
-                        width: root.hasSeriesLink() ? 160 : 190
-                        height: 46; radius: 23
-                        color: root.detailFocus === 0 ? "#00a4dc" : "#123243"
-                        border.width: root.detailFocus === 0 ? 2 : 1
-                        border.color: root.detailFocus === 0 ? "#7fd9ff" : "#1e2b38"
-                        Text { anchors.centerIn: parent
-                               color: root.detailFocus === 0 ? "#00121a" : "#ffffff"
-                               font.pixelSize: 16; font.bold: true
-                               text: (root.hasResume() && !root.isSeries())
-                                     ? "Riprendi" : "Riproduci" }
+                    ActionButton {
+                        icon: "play"
+                        label: (root.hasResume() && !root.isSeries()) ? "Riprendi" : "Riproduci"
+                        active: root.detailFocus === 0
+                        primary: true
                     }
-
-                    // serie: si apre la pagina delle stagioni
-                    Rectangle {
-                        width: 150; height: 46; radius: 23
+                    ActionButton {
+                        icon: "series"
+                        label: "Stagioni"
                         visible: root.isSeries()
-                        color: root.detailFocus === 1 ? "#123243" : "#101920"
-                        border.width: root.detailFocus === 1 ? 2 : 1
-                        border.color: root.detailFocus === 1 ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: "Stagioni" }
+                        active: root.detailFocus === 1
                     }
-
-                    // "Play from beginning" del client web: stesso posto, solo
-                    // quando c'e' una posizione da cui riprendere.
-                    Rectangle {
-                        width: root.hasSeriesLink() ? 200 : 230
-                        height: 46; radius: 23
+                    ActionButton {
+                        icon: "replay"
+                        label: "Riproduci dall'inizio"
                         visible: root.hasResume() && !root.isSeries()
-                        color: root.detailFocus === 1 ? "#123243" : "#101920"
-                        border.width: root.detailFocus === 1 ? 2 : 1
-                        border.color: root.detailFocus === 1 ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: "Riproduci dall'inizio" }
+                        active: root.detailFocus === 1
                     }
-
-                    Rectangle {
-                        width: root.hasSeriesLink() ? 180 : 205
-                        height: 46; radius: 23
-                        color: root.detailFocus === root.playedIndex() ? "#123243" : "#101920"
-                        border.width: root.detailFocus === root.playedIndex() ? 2 : 1
-                        border.color: root.detailFocus === root.playedIndex() ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: (app.detail.played !== undefined && app.detail.played)
-                                     ? "Segna come non visto" : "Segna come visto" }
+                    ActionButton {
+                        icon: "check"
+                        label: (app.detail.played !== undefined && app.detail.played)
+                               ? "Segna come non visto" : "Segna come visto"
+                        active: root.detailFocus === root.playedIndex()
                     }
-
-                    Rectangle {
-                        width: root.hasSeriesLink() ? 170 : 190
-                        height: 46; radius: 23
-                        color: root.detailFocus === root.favoriteIndex() ? "#123243" : "#101920"
-                        border.width: root.detailFocus === root.favoriteIndex() ? 2 : 1
-                        border.color: root.detailFocus === root.favoriteIndex() ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: (app.detail.favorite !== undefined && app.detail.favorite)
-                                     ? "Togli preferito" : "Preferito" }
+                    ActionButton {
+                        icon: "heart"
+                        label: (app.detail.favorite !== undefined && app.detail.favorite)
+                               ? "Togli preferito" : "Preferito"
+                        active: root.detailFocus === root.favoriteIndex()
                     }
-
-                    Rectangle {
-                        width: 200; height: 46; radius: 23
+                    ActionButton {
+                        icon: "series"
+                        label: "Vai alla serie completa"
                         visible: root.hasSeriesLink()
-                        color: root.detailFocus === root.seriesIndex() ? "#123243" : "#101920"
-                        border.width: root.detailFocus === root.seriesIndex() ? 2 : 1
-                        border.color: root.detailFocus === root.seriesIndex() ? "#00a4dc" : "#1b2733"
-                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
-                               text: "Vai alla serie completa" }
+                        active: root.detailFocus === root.seriesIndex()
+                    }
+                    ActionButton {
+                        icon: "previous"
+                        label: "Episodio precedente"
+                        visible: root.isEpisode()
+                        active: root.detailFocus === root.previousIndex()
                     }
                 }
 

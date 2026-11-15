@@ -5,6 +5,7 @@
         <file>qml/PosterCard.qml</file>
         <file>qml/PlayerButton.qml</file>
         <file>qml/PlayerIconButton.qml</file>
+        <file>qml/ActionButton.qml</file>
         <file>qml/assets/jellyfin-logo.png</file>
         <file>qml/Keyboard.qml</file>
         <file>qml/RoundedImage.qml</file>

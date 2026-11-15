@@ -147,6 +147,7 @@ class AppController : public QObject {
   Q_INVOKABLE void testConnection();
   Q_INVOKABLE void resetSettings();
   Q_INVOKABLE void refreshUserStats();
+  Q_INVOKABLE void openPreviousEpisode();
   Q_INVOKABLE void openItem(const QString& itemId);
   Q_INVOKABLE void playItem(const QString& itemId);
   Q_INVOKABLE void playFromStart();
