@@ -60,6 +60,8 @@ class AppController : public QObject {
   Q_PROPERTY(int audioIndex READ audioIndex NOTIFY tracksChanged)
   Q_PROPERTY(int subtitleIndex READ subtitleIndex NOTIFY tracksChanged)
   Q_PROPERTY(int qualityKbps READ qualityKbps NOTIFY tracksChanged)
+  Q_PROPERTY(int qualityDefaultKbps READ qualityDefaultKbps NOTIFY tracksChanged)
+  Q_PROPERTY(int osdSeconds READ osdSeconds NOTIFY tracksChanged)
   Q_PROPERTY(bool settingsOpen READ settingsOpen NOTIFY settingsChanged)
   Q_PROPERTY(int settingsRow READ settingsRow NOTIFY settingsChanged)
 
@@ -108,6 +110,8 @@ class AppController : public QObject {
   int audioIndex() const { return audioIndex_; }
   int subtitleIndex() const { return subtitleIndex_; }
   int qualityKbps() const { return qualityKbps_; }
+  int qualityDefaultKbps() const { return defaultQualityKbps_; }
+  int osdSeconds() const { return osdSeconds_; }
   bool settingsOpen() const { return settingsOpen_; }
   bool osdVisible() const { return osdVisible_; }
   int playerFocus() const { return playerFocus_; }
@@ -134,6 +138,10 @@ class AppController : public QObject {
 
   Q_INVOKABLE void openView(int index);
   Q_INVOKABLE void openFavorites();
+  Q_INVOKABLE void cycleDefaultQuality(int delta);
+  Q_INVOKABLE void cycleOsdSeconds(int delta);
+  Q_INVOKABLE void testConnection();
+  Q_INVOKABLE void resetSettings();
   Q_INVOKABLE void openItem(const QString& itemId);
   Q_INVOKABLE void playItem(const QString& itemId);
   Q_INVOKABLE void playFromStart();
@@ -188,6 +196,7 @@ class AppController : public QObject {
  private:
   void showOsd();
   void showNotice(const QString& message);
+  void saveDefaults();
   void playEpisode(const QJsonObject& episode);
   void teardownPlayer();
   void loadLatest(quint64 gen);
@@ -271,6 +280,8 @@ class AppController : public QObject {
   int audioIndex_ = -1;
   int subtitleIndex_ = -1;
   int qualityKbps_ = 12000;
+  int defaultQualityKbps_ = 12000;
+  int osdSeconds_ = 5;
   bool settingsOpen_ = false;
   int settingsRow_ = 0;
   QString playingItemId_;

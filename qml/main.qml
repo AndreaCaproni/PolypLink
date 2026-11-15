@@ -27,14 +27,14 @@ Window {
     property string menuHint: ""
 
     property var settingsMenu: [
-        { title: "Server e connessione", desc: "Indirizzo, porta, HTTPS e riconnessione automatica" },
-        { title: "Qualità massima", desc: "Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico" },
+        { title: "Server e connessione", desc: "Indirizzo, porta, HTTPS e riconnessione automatica", action: "test" },
+        { title: "Qualità massima", desc: "Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico", action: "quality" },
         { title: "Risoluzione massima", desc: "720p, 1080p o automatica" },
         { title: "Audio preferito", desc: "Lingua e canali (stereo / 5.1)" },
         { title: "Sottotitoli", desc: "Lingua predefinita, attivazione e burn-in" },
         { title: "Precaricamento", desc: "Quanti segmenti tenere pronti prima di partire" },
         { title: "Seek e accelerazione", desc: "Passo iniziale e tetto dell'accelerazione" },
-        { title: "OSD", desc: "Durata, contenuti e comportamento in pausa" },
+        { title: "OSD", desc: "Durata, contenuti e comportamento in pausa", action: "osd" },
         { title: "Lingua dell'interfaccia", desc: "Italiano, English" },
         { title: "Scala dell'interfaccia", desc: "Dimensione di testi e card" },
         { title: "Tema", desc: "Scuro, chiaro, automatico" },
@@ -42,16 +42,17 @@ Window {
         { title: "Cache immagini", desc: "Dimensione massima e pulizia" },
         { title: "Diagnostica e log", desc: "Livello dei log ed esportazione su USB" },
         { title: "Aggiornamenti", desc: "Canale beta e controllo manuale" },
-        { title: "Ripristino", desc: "Riporta le impostazioni ai valori predefiniti" },
-        { title: "Informazioni", desc: "Versione, build, licenze e componenti" }
+        { title: "Ripristino", desc: "Riporta le impostazioni ai valori predefiniti", action: "reset" },
+        { title: "Informazioni", desc: "Versione, build, licenze e componenti", action: "info" }
     ]
 
     property var accountMenu: [
-        { title: "Profilo", desc: "Nome utente, avatar e server collegato" },
+        { title: "Profilo", desc: "Nome utente, avatar e server collegato", action: "info" },
         { title: "Cambia utente", desc: "Torna alla schermata di accesso", action: "logout" },
         { title: "Esci", desc: "Chiude la sessione e cancella il token", action: "logout" },
+        { title: "Cambia server", desc: "Scegli un altro Jellyfin", action: "switchserver" },
         { title: "Quick Connect", desc: "Associa l'app senza digitare la password" },
-        { title: "Sessione e server", desc: "Stato della connessione e versione del server" },
+        { title: "Sessione e server", desc: "Stato della connessione e versione del server", action: "info" },
         { title: "Ripresa", desc: "Sincronizza la posizione di visione" },
         { title: "Righe della home", desc: "Scegli quali righe mostrare" },
         { title: "Prossimo episodio", desc: "Avvio automatico a fine puntata" },
@@ -244,6 +245,13 @@ Window {
     function homeEmpty() {
         return app.resume.length + app.nextUp.length + app.latest.length +
                app.views.length === 0
+    }
+
+    function menuValue(e) {
+        if (e.action === "quality") return (app.qualityDefaultKbps / 1000) + " Mbps"
+        if (e.action === "osd") return app.osdSeconds + " secondi"
+        if (e.action === "test") return app.serverLabel.length > 0 ? app.serverLabel : e.desc
+        return e.desc
     }
 
     function savedServerRow() {
@@ -1203,7 +1211,7 @@ Window {
             wrapMode: Text.WordWrap
             text: page === "settings"
                   ? "Connessione, qualità, audio, interfaccia e diagnostica del client."
-                  : "Profilo, sessione e preferenze legate all'utente."
+                  : (app.userName + "   ·   " + app.serverLabel)
         }
         Text {
             x: 48
@@ -1298,7 +1306,7 @@ Window {
                             color: "#7f8c9b"
                             font.pixelSize: 13
                             elide: Text.ElideRight
-                            text: modelData.desc
+                            text: root.menuValue(modelData)
                         }
                     }
                 }
@@ -2433,8 +2441,22 @@ Window {
                     menuList.positionViewAtIndex(menuIndex, ListView.Contain)
                 } else if (event.key === Qt.Key_Return) {
                     var entry = entries[menuIndex]
-                    if (entry.action === "logout") {
+                    var action = entry.action
+                    if (action === "logout" || action === "switchserver") {
                         app.logout()
+                    } else if (action === "quality") {
+                        app.cycleDefaultQuality(1)
+                    } else if (action === "osd") {
+                        app.cycleOsdSeconds(1)
+                    } else if (action === "test") {
+                        app.testConnection()
+                    } else if (action === "reset") {
+                        app.resetSettings()
+                    } else if (action === "info") {
+                        menuHint = page === "account"
+                            ? (app.userName + "   ·   " + app.serverLabel)
+                            : ("JellyLink " + appVersion)
+                        menuHintTimer.restart()
                     } else {
                         menuHint = "Voce in preparazione: " + entry.title
                         menuHintTimer.restart()

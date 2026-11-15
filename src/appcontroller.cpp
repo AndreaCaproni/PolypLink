@@ -1,6 +1,7 @@
 #include "appcontroller.h"
 
 #include <QDateTime>
+#include <QSettings>
 #include <QElapsedTimer>
 #include <algorithm>
 #include <memory>
@@ -42,8 +43,17 @@ AppController::AppController(QObject* parent) : QObject(parent) {
 
   // L'OSD resta 5 s, poi sfuma: durante la pausa e con il pannello
   // impostazioni aperto resta fermo.
+  QSettings settings;
+  defaultQualityKbps_ = settings.value(QStringLiteral("defaultQualityKbps"), 12000).toInt();
+  if (defaultQualityKbps_ != 4000 && defaultQualityKbps_ != 8000 &&
+      defaultQualityKbps_ != 12000 && defaultQualityKbps_ != 20000) {
+    defaultQualityKbps_ = 12000;
+  }
+  osdSeconds_ = settings.value(QStringLiteral("osdSeconds"), 5).toInt();
+  if (osdSeconds_ != 3 && osdSeconds_ != 5 && osdSeconds_ != 8) osdSeconds_ = 5;
+
   osdTimer_.setSingleShot(true);
-  osdTimer_.setInterval(5000);
+  osdTimer_.setInterval(osdSeconds_ * 1000);
   connect(&osdTimer_, &QTimer::timeout, this, [this]() {
     if (playerPaused_ || settingsOpen_ || !playerActive_) return;
     if (!osdVisible_) return;
@@ -618,8 +628,8 @@ void AppController::openItem(const QString& itemId) {
     subtitleTracks_.clear();
     audioIndex_ = -1;
     subtitleIndex_ = -1;
-    // le impostazioni non devono trascinarsi da un titolo all'altro
-    qualityKbps_ = 12000;
+    // parte dalla qualità predefinita scelta nelle impostazioni
+    qualityKbps_ = defaultQualityKbps_;
     const QJsonArray sources = o.value(QStringLiteral("MediaSources")).toArray();
     if (!sources.isEmpty()) {
       const QJsonArray streams =
@@ -901,6 +911,7 @@ void AppController::playSeasonFromStart() {
   QString title = ep.value(QStringLiteral("name")).toString();
   if (!seriesTitle_.isEmpty()) title = seriesTitle_ + QStringLiteral(" · ") + title;
   const double dur = ep.value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
+  qualityKbps_ = defaultQualityKbps_;
   startPlaybackAt(id, 0, title, dur);
 }
 
@@ -923,6 +934,7 @@ void AppController::playEpisode(const QJsonObject& episode) {
           .value(QStringLiteral("PlaybackPositionTicks"))
           .toDouble());
   const double dur = episode.value(QStringLiteral("RunTimeTicks")).toDouble() / 1e7;
+  qualityKbps_ = defaultQualityKbps_;
   qInfo("[player] serie: riproduco %s", qPrintable(title));
   startPlaybackAt(id, ticks, title, dur);
 }
@@ -1452,6 +1464,60 @@ void AppController::setState(const QString& s) {
   if (state_ == s) return;
   state_ = s;
   emit stateChanged();
+}
+
+void AppController::saveDefaults() {
+  QSettings s;
+  s.setValue(QStringLiteral("defaultQualityKbps"), defaultQualityKbps_);
+  s.setValue(QStringLiteral("osdSeconds"), osdSeconds_);
+}
+
+void AppController::cycleDefaultQuality(int delta) {
+  static const int values[] = {4000, 8000, 12000, 20000};
+  int pos = 2;
+  for (int i = 0; i < 4; ++i) if (values[i] == defaultQualityKbps_) pos = i;
+  pos = (pos + delta + 4) % 4;
+  defaultQualityKbps_ = values[pos];
+  saveDefaults();
+  emit tracksChanged();
+  showNotice(QStringLiteral("Qualità predefinita: %1 Mbps").arg(defaultQualityKbps_ / 1000));
+}
+
+void AppController::cycleOsdSeconds(int delta) {
+  static const int values[] = {3, 5, 8};
+  int pos = 1;
+  for (int i = 0; i < 3; ++i) if (values[i] == osdSeconds_) pos = i;
+  pos = (pos + delta + 3) % 3;
+  osdSeconds_ = values[pos];
+  osdTimer_.setInterval(osdSeconds_ * 1000);
+  saveDefaults();
+  emit tracksChanged();
+  showNotice(QStringLiteral("OSD: %1 secondi").arg(osdSeconds_));
+}
+
+void AppController::resetSettings() {
+  defaultQualityKbps_ = 12000;
+  osdSeconds_ = 5;
+  osdTimer_.setInterval(5000);
+  saveDefaults();
+  emit tracksChanged();
+  showNotice(QStringLiteral("Impostazioni ripristinate"));
+}
+
+void AppController::testConnection() {
+  if (client_.server().isEmpty()) {
+    showNotice(QStringLiteral("Nessun server configurato"));
+    return;
+  }
+  showNotice(QStringLiteral("Verifico la connessione…"));
+  client_.fetchViews([this](const QJsonDocument& doc, const QString& err) {
+    if (!err.isEmpty()) {
+      setStatus(err);
+      return;
+    }
+    const int n = doc.object().value(QStringLiteral("Items")).toArray().size();
+    showNotice(QStringLiteral("Connessione OK · %1 librerie").arg(n));
+  });
 }
 
 void AppController::showNotice(const QString& message) {
