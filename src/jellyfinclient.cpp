@@ -108,10 +108,11 @@ QNetworkRequest JellyfinClient::makeRequestUrl(const QUrl& url, bool withToken) 
     QSettings settings;
     const QString lang = settings.value(QStringLiteral("language"),
                                        QStringLiteral("it")).toString();
-    req.setRawHeader("Accept-Language",
-                     lang == QLatin1String("en")
-                         ? "en-US,en;q=0.9,it;q=0.8"
-                         : "it-IT,it;q=0.9,en;q=0.8");
+    const QByteArray acceptLanguage =
+        lang == QLatin1String("en")
+            ? QByteArrayLiteral("en-US,en;q=0.9")
+            : (lang + QStringLiteral(",en;q=0.8")).toUtf8();
+    req.setRawHeader("Accept-Language", acceptLanguage);
   }
   req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
   return req;

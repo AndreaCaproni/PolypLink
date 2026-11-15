@@ -299,7 +299,7 @@ Window {
         if (e.action === "test")
             return app.serverLabel.length > 0 ? app.serverLabel : qsTr("Nessun server")
         if (e.action === "language")
-            return language.current === "en" ? "English" : "Italiano"
+            return root.currentLanguageName()
         if (e.action === "profile" || e.action === "info") {
             if (page === "account") {
                 if (e.action === "profile") return app.userName
@@ -314,6 +314,13 @@ Window {
         for (var i = 0; i < language.available.length; ++i)
             if (language.available[i].code === language.current) return i
         return 0
+    }
+
+    function currentLanguageName() {
+        for (var i = 0; i < language.available.length; ++i)
+            if (language.available[i].code === language.current)
+                return language.available[i].name
+        return language.current
     }
 
     function currentMenuEntry() {
