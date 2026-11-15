@@ -53,13 +53,14 @@ Rectangle {
                 ctx.closePath()
                 ctx.fill()
             } else if (button.icon === "replay") {
+                // cerchio aperto in alto + punta della freccia attaccata all'estremita'
                 ctx.beginPath()
-                ctx.arc(12, 12, 7, 0.7, 5.2)
+                ctx.arc(12, 12, 7, -Math.PI / 3, 4 * Math.PI / 3)
                 ctx.stroke()
                 ctx.beginPath()
-                ctx.moveTo(3.5, 7)
-                ctx.lineTo(8.5, 6.5)
-                ctx.lineTo(7, 11)
+                ctx.moveTo(6.0, 3.2)
+                ctx.lineTo(11.0, 2.4)
+                ctx.lineTo(9.2, 7.8)
                 ctx.closePath()
                 ctx.fill()
             } else if (button.icon === "check") {
