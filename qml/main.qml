@@ -2443,8 +2443,16 @@ Window {
             id: loadingDelay
             interval: 350
             running: app.playerLoading && !app.playerStalled
-            onTriggered: loadingOverlay.shown = true
-            onRunningChanged: { if (!running) loadingOverlay.shown = false }
+            onTriggered: {
+                loadingOverlay.shown = true
+                console.log("[osd] rotellina visibile")
+            }
+            onRunningChanged: {
+                if (!running) {
+                    loadingOverlay.shown = false
+                    console.log("[osd] rotellina nascosta")
+                }
+            }
         }
 
         // ---------------------------------------------------- CONNESSIONE PERSA

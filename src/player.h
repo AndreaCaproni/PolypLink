@@ -56,6 +56,8 @@ class Player : public QThread {
 
  signals:
   void started();
+  // Primo frame video effettivamente inviato al decoder hardware.
+  void firstFrame();
   void positionChanged(double seconds);
   void failed(const QString& message);
   void finished();
