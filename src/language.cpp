@@ -57,4 +57,7 @@ void Language::apply() {
   if (engine_ != nullptr && !engine_->rootObjects().isEmpty()) {
     engine_->retranslate();
   }
+
+  qInfo("[i18n] lingua %s, esempio: %s", qPrintable(current_),
+        qPrintable(QCoreApplication::translate("main", "Preferiti")));
 }
