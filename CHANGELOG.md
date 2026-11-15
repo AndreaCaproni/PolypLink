@@ -1,15 +1,29 @@
 # Changelog
 
-## Unreleased
+## 0.2.2-beta — 2026-11-16
+
+Player OSD update.
 
 ### Added
 
-- Player OSD: a visible connection-lost card after 10 seconds and a
-  next-episode card in the last minute.
-- Player OSD: dedicated dropdown menus for audio, subtitles and quality;
-  selecting the current option does not restart the stream.
-- Player OSD opens with the focus on play/pause instead of the seek bar.
+- Visible **connection-lost card** after 10 seconds without playback
+  progress, with *Resume* (A) and exit (B). The check is independent of the
+  player's internal stall signal.
+- **Next-episode card** in the last minute of an episode: thumbnail, title and
+  season/episode; A starts it, B dismisses it.
+- **Dedicated dropdown menus** for audio, subtitles and quality. Selecting the
+  current option no longer restarts the stream.
+- OSD opens with the focus on **play/pause** instead of the seek bar.
+- The **seek is confirmed only with A**; waiting on the bar no longer jumps.
+  The OSD stays visible while the seek bar has focus.
+- Focus stays on the **Watched** button when the layout changes after marking
+  an item.
+- Replay icon now points **counter-clockwise**.
+
+### Changed
+
 - Removed the Y settings panel; the dropdown menus replace it.
+- Removed the loading spinner and the audio/subtitle/quality toasts.
 
 ## 0.2.1-beta — 2026-11-15
 
