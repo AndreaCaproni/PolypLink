@@ -488,6 +488,13 @@ QVariantMap AppController::toMap(const QJsonObject& item) const {
   m.insert(QStringLiteral("parentIndexNumber"),
            item.value(QStringLiteral("ParentIndexNumber")).toInt());
   m.insert(QStringLiteral("overview"), item.value(QStringLiteral("Overview")).toString());
+  {
+    QVariantList genres;
+    for (const QJsonValue& g : item.value(QStringLiteral("Genres")).toArray()) {
+      genres.append(g.toString());
+    }
+    m.insert(QStringLiteral("genres"), genres);
+  }
   m.insert(QStringLiteral("childCount"), item.value(QStringLiteral("ChildCount")).toInt());
   m.insert(QStringLiteral("rating"),
            item.value(QStringLiteral("CommunityRating")).toDouble());

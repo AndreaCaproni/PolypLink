@@ -29,6 +29,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         width: 24
         height: 24
+        visible: button.icon !== "horse"
 
         property color tint: button.customIconColor.a > 0
                               ? button.customIconColor
@@ -68,6 +69,10 @@ Rectangle {
                 ctx.lineTo(9.5, 18)
                 ctx.lineTo(20, 6)
                 ctx.stroke()
+            } else if (button.icon === "text") {
+                ctx.beginPath(); ctx.moveTo(4, 6); ctx.lineTo(20, 6); ctx.stroke()
+                ctx.beginPath(); ctx.moveTo(4, 12); ctx.lineTo(20, 12); ctx.stroke()
+                ctx.beginPath(); ctx.moveTo(4, 18); ctx.lineTo(15, 18); ctx.stroke()
             } else if (button.icon === "heart-empty" || button.icon === "heart-filled") {
                 ctx.beginPath()
                 ctx.moveTo(12, 20)
@@ -76,48 +81,17 @@ Rectangle {
                 ctx.closePath()
                 if (button.icon === "heart-filled") ctx.fill()
                 else ctx.stroke()
-            } else if (button.icon === "horse") {
-                // cavallino rampante stilizzato (easter egg), testa a sinistra
+            } else if (button.icon === "check-double") {
                 ctx.beginPath()
-                ctx.moveTo(4.5, 3)
-                ctx.quadraticCurveTo(2.5, 4.5, 4, 6)
-                ctx.quadraticCurveTo(5.5, 7.5, 7, 9.5)
-                ctx.quadraticCurveTo(9, 11, 11, 10.5)
-                ctx.quadraticCurveTo(14, 10, 15.5, 12)
-                ctx.quadraticCurveTo(17, 14, 16, 16)
-                // coda
-                ctx.quadraticCurveTo(19, 14, 20.5, 10)
-                ctx.quadraticCurveTo(21.5, 7.5, 19.5, 8)
-                ctx.quadraticCurveTo(19, 11, 17.5, 12.5)
-                // zampa posteriore
-                ctx.lineTo(16.5, 21)
-                ctx.lineTo(15, 21)
-                ctx.lineTo(14.8, 16)
-                // seconda zampa posteriore
-                ctx.lineTo(13.2, 21)
-                ctx.lineTo(11.8, 21)
-                ctx.lineTo(12.8, 15)
-                // pancia
-                ctx.quadraticCurveTo(10.5, 14, 9, 12.5)
-                // zampa anteriore alzata
-                ctx.lineTo(6.5, 14)
-                ctx.lineTo(5.5, 13)
-                ctx.lineTo(8, 10.5)
-                // seconda zampa anteriore alzata
-                ctx.lineTo(5, 11)
-                ctx.lineTo(4.5, 10)
-                ctx.lineTo(7.5, 8.5)
-                // collo
-                ctx.quadraticCurveTo(6, 7, 5.5, 5)
-                ctx.closePath()
-                ctx.fill()
-                // orecchie
+                ctx.moveTo(3, 12.5)
+                ctx.lineTo(7.5, 17)
+                ctx.lineTo(16, 5.5)
+                ctx.stroke()
                 ctx.beginPath()
-                ctx.moveTo(4.5, 3)
-                ctx.lineTo(5, 1.4)
-                ctx.lineTo(6, 3)
-                ctx.closePath()
-                ctx.fill()
+                ctx.moveTo(9, 12.5)
+                ctx.lineTo(13.5, 17)
+                ctx.lineTo(22, 5.5)
+                ctx.stroke()
             } else if (button.icon === "series") {
                 ctx.beginPath()
                 ctx.rect(4.5, 8, 15, 10)
@@ -140,6 +114,17 @@ Rectangle {
                 ctx.fill()
             }
         }
+    }
+
+    Image {
+        visible: button.icon === "horse"
+        source: "qrc:/qml/assets/horse.png"
+        x: 16
+        anchors.verticalCenter: parent.verticalCenter
+        width: 24
+        height: 24
+        fillMode: Image.PreserveAspectFit
+        smooth: true
     }
 
     Text {

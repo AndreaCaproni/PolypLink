@@ -374,7 +374,7 @@ void JellyfinClient::fetchSeasons(const QString& seriesId, JsonCallback cb) {
   QUrlQuery q;
   q.addQueryItem(QStringLiteral("userId"), userId_);
   q.addQueryItem(QStringLiteral("fields"),
-                 QStringLiteral("ItemCounts,PrimaryImageAspectRatio,Overview"));
+                 QStringLiteral("ItemCounts,PrimaryImageAspectRatio,Overview,Genres"));
   sendGet(QStringLiteral("/Shows/%1/Seasons?").arg(seriesId) +
               q.toString(QUrl::FullyEncoded),
           true, cb);

@@ -13,6 +13,7 @@ Window {
     // --- navigazione ---------------------------------------------------------
     property string page: "home"
     property bool detailOpen: false
+    property bool overviewOpen: false
     property int rowIndex: 0
     // barra superiore: si raggiunge con "su" dalla prima riga
     property bool navFocus: false
@@ -162,6 +163,7 @@ Window {
     function openDetail(id) {
         root.seasonIndex = 0
         root.detailFocus = 0
+        root.overviewOpen = false
         app.openItem(id)
         root.detailOpen = true
     }
@@ -199,23 +201,65 @@ Window {
     // Per le serie: 0 Riproduci, 1 Stagioni, 2 Visto, 3 Preferito (niente
     // impostazioni di riproduzione). Per film/episodi restano gli indici di
     // prima, con lo slot extra per la serie quando serve.
+    function hasOverview() {
+        return app.detail.overview !== undefined && app.detail.overview.length > 0
+    }
+
+    function actionBase() {
+        if (isSeries()) return 4
+        var n = hasResume() ? 4 : 3
+        if (hasSeriesLink()) n += 1
+        if (isEpisode()) n += 1
+        return n
+    }
+
+    function readMoreIndex() {
+        return hasOverview() ? actionBase() : -1
+    }
+
     function settingsStart() {
         if (isSeries()) return -1
-        var s = hasResume() ? 4 : 3
-        if (hasSeriesLink()) s += 1
-        if (isEpisode()) s += 1
-        return s
+        return actionBase() + (hasOverview() ? 1 : 0)
+    }
+
+    function textHas(value, needle) {
+        return value !== undefined && value !== null &&
+               String(value).toLowerCase().indexOf(needle) >= 0
+    }
+
+    function genresHave(genres, needle) {
+        if (genres === undefined || genres === null) return false
+        for (var i = 0; i < genres.length; ++i) {
+            if (String(genres[i]).toLowerCase().indexOf(needle) >= 0) return true
+        }
+        return false
+    }
+
+    function isRacing(title, overview, genres) {
+        if (genresHave(genres, "corse") || genresHave(genres, "racing") ||
+            genresHave(genres, "sport") || genresHave(genres, "motorsport"))
+            return true
+        return textHas(overview, "le mans") || textHas(overview, "formula 1") ||
+               textHas(overview, "gare automobilistiche") || textHas(overview, "24 ore") ||
+               textHas(overview, "gran premio") || textHas(title, "le mans")
     }
 
     function isFerrariTitle() {
-        var n = app.detail.name !== undefined ? app.detail.name : ""
-        return n.toLowerCase().indexOf("ferrari") >= 0
+        var title = app.detail.name !== undefined ? app.detail.name : ""
+        var overview = app.detail.overview !== undefined ? app.detail.overview : ""
+        var genres = app.detail.genres
+        var mentions = textHas(title, "ferrari") || textHas(overview, "ferrari")
+        return mentions && isRacing(title, overview, genres)
     }
 
     function isSeasonFerrari() {
-        var s = (app.seasonInfo.series !== undefined ? app.seasonInfo.series : "") + " " +
-                (app.seasonInfo.name !== undefined ? app.seasonInfo.name : "")
-        return s.toLowerCase().indexOf("ferrari") >= 0
+        var series = app.seasonInfo.series !== undefined ? app.seasonInfo.series : ""
+        var title = app.seasonInfo.name !== undefined ? app.seasonInfo.name : ""
+        var overview = app.seasonInfo.overview !== undefined ? app.seasonInfo.overview : ""
+        var genres = app.seasonInfo.genres
+        var mentions = textHas(title, "ferrari") || textHas(overview, "ferrari") ||
+                       textHas(series, "ferrari")
+        return mentions && isRacing(series + " " + title, overview, genres)
     }
 
     function isProfileView() {
@@ -242,6 +286,7 @@ Window {
         else if (root.detailFocus === favoriteIndex()) app.toggleFavorite()
         else if (root.detailFocus === seriesIndex()) openDetail(app.detail.seriesId)
         else if (root.detailFocus === previousIndex()) app.openPreviousEpisode()
+        else if (root.detailFocus === readMoreIndex()) root.overviewOpen = true
         else if (s >= 0 && root.detailFocus === s) app.cycleQuality(1)
         else if (s >= 0 && root.detailFocus === s + 1) app.cycleAudio(1)
         else if (s >= 0 && root.detailFocus === s + 2) app.cycleSubtitle(1)
@@ -469,6 +514,7 @@ Window {
     }
 
     function goBack() {
+        if (overviewOpen) { overviewOpen = false; return }
         if (keyboardOpen) { keyboardOpen = false; return }
         if (detailOpen) { detailOpen = false; return }
         if (page === "seasons") {
@@ -1541,7 +1587,8 @@ Window {
                         active: root.seasonActionsFocus && root.seasonAction === 0
                     }
                     ActionButton {
-                        icon: "check"
+                        icon: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
+                              ? "check-double" : "check"
                         label: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
                                ? "Segna come non visto" : "Segna come visto"
                         active: root.seasonActionsFocus && root.seasonAction === 1
@@ -1857,7 +1904,8 @@ Window {
                         active: root.detailFocus === 1
                     }
                     ActionButton {
-                        icon: "check"
+                        icon: (app.detail.played !== undefined && app.detail.played)
+                              ? "check-double" : "check"
                         label: (app.detail.played !== undefined && app.detail.played)
                                ? "Segna come non visto" : "Segna come visto"
                         active: root.detailFocus === root.playedIndex()
@@ -1883,6 +1931,12 @@ Window {
                         label: "Episodio precedente"
                         visible: root.isEpisode()
                         active: root.detailFocus === root.previousIndex()
+                    }
+                    ActionButton {
+                        icon: "text"
+                        label: "Leggi tutto"
+                        visible: root.hasOverview()
+                        active: root.detailFocus === root.readMoreIndex()
                     }
                 }
 
@@ -2058,6 +2112,53 @@ Window {
             color: "#e6f7ff"
             font.pixelSize: 15
             text: app.notice
+        }
+    }
+
+    // ---------------------------------------------------------- TRAMA COMPLETA
+    Item {
+        anchors.fill: parent
+        visible: root.overviewOpen && root.detailOpen
+        z: 50
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#f20b0f14"
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 60
+            spacing: 16
+
+            Text {
+                width: parent.width
+                color: "#ffffff"
+                font.pixelSize: 28
+                font.bold: true
+                elide: Text.ElideRight
+                text: app.detail.name !== undefined ? app.detail.name : ""
+            }
+
+            Flickable {
+                id: overviewFlick
+                width: parent.width
+                height: parent.height - 40
+                contentWidth: width
+                contentHeight: overviewFullText.height
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+
+                Text {
+                    id: overviewFullText
+                    width: overviewFlick.width
+                    color: "#dbe5ef"
+                    font.pixelSize: 18
+                    lineHeight: 1.25
+                    wrapMode: Text.WordWrap
+                    text: app.detail.overview !== undefined ? app.detail.overview : ""
+                }
+            }
         }
     }
 
@@ -2449,6 +2550,21 @@ Window {
                 return
             }
 
+            if (root.overviewOpen) {
+                if (event.key === Qt.Key_Escape || event.key === Qt.Key_Return ||
+                    event.key === Qt.Key_Left || event.key === Qt.Key_Backspace) {
+                    root.overviewOpen = false
+                } else if (event.key === Qt.Key_Down) {
+                    overviewFlick.contentY = Math.min(
+                        Math.max(0, overviewFlick.contentHeight - overviewFlick.height),
+                        overviewFlick.contentY + 120)
+                } else if (event.key === Qt.Key_Up) {
+                    overviewFlick.contentY = Math.max(0, overviewFlick.contentY - 120)
+                }
+                event.accepted = true
+                return
+            }
+
             var handled = true
 
             if (app.state === "login") {
@@ -2478,7 +2594,8 @@ Window {
                 else handled = false
             } else if (detailOpen) {
                 var s = root.settingsStart()
-                var lastAction = (s >= 0) ? s - 1 : 3
+                var lastAction = (s >= 0) ? s - 1
+                                 : (root.readMoreIndex() >= 0 ? root.readMoreIndex() : 3)
                 if (event.key === Qt.Key_Up) {
                     if (s >= 0 && detailFocus > s) detailFocus = detailFocus - 1
                     else if (s >= 0 && detailFocus === s) detailFocus = root.favoriteIndex()
