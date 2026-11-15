@@ -4,9 +4,8 @@
 
 ### Added
 
-- Player OSD: loading spinner on start/seek/track changes, a visible
-  connection-lost card, a next-episode card in the last minute, and
-  toasts for audio/subtitle/quality changes.
+- Player OSD: a visible connection-lost card, a next-episode card in the last
+  minute, and toasts for audio/subtitle/quality changes.
 
 ## 0.2.1-beta — 2026-11-15
 

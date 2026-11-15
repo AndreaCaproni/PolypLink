@@ -733,7 +733,6 @@ bool Player::pushVideoFrame() {
     return true;  // non e' fatale: si prosegue
   }
   videoQueue_.pop_front();
-  if (submittedFrames_ == 0) emit firstFrame();
   ++submittedFrames_;
   return true;
 }

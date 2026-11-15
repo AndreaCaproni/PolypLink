@@ -39,8 +39,8 @@ understand MKV, HEVC, 4K or HDR.
   server.
 - **Player** with a navigable OSD: seek bar with cursor and time preview,
   acceleration up to 5 minutes, pause, -10/+30 seconds, audio track, subtitles,
-  quality, stats, a loading spinner, a connection-lost card, a next-episode
-  card and toasts for track/quality changes.
+  quality, stats, a connection-lost card, a next-episode card and toasts for
+  track/quality changes.
 - **Sign in**: automatic server discovery (Jellyfin UDP + LAN scan), manual
   address, username/password with the on-screen keyboard, Quick Connect.
 - **Favorites** as a tab in the top bar.

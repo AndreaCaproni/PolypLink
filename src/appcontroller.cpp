@@ -1135,9 +1135,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
   playerStatus_.clear();
   playerActive_ = true;
   playerPaused_ = false;
-  playerLoading_ = true;
   playerStalled_ = false;
-  qInfo("[osd] caricamento avviato");
 
   QString nextSeriesId = pendingSeriesId_;
   pendingSeriesId_.clear();
@@ -1238,8 +1236,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           qWarning("[player] avvio annullato: %s", qPrintable(err));
           playerActive_ = false;
           playerPaused_ = false;
-          playerLoading_ = false;
-          playerStalled_ = false;
+                  playerStalled_ = false;
           osdVisible_ = false;
           nextEpisode_.clear();
           nextEpisodeDismissed_ = false;
@@ -1270,12 +1267,6 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           playerStats_ = stats;
           emit playerStatsChanged();
         });
-        connect(player_, &Player::firstFrame, this, [this]() {
-          if (!playerLoading_) return;
-          playerLoading_ = false;
-          qInfo("[osd] primo frame, caricamento finito");
-          emit playerChanged();
-        });
         connect(player_, &Player::positionChanged, this, [this](double seconds) {
           playerPosition_ = seconds;
           if (!seekPending_) seekPreview_ = seconds;
@@ -1296,8 +1287,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         connect(player_, &Player::stalled, this, [this](bool stalled) {
           if (stalled) {
             playerStalled_ = true;
-            playerLoading_ = false;
-            playerStatus_ = tr("Connessione persa… riprovo");
+                      playerStatus_ = tr("Connessione persa… riprovo");
           } else if (playerStalled_) {
             playerStalled_ = false;
             playerStatus_.clear();
@@ -1307,8 +1297,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         connect(player_, &Player::failed, this, [this](const QString& message) {
           playerStatus_ = tr("Errore: %1").arg(message);
           playerActive_ = false;
-          playerLoading_ = false;
-          playerStalled_ = false;
+                  playerStalled_ = false;
           nextEpisode_.clear();
           nextEpisodeDismissed_ = false;
           setStatus(playerStatus_);
@@ -1321,8 +1310,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                         static_cast<qint64>(playerPosition_ * 1e7),
                                         mediaSourceId_);
           playerActive_ = false;
-          playerLoading_ = false;
-          playerStalled_ = false;
+                  playerStalled_ = false;
           nextEpisode_.clear();
           nextEpisodeDismissed_ = false;
           emit nextEpisodeChanged();
@@ -1349,7 +1337,6 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
 
 void AppController::teardownPlayer() {
   ++playbackGen_;
-  playerLoading_ = false;
   playerStalled_ = false;
   if (player_ == nullptr) {
     qInfo("[diag] teardownPlayer: nessun player");

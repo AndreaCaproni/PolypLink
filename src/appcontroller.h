@@ -43,7 +43,6 @@ class AppController : public QObject {
 
   Q_PROPERTY(bool playerActive READ playerActive NOTIFY playerChanged)
   Q_PROPERTY(bool playerPaused READ playerPaused NOTIFY playerChanged)
-  Q_PROPERTY(bool playerLoading READ playerLoading NOTIFY playerChanged)
   Q_PROPERTY(bool playerStalled READ playerStalled NOTIFY playerChanged)
   Q_PROPERTY(double playerPosition READ playerPosition NOTIFY playerPositionChanged)
   Q_PROPERTY(double playerDuration READ playerDuration NOTIFY playerChanged)
@@ -108,7 +107,6 @@ class AppController : public QObject {
   QVariantMap detail() const { return detail_; }
   bool playerActive() const { return playerActive_; }
   bool playerPaused() const { return playerPaused_; }
-  bool playerLoading() const { return playerLoading_; }
   bool playerStalled() const { return playerStalled_; }
   double playerPosition() const { return playerPosition_; }
   double playerDuration() const { return playerDuration_; }
@@ -269,7 +267,6 @@ class AppController : public QObject {
   Player* player_ = nullptr;
   bool playerActive_ = false;
   bool playerPaused_ = false;
-  bool playerLoading_ = false;
   bool playerStalled_ = false;
   QVariantMap nextEpisode_;
   bool nextEpisodeDismissed_ = false;
