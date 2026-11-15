@@ -4,7 +4,9 @@
 
 - Valve Steam Link (2015 hardware) with updated firmware.
 - A USB drive (FAT32 recommended, EXT4 works).
-- A Jellyfin server reachable from the Link's network.
+- A Jellyfin server reachable from the Link's network, with **transcoding
+  enabled**: JellyLink always requests an H.264/AAC HLS transcode and does not
+  direct-play.
 - The `steamlink/apps/jellyfin-link.tgz` package (produced by `./build.sh`).
 
 ## USB layout

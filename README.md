@@ -55,6 +55,9 @@ understand MKV, HEVC, 4K or HDR.
 
 - Valve **Steam Link** (2015 hardware) with updated firmware.
 - A **Jellyfin** server reachable on your LAN (tested with Jellyfin 12.4).
+- **Transcoding MUST be enabled on the Jellyfin server.** JellyLink always asks
+  for an H.264 + AAC HLS transcode and does not direct-play; without server
+  transcoding, videos will not start.
 - A **USB drive** for installation.
 - To build: **Steam Link SDK** (Qt 5.14.1 + ARM toolchain), not included in
   this repository.
