@@ -157,12 +157,12 @@ build.sh        build + USB package
   thumbnails on the seek bar.
 - Library pagination is capped at 300 items per view.
 - **H.264 8-bit only**: no HEVC, HDR or AV1; the Link only decodes that.
-- **Settings are not persisted yet**: the menu entries are placeholders.
 - Starting an episode from a series/season page uses the server's **default
   audio track**; the episode's tracks load when you open its detail page.
 - Automatic server discovery covers the **local /24**; servers on other VLANs
   must be entered manually.
-- **The UI is currently in Italian only.**
+- **The UI is available in Italian and English**; the language can be changed
+  in Settings and is remembered across restarts.
 
 ---
 

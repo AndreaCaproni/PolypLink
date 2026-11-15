@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Italian/English interface with a language selector in Settings; the choice is
+  saved and applied without restarting the app.
+- Qt translation files (`i18n/jellylink_en.ts`), ready for more languages.
+
 ## 0.2.0-beta — 2026-11-15
 
 UI update: settings, account and detail pages.

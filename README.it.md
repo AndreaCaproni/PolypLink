@@ -157,13 +157,13 @@ build.sh        build + pacchetto USB
   prossimo episodio, niente miniature trickplay sulla barra.
 - Paginazione libreria limitata a 300 elementi per vista.
 - Solo **H.264 8-bit**: niente HEVC, HDR, AV1; il Link decodifica solo quello.
-- **Impostazioni non ancora salvate**: le voci nei menu sono segnaposto.
 - Avviando un episodio dalla pagina serie/stagione il pannello **Audio** usa la
   traccia predefinita del server; le tracce dell'episodio si caricano
   aprendone la scheda.
 - La ricerca automatica del server copre la **/24 locale**; server su altre
   VLAN si inseriscono a mano.
-- Interfaccia solo in italiano.
+- **Interfaccia in italiano e inglese**; la lingua si cambia dalle
+  Impostazioni e resta memorizzata tra un avvio e l'altro.
 
 ---
 
