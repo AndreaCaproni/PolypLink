@@ -1,113 +1,113 @@
-# Comandi
+# Controls
 
-Il telecomando del Link viene letto via SDL e tradotto in frecce, A, B, Y,
-Start. Una tastiera USB funziona allo stesso modo.
+The Link remote is read via SDL and translated into arrows, A, B, Y and Start.
+A USB keyboard works the same way.
 
 ## Home
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| frecce | muoviti tra righe e card |
-| **A** | apri la scheda del titolo |
-| **B** | indietro; sulla home esce dall'app |
-| **su** dalla prima riga | vai alla barra superiore |
+| arrows | move between rows and cards |
+| **A** | open the title detail page |
+| **B** | back; on the home screen it exits the app |
+| **up** from the first row | go to the top bar |
 
-## Barra superiore
+## Top bar
 
-Home · Preferiti · Account · Impostazioni
+Home · Favorites · Account · Settings
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| sinistra/destra | scegli la voce |
-| **A** | apri |
-| **giù** | torna al contenuto |
-| **B** | annulla |
+| left/right | choose the entry |
+| **A** | open |
+| **down** | return to the content |
+| **B** | cancel |
 
-## Scheda del titolo (film / episodio)
+## Title detail (movie / episode)
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| su/giù | azioni → impostazioni |
-| sinistra/destra | sui pulsanti: scegli; sulle impostazioni: cambia il valore |
-| **A** | conferma |
-| **B** | indietro |
+| up/down | actions → settings |
+| left/right | on buttons: choose; on settings: change the value |
+| **A** | confirm |
+| **B** | back |
 
-Con una ripresa attiva compaiono *Riprendi* e *Riproduci dall'inizio*.
+With resume progress, *Resume* and *Play from beginning* are shown.
 
-## Serie e stagioni
+## Series and seasons
 
-**Scheda serie**
+**Series detail**
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| sinistra/destra | *Riproduci* · *Stagioni* · *Segna come visto* · *Preferito* |
-| **A** | riproduci il prossimo episodio / apri le stagioni / toggle |
-| **B** | indietro |
+| left/right | *Play* · *Seasons* · *Mark watched* · *Favorite* |
+| **A** | play the next episode / open seasons / toggle |
+| **B** | back |
 
-**Griglia stagioni**
+**Seasons grid**
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| frecce | scegli la stagione |
-| **A** | apre la pagina stagione |
-| **Y** | segna la stagione come vista / non vista |
-| **B** | torna alla serie |
+| arrows | choose the season |
+| **A** | open the season page |
+| **Y** | mark the season watched / unwatched |
+| **B** | back to the series |
 
-**Pagina stagione**
+**Season page**
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| **su** dal primo episodio | vai ai pulsanti (*Guarda dall'inizio*, *Segna come visto*, *Preferito*) |
-| sinistra/destra | sui pulsanti: scegli; **A** esegue |
-| **giù** | torna all'elenco episodi |
-| **A** su un episodio | apre la scheda dell'episodio |
-| **B** | torna alla griglia stagioni |
+| **up** from the first episode | go to the buttons (*Play from beginning*, *Mark watched*, *Favorite*) |
+| left/right | on buttons: choose; **A** activates |
+| **down** | back to the episode list |
+| **A** on an episode | open the episode detail |
+| **B** | back to the seasons grid |
 
-## Scelta del server
+## Server selection
 
-Al primo avvio l'app cerca i server (UDP + scansione della LAN). Se hai già un
-server salvato compare in cima: **A** per usarlo. **X/R** ripete la ricerca,
-**B** esce.
+On first start the app searches for servers (UDP + LAN scan). If a server is
+already saved it appears at the top: **A** to use it. **X/R** repeats the
+search, **B** exits.
 
 ## Player
 
-L'OSD (barra + pulsanti) resta 5 secondi, poi sfuma. Qualsiasi tasto lo
-riporta.
+The OSD (seek bar + buttons) stays for 5 seconds, then fades. Any key brings it
+back.
 
-### Sulla barra di seek
+### On the seek bar
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| sinistra / destra | sposta il cursore di **-10 s / +30 s** |
-| scatti consecutivi | il passo cresce: **1 min**, poi **5 min** (massimo) |
-| **A** | conferma il salto |
-| **su** | nasconde subito l'OSD (solo video) |
-| **giù** | passa ai pulsanti |
+| left / right | move the cursor by **-10 s / +30 s** |
+| repeated presses | the step grows: **1 min**, then **5 min** (maximum) |
+| **A** | confirm the jump |
+| **up** | hide the OSD immediately (video only) |
+| **down** | go to the buttons |
 
-Il seek parte alla conferma **o 0,7 s dopo l'ultimo movimento**: muovendo il
-cursore il flusso non viene toccato. **B** con il cursore spostato annulla.
+Seeking starts on confirm **or 0.7 s after the last movement**: moving the
+cursor does not touch the stream. **B** with the cursor moved cancels.
 
-### Sui pulsanti
+### On the buttons
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| sinistra/destra | cambia pulsante |
-| **A** | esegue |
-| **su** | torna alla barra |
-| **giù** | torna alla barra |
+| left/right | change button |
+| **A** | activate |
+| **up** | back to the seek bar |
+| **down** | back to the seek bar |
 
-Pulsanti: **-10 s**, **play/pausa**, **+30 s**, **Audio**, **Sottotitoli**,
-**Qualità**, **Statistiche**.
+Buttons: **-10 s**, **play/pause**, **+30 s**, **Audio**, **Subtitles**,
+**Quality**, **Stats**.
 
-### Altri tasti
+### Other keys
 
-| Tasto | Azione |
+| Key | Action |
 |---|---|
-| **B** | nasconde l'OSD; se è già nascosto, esce dal player |
-| **Y** | apre/chiude il pannello impostazioni |
-| **Start / Menu** | statistiche di transcodifica |
+| **B** | hide the OSD; if already hidden, exit the player |
+| **Y** | open/close the settings panel |
+| **Start / Menu** | transcoding statistics |
 
-## Tastiera USB
+## USB keyboard
 
-Frecce, **Invio** (A), **Esc** (B), **Y**, **Menu**. Nei campi di testo la
-tastiera fisica scrive direttamente.
+Arrows, **Enter** (A), **Esc** (B), **Y**, **Menu**. In text fields the physical
+keyboard types directly.

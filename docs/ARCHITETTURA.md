@@ -1,5 +1,8 @@
 # Architettura e scelta del client
 
+> Design notes (Italian). For the current feature set see
+> [../README.md](../README.md) and [../CHANGELOG.md](../CHANGELOG.md).
+>
 > Documento di progetto, scritto prima dell'implementazione. Le milestone in
 > fondo sono storiche: lo stato attuale è in [../README.md](../README.md) e
 > [../CHANGELOG.md](../CHANGELOG.md).

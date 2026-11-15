@@ -1,129 +1,131 @@
 # JellyLink
 
-**Client Jellyfin nativo per Valve Steam Link (2015).**
-Niente Chromium, niente Electron, niente browser: un'app Qt Quick/C++ che parla
-direttamente con il decoder hardware del Link.
+> Italiano: [README.it.md](README.it.md)
 
-> **Stato: beta 0.1.0** — già usabile per guardare film e serie, ancora in
-> rifinitura. Progetto non affiliato al progetto Jellyfin né a Valve.
+**A native Jellyfin client for the Valve Steam Link (2015).**
+No Chromium, no Electron, no browser: a Qt Quick/C++ app that talks directly to
+the Link's hardware decoder.
+
+> **Status: beta 0.1.0** — already usable for movies and TV shows, still being
+> polished. Not affiliated with the Jellyfin project or Valve.
 >
-> Sviluppato con l'assistenza di un'AI: leggi [Sviluppo e
-> trasparenza](#sviluppo-e-trasparenza).
+> Built with AI assistance: see [Development and
+> transparency](#development-and-transparency).
 
 ---
 
-## Perché esiste
+## Why it exists
 
-I client ufficiali (Jellyfin Media Player, Jellyfin Web) sono **jellyfin-web
-dentro Chromium**. Sul Link — single-core, 256 MB di RAM — non partono.
+The official clients (Jellyfin Media Player, Jellyfin Web) are **jellyfin-web
+inside Chromium**. On the Link — single-core CPU, 256 MB of RAM — they don't
+start.
 
-JellyLink usa l'SDK Valve e le API `SLVideo`/`SLAudio` del firmware per
-decodificare H.264 in hardware e riprodurre l'audio AAC. Il server fa il lavoro
-pesante: chiediamo **sempre** una transcodifica H.264 + AAC in HLS, così il box
-non deve saper leggere MKV, HEVC, 4K o HDR.
-
----
-
-## Cosa sa fare
-
-- **Home** con *Continua a guardare*, *Prossimo episodio*, *Aggiunti di
-  recente* (con la libreria di provenienza) e le librerie.
-- **Libreria completa**: film, serie, stagioni, episodi; scheda con trama,
-  anno, durata, voto, visto/preferito.
-- **Serie e stagioni**: *Riproduci* (prossimo episodio), *Stagioni*,
-  visto/preferito; pagina stagione con pulsanti, trama ed elenco episodi.
-- **Ripresa**: *Riprendi* e *Riproduci dall'inizio*, posizione sincronizzata
-  col server.
-- **Player** con OSD navigabile: barra di seek con cursore e anteprima del
-  tempo, passo accelerato fino a 5 minuti, pausa, -10/+30 secondi, traccia
-  audio, sottotitoli, qualità, statistiche.
-- **Accesso**: ricerca automatica del server (UDP Jellyfin + scansione della
-  LAN), indirizzo manuale, utente/password con tastiera a schermo, Quick
-  Connect.
-- **Preferiti** come scheda nella barra superiore.
-- **Errori di rete chiari**: timeout, *server non raggiungibile* con **A** per
-  riprovare, *connessione persa* durante la riproduzione.
-- **Account** e **Impostazioni**: pagine presenti; le voci sono segnaposto per
-  la versione stabile.
+JellyLink uses the Valve SDK and the firmware's `SLVideo`/`SLAudio` APIs to
+decode H.264 in hardware and play AAC audio. The server does the heavy lifting:
+we **always** ask for an H.264 + AAC HLS transcode, so the box never has to
+understand MKV, HEVC, 4K or HDR.
 
 ---
 
-## Requisiti
+## Features
 
-- Valve **Steam Link** (hardware 2015) con firmware aggiornato.
-- Un server **Jellyfin** raggiungibile in rete locale (testato con Jellyfin
-  12.4).
-- Una **chiavetta USB** per l'installazione.
-- Per compilare: **Steam Link SDK** (Qt 5.14.1 + toolchain ARM), non incluso
-  nel repository.
+- **Home** with *Continue watching*, *Next up*, *Recently added* (with the
+  source library) and your libraries.
+- **Full library browsing**: movies, series, seasons, episodes; detail page
+  with overview, year, runtime, rating, watched/favorite.
+- **Series and seasons**: *Play* (next episode), *Seasons*, watched/favorite;
+  the season page has buttons, the overview and the episode list.
+- **Resume**: *Resume* and *Play from beginning*, position synced with the
+  server.
+- **Player** with a navigable OSD: seek bar with cursor and time preview,
+  acceleration up to 5 minutes, pause, -10/+30 seconds, audio track, subtitles,
+  quality, stats.
+- **Sign in**: automatic server discovery (Jellyfin UDP + LAN scan), manual
+  address, username/password with the on-screen keyboard, Quick Connect.
+- **Favorites** as a tab in the top bar.
+- **Clear network errors**: timeouts, *server unreachable* with **A** to retry,
+  *connection lost* during playback.
+- **Account** and **Settings**: pages exist; their entries are placeholders for
+  the stable release.
 
 ---
 
-## Installazione
+## Requirements
 
-La guida passo-passo è in **[docs/INSTALL.md](docs/INSTALL.md)**.
-In breve: copia la cartella `steamlink/` nella radice della chiavetta, inserisci
-la chiavetta con il Link spento e accendilo. Dopo 1–2 minuti l'app compare
-nella home.
+- Valve **Steam Link** (2015 hardware) with updated firmware.
+- A **Jellyfin** server reachable on your LAN (tested with Jellyfin 12.4).
+- A **USB drive** for installation.
+- To build: **Steam Link SDK** (Qt 5.14.1 + ARM toolchain), not included in
+  this repository.
 
-Il pacchetto si crea con:
+---
+
+## Installation
+
+The step-by-step guide is in **[docs/INSTALL.md](docs/INSTALL.md)**.
+In short: copy the `steamlink/` folder to the root of the USB drive, plug it in
+with the Link powered off, then power it on. After 1–2 minutes the app appears
+on the home screen.
+
+Build the package with:
 
 ```bash
-./build.sh                        # compila e prepara dist/steamlink/
-./build.sh --install /media/USB   # compila e copia direttamente sulla chiavetta
+./build.sh                        # build and prepare dist/steamlink/
+./build.sh --install /media/USB   # build and copy straight to the USB drive
 ```
 
 ---
 
-## Comandi
+## Controls
 
-Elenco completo in **[docs/CONTROLS.md](docs/CONTROLS.md)**. In sintesi:
+Full list in **[docs/CONTROLS.md](docs/CONTROLS.md)**. Quick summary:
 
-| Dove | Comando |
+| Where | Controls |
 |---|---|
-| Home | frecce per muoversi, **A** apre, **B** indietro, **su** dalla prima riga va alla barra superiore |
-| Barra superiore | sinistra/destra scelgono Home/Preferiti/Account/Impostazioni, **A** apre, **giù** torna al contenuto |
-| Player | **A** conferma/seleziona, **sinistra/destra** spostano il cursore, **su** nasconde l'OSD, **giù** va ai pulsanti, **B** nasconde/esce, **Y** impostazioni, **Start** statistiche |
+| Home | arrows to move, **A** opens, **B** back, **up** from the first row goes to the top bar |
+| Top bar | left/right selects Home/Favorites/Account/Settings, **A** opens, **down** returns to content |
+| Player | **A** confirms/selects, **left/right** move the cursor, **up** hides the OSD, **down** goes to the buttons, **B** hides/exits, **Y** settings, **Start** stats |
 
 ---
 
-## Come funziona
+## How it works
 
 ```
-Server Jellyfin                       Steam Link
+Jellyfin server                       Steam Link
 ───────────────                       ──────────
-mkv / hevc / 4k  ──►  ffmpeg  ──►  HLS (H.264 + AAC)  ──►  demux TS
-                                                          ├─► SLVideo (H.264 HW)
+mkv / hevc / 4k  ──►  ffmpeg  ──►  HLS (H.264 + AAC)  ──►  TS demux
+                                                          ├─► SLVideo (HW H.264)
                                                           └─► AAC → SLAudio
 ```
 
-- Il client costruisce una `DeviceProfile` che obbliga H.264/AAC in HLS e
-  disattiva il copia-incolla dei flussi (`AllowVideoStreamCopy=false`).
-- Il player scarica i segmenti del playlist, ricostruisce gli access unit
-  H.264 dai NAL, li passa a `SLVideo`, decodifica l'AAC con una build minima di
-  FFmpeg e sincronizza l'audio con `SLAudio`.
-- La posizione di seek non si chiede con `StartTimeTicks`: il player parte dal
-  segmento HLS che copre quel tempo e il server riavvia la transcodifica lì.
+- The client builds a `DeviceProfile` that forces H.264/AAC over HLS and
+  disables stream copy (`AllowVideoStreamCopy=false`).
+- The player downloads playlist segments, rebuilds H.264 access units from the
+  NAL stream, feeds them to `SLVideo`, decodes AAC with a minimal FFmpeg build
+  and syncs audio through `SLAudio`.
+- Seeking does not use `StartTimeTicks`: the player starts from the HLS segment
+  that covers the requested time and the server restarts transcoding there.
 
-Dettagli e scelte tecniche: **[docs/ARCHITETTURA.md](docs/ARCHITETTURA.md)**.
+Design notes and rationale: **[docs/ARCHITETTURA.md](docs/ARCHITETTURA.md)**
+(written in Italian).
 
 ---
 
-## Compilare
+## Building
 
-Serve lo **Steam Link SDK** di Valve (non incluso). Di default il build lo
-cerca in `../steamlink-sdk`, oppure:
+You need Valve's **Steam Link SDK** (not included). By default the build looks
+for it in `../steamlink-sdk`, or:
 
 ```bash
 ./build.sh --sdk ~/steamlink-sdk
 ```
 
-Requisiti: `make`, `qmake` dall'SDK, toolchain ARM dell'SDK.
+Requirements: `make`, `qmake` from the SDK, the SDK's ARM toolchain.
 
-Le librerie FFmpeg per l'AAC sono già incluse in `third_party/ffmpeg/`; la
-ricetta per ricompilarle è in **[docs/FFMPEG.md](docs/FFMPEG.md)**.
+The FFmpeg libraries for AAC are already included in `third_party/ffmpeg/`;
+the recipe to rebuild them is in **[docs/FFMPEG.md](docs/FFMPEG.md)**.
 
-Controllo rapido di QML e script:
+Quick QML and script check:
 
 ```bash
 ./scripts/check.sh
@@ -131,63 +133,63 @@ Controllo rapido di QML e script:
 
 ---
 
-## Struttura del progetto
+## Project layout
 
 ```
-src/            C++: controller UI, client API, player HLS, demux TS
-qml/            interfaccia Qt Quick (1280x720 virtuale, scalata)
-deploy/         launcher e hook di boot per la chiavetta
-packaging/      icona dell'app
-third_party/    FFmpeg minimale (solo AAC) + licenza LGPL
-docs/           installazione, comandi, architettura, ffmpeg
-build.sh        build + pacchetto USB
+src/            C++: UI controller, API client, HLS player, TS demux
+qml/            Qt Quick UI (virtual 1280x720 canvas, scaled)
+deploy/         launcher and boot hook for the USB drive
+packaging/      app icon
+third_party/    minimal FFmpeg (AAC only) + LGPL license
+docs/           installation, controls, architecture, ffmpeg
+build.sh        build + USB package
 ```
 
 ---
 
-## Limiti noti della beta
+## Known limitations (beta)
 
-- **Seek e cambio impostazioni riavviano il flusso** (~2 secondi): il passo
-  successivo è farlo dentro il player.
-- **Sottotitoli solo in burn-in** (incisi dal server), nessun sottotitolo
-  esterno o stilizzato.
-- **Niente ricerca**, niente coda di riproduzione, niente autoplay del
-  prossimo episodio, niente miniature trickplay sulla barra.
-- Paginazione libreria limitata a 300 elementi per vista.
-- Solo **H.264 8-bit**: niente HEVC, HDR, AV1; il Link decodifica solo quello.
-- **Impostazioni non ancora salvate**: le voci nei menu sono segnaposto.
-- Avviando un episodio dalla pagina serie/stagione il pannello **Audio** usa la
-  traccia predefinita del server; le tracce dell'episodio si caricano
-  aprendone la scheda.
-- La ricerca automatica del server copre la **/24 locale**; server su altre
-  VLAN si inseriscono a mano.
-- Interfaccia solo in italiano.
-
----
-
-## Sviluppo e trasparenza
-
-JellyLink è stato sviluppato da **Andrea Caproni** con l'assistenza di un
-**assistente AI** (DeepSeek V4.1 Flash, tramite OpenCode). In pratica:
-
-- **l'AI** ha scritto la maggior parte del codice, della documentazione e delle
-  iterazioni di build;
-- **la persona** ha definito requisiti e comportamento, ha provato tutto sul
-  dispositivo reale, ha scelto cosa tenere e cosa buttare, e si assume la
-  responsabilità del progetto.
-
-Il codice generato è stato compilato, installato e provato su un vero Steam
-Link; i limiti noti sono elencati sopra e nel [CHANGELOG](CHANGELOG.md). Come
-ogni software, può contenere errori: le segnalazioni sono benvenute.
+- **Seeking and changing settings restart the stream** (~2 seconds): moving
+  this inside the player is the next step.
+- **Burn-in subtitles only** (rendered by the server); no external or styled
+  subtitles.
+- **No search**, no playback queue, no next-episode autoplay, no trickplay
+  thumbnails on the seek bar.
+- Library pagination is capped at 300 items per view.
+- **H.264 8-bit only**: no HEVC, HDR or AV1; the Link only decodes that.
+- **Settings are not persisted yet**: the menu entries are placeholders.
+- Starting an episode from a series/season page uses the server's **default
+  audio track**; the episode's tracks load when you open its detail page.
+- Automatic server discovery covers the **local /24**; servers on other VLANs
+  must be entered manually.
+- **The UI is currently in Italian only.**
 
 ---
 
-## Licenza
+## Development and transparency
 
-Codice: **MIT**, vedi [LICENSE](LICENSE).
+JellyLink was developed by **Andrea Caproni** with the assistance of an **AI
+assistant** (DeepSeek V4.1 Flash, via OpenCode). In practice:
 
-Componenti di terze parti: [THIRD_PARTY.md](THIRD_PARTY.md)
-(FFmpeg LGPL 2.1+, SDK Valve, Qt, nome e logo Jellyfin).
+- **the AI** wrote most of the code, the documentation and the build
+  iterations;
+- **the person** defined requirements and behaviour, tested everything on real
+  hardware, decided what to keep and what to drop, and takes responsibility for
+  the project.
 
-JellyLink è un progetto indipendente: **non è affiliato né approvato** dal
-progetto Jellyfin o da Valve.
+The generated code has been compiled, installed and tested on a real Steam
+Link; the known limitations are listed above and in the
+[CHANGELOG](CHANGELOG.md). Like any software, it may contain bugs: reports are
+welcome.
+
+---
+
+## License
+
+Code: **MIT**, see [LICENSE](LICENSE).
+
+Third-party components: [THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+,
+Valve SDK, Qt, Jellyfin name and logo).
+
+JellyLink is an independent project: it is **not affiliated with or endorsed
+by** the Jellyfin project or Valve.

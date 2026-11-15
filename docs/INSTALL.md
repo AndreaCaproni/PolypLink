@@ -1,73 +1,73 @@
-# Installazione su Steam Link
+# Installing on Steam Link
 
-## Cosa serve
+## What you need
 
-- Valve Steam Link (hardware 2015) con firmware aggiornato.
-- Una chiavetta USB (FAT32 consigliato, EXT4 va bene).
-- Un server Jellyfin raggiungibile dalla rete del Link.
-- Il pacchetto `steamlink/apps/jellyfin-link.tgz` (lo produce `./build.sh`).
+- Valve Steam Link (2015 hardware) with updated firmware.
+- A USB drive (FAT32 recommended, EXT4 works).
+- A Jellyfin server reachable from the Link's network.
+- The `steamlink/apps/jellyfin-link.tgz` package (produced by `./build.sh`).
 
-## Contenuto della chiavetta
+## USB layout
 
 ```
 steamlink/
 ├── apps/
 │   └── jellyfin-link.tgz
 ├── config/system/
-│   ├── enable_ssh.txt          (opzionale, per il debug)
-│   └── jellyfin-server.txt     (opzionale)
+│   ├── enable_ssh.txt          (optional, for debugging)
+│   └── jellyfin-server.txt     (optional)
 └── factory_test/
-    └── run.sh                  (opzionale, hook di boot)
+    └── run.sh                  (optional boot hook)
 ```
 
-- `jellyfin-server.txt` contiene l'indirizzo del server, es.
-  `http://192.168.1.20:8096`. Se manca, l'app lo chiede al primo avvio.
-- `factory_test/run.sh` è l'hook che il firmware esegue a ogni boot. Serve solo
-  per SSH/debug: senza, l'installazione funziona lo stesso.
+- `jellyfin-server.txt` contains the server address, e.g.
+  `http://192.168.1.20:8096`. If missing, the app asks for it on first start.
+- `factory_test/run.sh` is the hook the firmware runs at every boot. It is only
+  needed for SSH/debugging; the app installs fine without it.
 
-## Passi
+## Steps
 
-1. Formatta la chiavetta (FAT32) e copia la cartella `steamlink/` nella
-   **radice**.
-2. Spegni il Link, inserisci la chiavetta, accendi.
-3. L'installazione dura 1–2 minuti; la chiavetta viene smontata subito dopo.
-4. Nella home del Link compare **JellyLink**.
+1. Format the USB drive (FAT32) and copy the `steamlink/` folder to its
+   **root**.
+2. Power off the Link, insert the drive, power it on.
+3. Installation takes 1–2 minutes; the drive is unmounted right after.
+4. **JellyLink** appears on the Link home screen.
 
-## Primo avvio
+## First start
 
-1. **Server**: se non c'è `jellyfin-server.txt`, l'app cerca i Jellyfin sulla
-   rete (UDP e scansione della subnet locale sulla porta 8096). Se non trova
-   nulla, scegli *Inserisci l'indirizzo del server* e scrivilo con la tastiera
-   a schermo (frecce + A). La porta `8096` viene aggiunta se la ometti.
-2. **Accesso**: *Nome utente e password* (tastiera a schermo, con MAIUSC e
-   simboli) oppure **Quick Connect** (codice di 6 cifre da inserire da
-   Jellyfin, Impostazioni → Quick Connect).
-3. Sei sulla home.
+1. **Server**: if there is no `jellyfin-server.txt`, the app scans the network
+   (Jellyfin UDP + local subnet on port 8096). If nothing is found, choose
+   *Enter server address* and type it with the on-screen keyboard (arrows + A).
+   Port `8096` is added automatically if you omit it.
+2. **Sign in**: *Username and password* (on-screen keyboard with SHIFT and
+   symbols) or **Quick Connect** (6-digit code entered in Jellyfin, Settings →
+   Quick Connect).
+3. You are on the home screen.
 
-## SSH e debug (opzionale)
+## SSH and debugging (optional)
 
-`deploy/factory_test/run.sh` viene eseguito come root a ogni avvio, con la
-chiavetta montata. Il repository contiene solo un **esempio**
-(`run.sh.example`): copialo in `run.sh` e aggiungi la tua chiave pubblica.
-`run.sh` è ignorato da git perché contiene dati personali.
+`deploy/factory_test/run.sh` runs as root at every boot, with the USB drive
+mounted. The repository only ships an **example** (`run.sh.example`): copy it
+to `run.sh` and add your own public key. `run.sh` is ignored by git because it
+contains personal data.
 
-Log dell'app:
+App logs:
 
-- sul dispositivo: `/home/apps/jellyfin-link/jellyfin-link-run.log`
-- sulla chiavetta, al boot successivo: file di log nella radice della USB.
+- on the device: `/home/apps/jellyfin-link/jellyfin-link-run.log`
+- on the USB drive, at the next boot: log files in the drive root.
 
-## Aggiornare o disinstallare
+## Updating or uninstalling
 
-- **Aggiornare**: ricrea il pacchetto con `./build.sh`, ricopia `steamlink/`
-  sulla chiavetta e riavvia il Link con la chiavetta inserita.
-- **Disinstallare**: rimuovi `jellyfin-link.tgz` dalla chiavetta e reinstalla,
-  oppure elimina `/home/apps/jellyfin-link` dal dispositivo via SSH.
+- **Update**: rebuild with `./build.sh`, copy `steamlink/` to the USB drive and
+  boot the Link with the drive inserted.
+- **Uninstall**: remove `jellyfin-link.tgz` from the drive and reinstall, or
+  delete `/home/apps/jellyfin-link` on the device over SSH.
 
-## Problemi comuni
+## Troubleshooting
 
-| Sintomo | Causa probabile |
+| Symptom | Likely cause |
 |---|---|
-| L'app non compare nella home | `steamlink/` non è nella radice della chiavetta, o il `.tgz` non ha la cartella dell'app come primo livello |
-| "caricamento…" infinito | server non raggiungibile, IP/porta sbagliati, firewall |
-| Il video parte dopo diversi secondi | il server sta preparando la transcodifica (normale, 1–3 s) |
-| Sottotitoli indesiderati | scegli *Sottotitoli → Spenti* nel player (Y o pulsante dedicato) |
+| The app does not appear on the home screen | `steamlink/` is not at the drive root, or the `.tgz` does not have the app folder at its top level |
+| "loading…" forever | server unreachable, wrong IP/port, firewall |
+| Video starts after a few seconds | the server is preparing the transcode (normal, 1–3 s) |
+| Unwanted subtitles | choose *Subtitles → Off* in the player (Y or the dedicated button) |

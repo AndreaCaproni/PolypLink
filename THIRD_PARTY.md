@@ -1,37 +1,37 @@
-# Componenti di terze parti
+# Third-party components
 
-## FFmpeg (LGPL 2.1 o successiva)
+## FFmpeg (LGPL 2.1 or later)
 
-Il client include una build ridotta di FFmpeg usata **solo per decodificare
-l'audio AAC** e convertirlo in PCM:
+The client ships a reduced FFmpeg build used **only to decode AAC audio** and
+convert it to PCM:
 
 - `third_party/ffmpeg/lib/libavcodec.so` (60)
 - `third_party/ffmpeg/lib/libavutil.so` (58)
 - `third_party/ffmpeg/lib/libswresample.so` (4)
 
-Sono librerie dinamiche, senza componenti GPL. Il testo della licenza è in
-`third_party/ffmpeg/LICENSE.LGPLv2.1`. Sorgenti: <https://ffmpeg.org/>.
-La ricetta di compilazione è in [docs/FFMPEG.md](docs/FFMPEG.md).
+They are dynamically linked libraries without GPL components. The license text
+is in `third_party/ffmpeg/LICENSE.LGPLv2.1`. Sources:
+<https://ffmpeg.org/>. The build recipe is in [FFMPEG.md](FFMPEG.md).
 
 ## Valve Steam Link SDK
 
-Il progetto **non redistribuisce** l'SDK Valve. Per compilare servono
-toolchain, Qt 5.14.1 e le librerie `SLVideo`/`SLAudio` fornite dall'SDK e
-presenti nel firmware del dispositivo. I diritti restano di Valve.
+This project does **not** redistribute Valve's SDK. Building requires the
+toolchain, Qt 5.14.1 and the `SLVideo`/`SLAudio` libraries provided by the SDK
+and present in the device firmware. All rights remain with Valve.
 
 ## Qt 5.14.1
 
-Fornito dal firmware del Link. JellyLink usa Qt Quick, Qt Network e Qt Gui
-secondo la licenza con cui Qt è distribuito nel firmware (LGPL/GPL/commerciale).
+Provided by the Link firmware. JellyLink uses Qt Quick, Qt Network and Qt Gui
+under the license Qt is distributed with in the firmware (LGPL/GPL/commercial).
 
-## Jellyfin: nome e logo
+## Jellyfin name and logo
 
-Il nome *Jellyfin* e il logo sono marchi del progetto Jellyfin. Sono usati qui
-solo per indicare che JellyLink è un client compatibile con Jellyfin.
-**JellyLink è un progetto indipendente, non affiliato né approvato dal progetto
-Jellyfin.**
+The *Jellyfin* name and logo are trademarks of the Jellyfin project. They are
+used here only to indicate that JellyLink is a Jellyfin-compatible client.
+**JellyLink is an independent project, not affiliated with or endorsed by the
+Jellyfin project.**
 
-## Font
+## Fonts
 
-L'interfaccia usa i font di sistema del firmware (Noto Sans). Nessun font è
-ridistribuito.
+The UI uses the firmware's system fonts (Noto Sans). No fonts are
+redistributed.

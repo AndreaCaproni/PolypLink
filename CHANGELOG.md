@@ -2,58 +2,58 @@
 
 ## 0.1.0-beta — 2026-11-15
 
-Prima beta pubblica.
+First public beta.
 
-### Aggiunto
+### Added
 
-- Client Jellyfin nativo per Steam Link: nessun browser, nessun Chromium.
-- Home con *Continua a guardare*, *Prossimo episodio*, *Aggiunti di recente*
-  (con libreria di provenienza) e librerie.
-- Navigazione completa: film, serie, stagioni, episodi, scheda con metadati.
-- Visto / non visto e preferiti, con aggiornamento della home.
-- Ripresa della posizione, *Riprendi* e *Riproduci dall'inizio*.
-- Player HLS con decodifica H.264 hardware (`SLVideo`) e audio AAC
-  (`SLAudio`), sincronizzazione audio/video.
-- OSD navigabile: barra di seek con cursore e anteprima del tempo, passo
-  accelerato (30 s → 1 min → 5 min), pausa, -10/+30 s, traccia audio,
-  sottotitoli in burn-in, qualità (4/8/12/20 Mbps), statistiche.
-- Accesso con indirizzo manuale, utente/password (tastiera a schermo) e
-  Quick Connect.
-- Barra superiore con Home, Preferiti, Account e Impostazioni.
-- Serie e stagioni: *Riproduci* (prossimo episodio), *Stagioni*, visto e
-  preferito; pagina stagione con pulsanti, trama ed elenco episodi.
-- Ricerca del server con UDP Jellyfin e scansione della subnet locale.
-- Interfaccia 1280x720 scalata, pensata per il telecomando.
+- Native Jellyfin client for Steam Link: no browser, no Chromium.
+- Home with *Continue watching*, *Next up*, *Recently added* (with the source
+  library) and libraries.
+- Full browsing: movies, series, seasons, episodes, detail page with metadata.
+- Watched / unwatched and favorites, with home refresh.
+- Resume position, *Resume* and *Play from beginning*.
+- Series and seasons: *Play* (next episode), *Seasons*, watched and favorite;
+  season page with buttons, overview and episode list.
+- HLS player with hardware H.264 decoding (`SLVideo`) and AAC audio
+  (`SLAudio`), audio/video sync.
+- Navigable OSD: seek bar with cursor and time preview, acceleration
+  (30 s → 1 min → 5 min), pause, -10/+30 s, audio track, burn-in subtitles,
+  quality (4/8/12/20 Mbps), stats.
+- Sign-in with manual address, username/password (on-screen keyboard) and Quick
+  Connect.
+- Server discovery with Jellyfin UDP and a local subnet scan.
+- Top bar with Home, Favorites, Account and Settings.
+- 1280x720 scaled UI designed for the remote.
 
-### Correzioni (prima della pubblicazione)
+### Fixes (before publication)
 
-- Se il server non risponde, l'avvio della riproduzione viene annullato con un
-  messaggio: niente più schermo nero per 8 secondi.
-- Se la connessione cade durante la riproduzione, l'OSD mostra "Connessione
-  persa… riprovo"; quando il buffer finisce il player si chiude con l'errore,
-  invece di restare sul fermo immagine.
-- La fine naturale di un film chiude il player e registra la posizione.
-- Aprendo un altro titolo non resta più la scheda precedente: se il server non
-  risponde compare "Impossibile caricare" con il motivo.
-- Home offline: messaggio chiaro ("Server non raggiungibile") e **A** per
-  riprovare.
-- Timeout delle richieste API ridotto a 10 s; i report di avanzamento non si
-  accodano più (uno alla volta).
-- Demux incrementale: eliminato il microlag a ogni segmento (3 s).
-- Login: il server salvato resta in cima, *Esci* e *Cambia utente* funzionano,
-  un 401 riporta al login.
-- Report di sessione corretti: la dashboard Jellyfin mostra *Transcode* e il
-  MediaSourceId giusto.
-- Griglia stagioni con locandine come quella dei film.
+- If the server does not respond, starting playback is aborted with a message:
+  no more 8-second black screen.
+- If the connection drops during playback, the OSD shows "Connection lost…
+  retrying"; when the buffer runs out the player closes with an error instead of
+  freezing on a still frame.
+- Reaching the natural end of a movie closes the player and records the
+  position.
+- Opening another title no longer keeps the previous detail page: if the server
+  does not respond, "Unable to load" is shown with the reason.
+- Offline home: clear message ("Server unreachable") and **A** to retry.
+- API request timeout reduced to 10 s; progress reports no longer pile up (one
+  at a time).
+- Incremental demux: removed the micro-stutter on every 3-second segment.
+- Sign-in: the saved server stays at the top, *Sign out* and *Switch user* work,
+  a 401 returns to the login screen.
+- Correct session reports: the Jellyfin dashboard shows *Transcode* and the
+  right MediaSourceId.
+- Seasons grid uses posters, like the movie grid.
 
-### Limitazioni note
+### Known limitations
 
-- Seek e cambio impostazioni riavviano il flusso (~2 s).
-- Sottotitoli solo in burn-in.
-- Nessuna ricerca, coda di riproduzione o autoplay del prossimo episodio.
-- Nessuna miniatura trickplay sulla barra.
-- Impostazioni e Account sono pagine con voci segnaposto.
-- Solo H.264 8-bit: niente HEVC, HDR o AV1.
-- Avviando da una serie/stagione l'audio usa la traccia predefinita finché non
-  apri la scheda dell'episodio.
-- La ricerca automatica copre solo la /24 locale.
+- Seeking and changing settings restart the stream (~2 s).
+- Burn-in subtitles only.
+- No search, playback queue or next-episode autoplay.
+- No trickplay thumbnails on the seek bar.
+- Settings and Account are pages with placeholder entries.
+- H.264 8-bit only: no HEVC, HDR or AV1.
+- Starting from a series/season uses the default audio track until the episode
+  detail is opened.
+- Automatic discovery covers the local /24 only.
