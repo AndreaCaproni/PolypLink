@@ -207,6 +207,17 @@ Window {
         return s
     }
 
+    function isFerrariTitle() {
+        var n = app.detail.name !== undefined ? app.detail.name : ""
+        return n.toLowerCase().indexOf("ferrari") >= 0
+    }
+
+    function isSeasonFerrari() {
+        var s = (app.seasonInfo.series !== undefined ? app.seasonInfo.series : "") + " " +
+                (app.seasonInfo.name !== undefined ? app.seasonInfo.name : "")
+        return s.toLowerCase().indexOf("ferrari") >= 0
+    }
+
     function isProfileView() {
         return page === "account" && currentMenuEntry().title === "Profilo"
     }
@@ -1536,7 +1547,11 @@ Window {
                         active: root.seasonActionsFocus && root.seasonAction === 1
                     }
                     ActionButton {
-                        icon: "heart"
+                        icon: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
+                              ? (root.isSeasonFerrari() ? "horse" : "heart-filled")
+                              : "heart-empty"
+                        customIconColor: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
+                                         ? "#ff4d4d" : "#ffffff"
                         label: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
                                ? "Togli preferito" : "Preferito"
                         active: root.seasonActionsFocus && root.seasonAction === 2
@@ -1848,7 +1863,11 @@ Window {
                         active: root.detailFocus === root.playedIndex()
                     }
                     ActionButton {
-                        icon: "heart"
+                        icon: (app.detail.favorite !== undefined && app.detail.favorite)
+                              ? (root.isFerrariTitle() ? "horse" : "heart-filled")
+                              : "heart-empty"
+                        customIconColor: (app.detail.favorite !== undefined && app.detail.favorite)
+                                         ? "#ff4d4d" : "#ffffff"
                         label: (app.detail.favorite !== undefined && app.detail.favorite)
                                ? "Togli preferito" : "Preferito"
                         active: root.detailFocus === root.favoriteIndex()
@@ -2549,8 +2568,15 @@ Window {
             } else if (page === "settings" || page === "account") {
                 var entries = (page === "settings") ? settingsMenu : accountMenu
                 if (event.key === Qt.Key_Up) {
-                    menuIndex = Math.max(0, menuIndex - 1)
-                    menuList.positionViewAtIndex(menuIndex, ListView.Contain)
+                    if (menuIndex === 0) {
+                        var back = (page === "settings") ? 3 : 2
+                        page = "home"
+                        navFocus = true
+                        navIndex = back
+                    } else {
+                        menuIndex = menuIndex - 1
+                        menuList.positionViewAtIndex(menuIndex, ListView.Contain)
+                    }
                 } else if (event.key === Qt.Key_Down) {
                     menuIndex = Math.min(entries.length - 1, menuIndex + 1)
                     menuList.positionViewAtIndex(menuIndex, ListView.Contain)

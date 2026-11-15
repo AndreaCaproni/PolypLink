@@ -6,9 +6,11 @@ Rectangle {
     id: button
 
     property string label: ""
-    property string icon: "play"   // play | replay | check | heart | series | previous
+    // play | replay | check | heart-empty | heart-filled | horse | series | previous
+    property string icon: "play"
     property bool active: false
     property bool primary: false
+    property color customIconColor: "transparent"
 
     width: active ? 56 + 10 + labelText.implicitWidth + 18 : 56
     height: 48
@@ -28,8 +30,12 @@ Rectangle {
         width: 24
         height: 24
 
-        property color tint: button.primary && !button.active ? "#00121a" : "#ffffff"
+        property color tint: button.customIconColor.a > 0
+                              ? button.customIconColor
+                              : (button.primary && !button.active ? "#00121a" : "#ffffff")
+        property string iconName: button.icon
         onTintChanged: requestPaint()
+        onIconNameChanged: requestPaint()
 
         onPaint: {
             var ctx = getContext("2d")
@@ -62,11 +68,51 @@ Rectangle {
                 ctx.lineTo(9.5, 18)
                 ctx.lineTo(20, 6)
                 ctx.stroke()
-            } else if (button.icon === "heart") {
+            } else if (button.icon === "heart-empty" || button.icon === "heart-filled") {
                 ctx.beginPath()
                 ctx.moveTo(12, 20)
                 ctx.bezierCurveTo(2, 13, 3.5, 4.5, 12, 9)
                 ctx.bezierCurveTo(20.5, 4.5, 22, 13, 12, 20)
+                ctx.closePath()
+                if (button.icon === "heart-filled") ctx.fill()
+                else ctx.stroke()
+            } else if (button.icon === "horse") {
+                // cavallino stilizzato (easter egg)
+                ctx.save()
+                ctx.translate(11, 12)
+                ctx.scale(1.5, 1)
+                ctx.beginPath()
+                ctx.arc(0, 0, 3, 0, Math.PI * 2)
+                ctx.fill()
+                ctx.restore()
+                ctx.beginPath()
+                ctx.moveTo(13, 10)
+                ctx.lineTo(16, 4)
+                ctx.lineTo(19, 4)
+                ctx.lineTo(20, 6)
+                ctx.lineTo(17, 7)
+                ctx.lineTo(15, 11)
+                ctx.closePath()
+                ctx.fill()
+                ctx.beginPath()
+                ctx.moveTo(16, 4)
+                ctx.lineTo(16.5, 2)
+                ctx.lineTo(17.5, 4)
+                ctx.closePath()
+                ctx.fill()
+                ctx.fillRect(8, 14, 1.6, 5)
+                ctx.fillRect(10, 14, 1.6, 5)
+                ctx.fillRect(12.5, 14, 1.6, 4)
+                ctx.save()
+                ctx.translate(15, 14)
+                ctx.rotate(-0.6)
+                ctx.fillRect(0, 0, 1.6, 5)
+                ctx.restore()
+                ctx.beginPath()
+                ctx.moveTo(7, 11)
+                ctx.quadraticCurveTo(3, 12, 4, 17)
+                ctx.lineTo(6, 16)
+                ctx.quadraticCurveTo(5, 13, 8, 12)
                 ctx.closePath()
                 ctx.fill()
             } else if (button.icon === "series") {
