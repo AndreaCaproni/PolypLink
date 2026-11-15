@@ -51,6 +51,10 @@ class AppController : public QObject {
   Q_PROPERTY(QVariantMap playerStats READ playerStats NOTIFY playerStatsChanged)
   Q_PROPERTY(QVariantMap nextEpisode READ nextEpisode NOTIFY nextEpisodeChanged)
   Q_PROPERTY(bool nextEpisodeVisible READ nextEpisodeVisible NOTIFY playerUiChanged)
+  Q_PROPERTY(bool playerMenuOpen READ playerMenuOpen NOTIFY playerMenuChanged)
+  Q_PROPERTY(QString playerMenuMode READ playerMenuMode NOTIFY playerMenuChanged)
+  Q_PROPERTY(QVariantList playerMenuItems READ playerMenuItems NOTIFY playerMenuChanged)
+  Q_PROPERTY(int playerMenuIndex READ playerMenuIndex NOTIFY playerMenuChanged)
   // OSD del player: visibile per 5 s dopo l'ultimo comando, poi sfuma.
   Q_PROPERTY(bool osdVisible READ osdVisible NOTIFY osdChanged)
   // Navigazione dell'OSD: 0 = barra di seek, 1 = -10 s, 2 = play/pausa,
@@ -115,6 +119,10 @@ class AppController : public QObject {
   QVariantMap playerStats() const { return playerStats_; }
   QVariantMap nextEpisode() const { return nextEpisode_; }
   bool nextEpisodeVisible() const;
+  bool playerMenuOpen() const { return playerMenuOpen_; }
+  QString playerMenuMode() const { return playerMenuMode_; }
+  QVariantList playerMenuItems() const { return playerMenuItems_; }
+  int playerMenuIndex() const { return playerMenuIndex_; }
   QVariantList audioTracks() const { return audioTracks_; }
   QVariantList subtitleTracks() const { return subtitleTracks_; }
   int audioIndex() const { return audioIndex_; }
@@ -177,6 +185,9 @@ class AppController : public QObject {
   Q_INVOKABLE void retryPlayback();
   Q_INVOKABLE void playNextEpisode();
   Q_INVOKABLE void dismissNextEpisode();
+  Q_INVOKABLE void playerMenuMove(int delta);
+  Q_INVOKABLE void playerMenuConfirm();
+  Q_INVOKABLE void playerMenuClose();
   Q_INVOKABLE void moveSettings(int delta);
   Q_INVOKABLE void changeSetting(int delta);
   Q_INVOKABLE void closeSettings();
@@ -207,12 +218,14 @@ class AppController : public QObject {
   void osdChanged();
   void playerUiChanged();
   void nextEpisodeChanged();
+  void playerMenuChanged();
 
   void error(const QString& message);
 
  private:
   void showOsd();
   void showNotice(const QString& message);
+  void openPlayerMenu(const QString& mode);
   void saveDefaults();
   void playEpisode(const QJsonObject& episode);
   void teardownPlayer();
@@ -271,6 +284,13 @@ class AppController : public QObject {
   QVariantMap nextEpisode_;
   bool nextEpisodeDismissed_ = false;
   QString pendingSeriesId_;
+  bool playerMenuOpen_ = false;
+  QString playerMenuMode_;
+  QVariantList playerMenuItems_;
+  int playerMenuIndex_ = 0;
+  QTimer stallWatch_;
+  qint64 lastProgressMs_ = 0;
+  double lastProgressPos_ = -1.0;
   bool osdVisible_ = false;
   QTimer osdTimer_;
   int playerFocus_ = 0;

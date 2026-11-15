@@ -4,8 +4,9 @@
 
 ### Added
 
-- Player OSD: a visible connection-lost card, a next-episode card in the last
-  minute, and toasts for audio/subtitle/quality changes.
+- Player OSD: a visible connection-lost card and a next-episode card in the
+  last minute.
+- Player OSD: dedicated dropdown menus for audio, subtitles and quality.
 
 ## 0.2.1-beta — 2026-11-15
 

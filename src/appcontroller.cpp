@@ -80,6 +80,27 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   seekTimer_.setInterval(700);
   connect(&seekTimer_, &QTimer::timeout, this, &AppController::commitSeek);
 
+  // Rete caduta: il player puo' restare bloccato in una fetch e non emettere
+  // "stalled". Questo watchdog guarda la posizione e mostra il cartello dopo
+  // 5 secondi senza avanzamento.
+  stallWatch_.setInterval(1000);
+  connect(&stallWatch_, &QTimer::timeout, this, [this]() {
+    if (!playerActive_) {
+      stallWatch_.stop();
+      return;
+    }
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (playerPaused_) {
+      lastProgressMs_ = now;
+      return;
+    }
+    if (now - lastProgressMs_ > 5000 && !playerStalled_) {
+      playerStalled_ = true;
+      playerStatus_ = tr("Connessione persa… riprovo");
+      emit playerChanged();
+    }
+  });
+
   qcTimer_.setInterval(2000);
   connect(&qcTimer_, &QTimer::timeout, this, [this]() {
     if (qcSecret_.isEmpty()) return;
@@ -263,6 +284,89 @@ void AppController::dismissNextEpisode() {
   if (nextEpisode_.isEmpty()) return;
   nextEpisodeDismissed_ = true;
   emit playerUiChanged();
+}
+
+void AppController::openPlayerMenu(const QString& mode) {
+  if (!playerActive_) return;
+  playerMenuItems_.clear();
+  playerMenuMode_ = mode;
+  int selected = -1;
+
+  auto addItem = [this, &selected](const QString& label, int value, bool isSelected) {
+    QVariantMap item;
+    item.insert(QStringLiteral("label"), label);
+    item.insert(QStringLiteral("value"), value);
+    item.insert(QStringLiteral("selected"), isSelected);
+    if (isSelected) selected = playerMenuItems_.size();
+    playerMenuItems_.append(item);
+  };
+
+  if (mode == QLatin1String("audio")) {
+    if (audioTracks_.isEmpty()) return;
+    for (const QVariant& v : audioTracks_) {
+      const QVariantMap track = v.toMap();
+      const int index = track.value(QStringLiteral("index")).toInt();
+      addItem(track.value(QStringLiteral("label")).toString(), index,
+              index == audioIndex_);
+    }
+  } else if (mode == QLatin1String("subtitles")) {
+    addItem(uiText("Spenti"), -1, subtitleIndex_ < 0);
+    for (const QVariant& v : subtitleTracks_) {
+      const QVariantMap track = v.toMap();
+      const int index = track.value(QStringLiteral("index")).toInt();
+      addItem(track.value(QStringLiteral("label")).toString(), index,
+              index == subtitleIndex_);
+    }
+  } else if (mode == QLatin1String("quality")) {
+    static const int qualities[] = {4000, 8000, 12000, 20000};
+    for (int q : qualities) {
+      addItem(QString::number(q / 1000) + QStringLiteral(" Mbps"), q,
+              q == qualityKbps_);
+    }
+  }
+
+  if (playerMenuItems_.isEmpty()) return;
+  playerMenuIndex_ = selected >= 0 ? selected : 0;
+  playerMenuOpen_ = true;
+  settingsOpen_ = false;
+  osdTimer_.stop();
+  if (!osdVisible_) {
+    osdVisible_ = true;
+    emit osdChanged();
+  }
+  emit playerMenuChanged();
+  emit playerUiChanged();
+}
+
+void AppController::playerMenuMove(int delta) {
+  if (!playerMenuOpen_ || playerMenuItems_.isEmpty()) return;
+  playerMenuIndex_ = std::max(
+      0, std::min(playerMenuItems_.size() - 1, playerMenuIndex_ + delta));
+  emit playerMenuChanged();
+}
+
+void AppController::playerMenuConfirm() {
+  if (!playerMenuOpen_ || playerMenuItems_.isEmpty()) return;
+  const QVariantMap item = playerMenuItems_.at(playerMenuIndex_).toMap();
+  const int value = item.value(QStringLiteral("value")).toInt();
+  if (playerMenuMode_ == QLatin1String("audio")) {
+    audioIndex_ = value;
+  } else if (playerMenuMode_ == QLatin1String("subtitles")) {
+    subtitleIndex_ = value;
+  } else if (playerMenuMode_ == QLatin1String("quality")) {
+    qualityKbps_ = value;
+  }
+  emit tracksChanged();
+  playerMenuClose();
+  restartPlaybackAtPosition();
+}
+
+void AppController::playerMenuClose() {
+  if (!playerMenuOpen_) return;
+  playerMenuOpen_ = false;
+  emit playerMenuChanged();
+  emit playerUiChanged();
+  showOsd();
 }
 
 void AppController::openPreviousEpisode() {
@@ -1136,6 +1240,9 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
   playerActive_ = true;
   playerPaused_ = false;
   playerStalled_ = false;
+  lastProgressPos_ = playerPosition_;
+  lastProgressMs_ = QDateTime::currentMSecsSinceEpoch();
+  stallWatch_.start();
 
   QString nextSeriesId = pendingSeriesId_;
   pendingSeriesId_.clear();
@@ -1269,6 +1376,15 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         });
         connect(player_, &Player::positionChanged, this, [this](double seconds) {
           playerPosition_ = seconds;
+          if (qAbs(seconds - lastProgressPos_) > 0.05) {
+            lastProgressPos_ = seconds;
+            lastProgressMs_ = QDateTime::currentMSecsSinceEpoch();
+            if (playerStalled_) {
+              playerStalled_ = false;
+              playerStatus_.clear();
+              emit playerChanged();
+            }
+          }
           if (!seekPending_) seekPreview_ = seconds;
           emit playerPositionChanged();
           emit playerUiChanged();
@@ -1287,7 +1403,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         connect(player_, &Player::stalled, this, [this](bool stalled) {
           if (stalled) {
             playerStalled_ = true;
-                      playerStatus_ = tr("Connessione persa… riprovo");
+            playerStatus_ = tr("Connessione persa… riprovo");
           } else if (playerStalled_) {
             playerStalled_ = false;
             playerStatus_.clear();
@@ -1297,7 +1413,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         connect(player_, &Player::failed, this, [this](const QString& message) {
           playerStatus_ = tr("Errore: %1").arg(message);
           playerActive_ = false;
-                  playerStalled_ = false;
+          playerStalled_ = false;
+          stallWatch_.stop();
           nextEpisode_.clear();
           nextEpisodeDismissed_ = false;
           setStatus(playerStatus_);
@@ -1310,7 +1427,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                         static_cast<qint64>(playerPosition_ * 1e7),
                                         mediaSourceId_);
           playerActive_ = false;
-                  playerStalled_ = false;
+          playerStalled_ = false;
+          stallWatch_.stop();
           nextEpisode_.clear();
           nextEpisodeDismissed_ = false;
           emit nextEpisodeChanged();
@@ -1337,6 +1455,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
 
 void AppController::teardownPlayer() {
   ++playbackGen_;
+  stallWatch_.stop();
   playerStalled_ = false;
   if (player_ == nullptr) {
     qInfo("[diag] teardownPlayer: nessun player");
@@ -1356,6 +1475,7 @@ void AppController::teardownPlayer() {
   player_ = nullptr;
   playerActive_ = false;
   playerPaused_ = false;
+  playerMenuOpen_ = false;
   osdVisible_ = false;
   seekPending_ = false;
   seekTimer_.stop();
@@ -1364,6 +1484,7 @@ void AppController::teardownPlayer() {
   emit playerChanged();
   emit osdChanged();
   emit playerUiChanged();
+  emit playerMenuChanged();
 }
 
 void AppController::stopPlayback() {
@@ -1387,8 +1508,6 @@ void AppController::cycleAudio(int delta) {
   pos = (pos + delta + audioTracks_.size()) % audioTracks_.size();
   audioIndex_ = audioTracks_.at(pos).toMap().value(QStringLiteral("index")).toInt();
   emit tracksChanged();
-  showNotice(uiText("Audio") + QStringLiteral(": ") +
-             audioTracks_.at(pos).toMap().value(QStringLiteral("label")).toString());
 }
 
 void AppController::cycleSubtitle(int delta) {
@@ -1404,11 +1523,6 @@ void AppController::cycleSubtitle(int delta) {
   subtitleIndex_ = (pos == 0) ? -1
                               : subtitleTracks_.at(pos - 1).toMap().value(QStringLiteral("index")).toInt();
   emit tracksChanged();
-  const QString subtitleLabel =
-      subtitleIndex_ < 0
-          ? uiText("Spenti")
-          : subtitleTracks_.at(pos - 1).toMap().value(QStringLiteral("label")).toString();
-  showNotice(uiText("Sottotitoli") + QStringLiteral(": ") + subtitleLabel);
 }
 
 void AppController::cycleQuality(int delta) {
@@ -1418,8 +1532,6 @@ void AppController::cycleQuality(int delta) {
   pos = (pos + delta + 4) % 4;
   qualityKbps_ = qualities[pos];
   emit tracksChanged();
-  showNotice(uiText("Qualità") + QStringLiteral(": ") +
-             QString::number(qualityKbps_ / 1000) + QStringLiteral(" Mbps"));
 }
 
 void AppController::showOsd() {
@@ -1434,6 +1546,10 @@ void AppController::showOsd() {
 }
 
 void AppController::toggleSettings() {
+  if (playerMenuOpen_) {
+    playerMenuOpen_ = false;
+    emit playerMenuChanged();
+  }
   settingsOpen_ = !settingsOpen_;
   settingsRow_ = 0;
   if (settingsOpen_) {
@@ -1510,6 +1626,11 @@ void AppController::toggleStats() {
 }
 
 void AppController::playerNavigate(int dx, int dy) {
+  if (playerMenuOpen_) {
+    if (dy != 0) playerMenuMove(dy);
+    else if (dx != 0) playerMenuClose();
+    return;
+  }
   if (!playerActive_ || settingsOpen_) return;
 
   const bool wasHidden = !osdVisible_;
@@ -1577,6 +1698,10 @@ void AppController::playerNavigate(int dx, int dy) {
 }
 
 void AppController::playerConfirm() {
+  if (playerMenuOpen_) {
+    playerMenuConfirm();
+    return;
+  }
   if (!playerActive_ || settingsOpen_) return;
   if (!osdVisible_) {
     // Prima le due schede "urgenti": connessione persa e prossimo episodio.
@@ -1610,22 +1735,15 @@ void AppController::playerConfirm() {
       seekPending_ = true;
       seekTimer_.start();
       break;
-    case 4:  // audio
-    case 5:  // sottotitoli
-    case 6: {  // qualita'
-      seekPending_ = false;
-      seekTimer_.stop();
-      seekPreview_ = playerPosition_;
-      settingsOpen_ = true;
-      settingsRow_ = (playerFocus_ == 4) ? 1 : (playerFocus_ == 5 ? 2 : 0);
-      osdTimer_.stop();
-      if (osdVisible_) {
-        osdVisible_ = false;
-        emit osdChanged();
-      }
-      emit settingsChanged();
+    case 4:
+      openPlayerMenu(QStringLiteral("audio"));
       break;
-    }
+    case 5:
+      openPlayerMenu(QStringLiteral("subtitles"));
+      break;
+    case 6:
+      openPlayerMenu(QStringLiteral("quality"));
+      break;
     case 7:
       toggleStats();
       break;
@@ -1647,6 +1765,10 @@ void AppController::commitSeek() {
 }
 
 void AppController::playerBack() {
+  if (playerMenuOpen_) {
+    playerMenuClose();
+    return;
+  }
   if (!playerActive_) return;
   qInfo("[diag] playerBack: osdVisible=%d focus=%d", osdVisible_ ? 1 : 0,
         playerFocus_);

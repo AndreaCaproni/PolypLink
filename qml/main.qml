@@ -2381,6 +2381,93 @@ Window {
 
         }
 
+        // ---------------------------------------- MENU AUDIO/SOTTOTITOLI/QUALITA'
+        Rectangle {
+            id: playerMenu
+            visible: app.playerMenuOpen
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 96
+            width: 520
+            height: Math.min(430, 52 + app.playerMenuItems.length * 42)
+            radius: 14
+            color: "#ee0b0f14"
+            border.width: 2
+            border.color: "#00a4dc"
+            z: 12
+
+            Text {
+                id: playerMenuTitle
+                anchors.left: parent.left
+                anchors.leftMargin: 18
+                anchors.top: parent.top
+                anchors.topMargin: 12
+                color: "#7fd9ff"
+                font.pixelSize: 16
+                font.bold: true
+                text: app.playerMenuMode === "audio" ? qsTr("Audio") :
+                      (app.playerMenuMode === "subtitles" ? qsTr("Sottotitoli") : qsTr("Qualità"))
+            }
+
+            ListView {
+                id: playerMenuList
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: playerMenuTitle.bottom
+                anchors.topMargin: 8
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
+                clip: true
+                spacing: 2
+                model: app.playerMenuItems
+                boundsBehavior: Flickable.StopAtBounds
+
+                delegate: Rectangle {
+                    width: playerMenuList.width
+                    height: 40
+                    radius: 8
+                    color: index === app.playerMenuIndex ? "#123243" : "transparent"
+                    border.width: index === app.playerMenuIndex ? 2 : 0
+                    border.color: "#00a4dc"
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 14
+                        anchors.right: parent.right
+                        anchors.rightMargin: 28
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: index === app.playerMenuIndex ? "#ffffff" : "#dbe5ef"
+                        font.pixelSize: 16
+                        font.bold: index === app.playerMenuIndex
+                        elide: Text.ElideRight
+                        text: modelData.label
+                    }
+
+                    Rectangle {
+                        visible: modelData.selected
+                        width: 8
+                        height: 8
+                        radius: 4
+                        color: "#7fd9ff"
+                        anchors.right: parent.right
+                        anchors.rightMargin: 14
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+            }
+
+            Connections {
+                target: app
+                onPlayerMenuChanged: {
+                    if (app.playerMenuOpen)
+                        playerMenuList.positionViewAtIndex(app.playerMenuIndex,
+                                                         ListView.Contain)
+                }
+            }
+        }
+
         // ---------------------------------------------------- CONNESSIONE PERSA
         Rectangle {
             id: stalledCard
