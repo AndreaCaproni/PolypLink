@@ -823,13 +823,6 @@ Window {
                     }
                 }
 
-                Text {
-                    width: parent.width
-                    horizontalAlignment: Text.AlignHCenter
-                    color: "#4a5a68"
-                    font.pixelSize: 15
-                    text: "A: conferma    B: indietro"
-                }
             }
 
             // --- credenziali ---
@@ -911,13 +904,6 @@ Window {
                     }
                 }
 
-                Text {
-                    width: parent.width
-                    horizontalAlignment: Text.AlignHCenter
-                    color: "#4a5a68"
-                    font.pixelSize: 15
-                    text: "A: modifica / conferma    B: indietro"
-                }
             }
         }
     }
@@ -961,13 +947,6 @@ Window {
                 text: app.quickConnectStatus
             }
 
-            Text {
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                color: "#4a5a68"
-                font.pixelSize: 15
-                text: "B: annulla"
-            }
         }
     }
 
@@ -1105,13 +1084,6 @@ Window {
                 wrapMode: Text.WordWrap
                 text: app.statusMessage
             }
-            Text {
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                color: "#6f8090"
-                font.pixelSize: 16
-                text: "A: riprova    B: esci"
-            }
         }
     }
 
@@ -1139,7 +1111,7 @@ Window {
             anchors.topMargin: 16
             color: "#5b6b7c"
             font.pixelSize: 15
-            text: app.libraryItems.length + " elementi    B: indietro"
+            text: app.libraryItems.length + " elementi"
         }
 
         GridView {
@@ -1182,8 +1154,7 @@ Window {
         horizontalAlignment: Text.AlignHCenter
         color: "#6f8090"
         font.pixelSize: 18
-        text: (page === "favorites" ? "Nessun preferito" : "Nessuna voce in questa libreria") +
-              "\n\nB: indietro"
+        text: page === "favorites" ? "Nessun preferito" : "Nessuna voce in questa libreria"
     }
 
     // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
@@ -1318,11 +1289,10 @@ Window {
                 }
 
                 Text {
-                    color: root.menuHint.length > 0 ? "#7fd9ff" : "#4a5a68"
+                    visible: root.menuHint.length > 0
+                    color: "#7fd9ff"
                     font.pixelSize: 13
-                    text: root.menuHint.length > 0
-                          ? root.menuHint
-                          : "su/giù: scegli   ·   A: apri   ·   B: indietro"
+                    text: root.menuHint
                 }
             }
         }
@@ -1537,7 +1507,7 @@ Window {
         horizontalAlignment: Text.AlignHCenter
         color: "#6f8090"
         font.pixelSize: 18
-        text: "Nessun episodio in questa stagione\n\nB: indietro"
+        text: "Nessun episodio in questa stagione"
     }
 
     // ----------------------------------------------------------------- STAGIONI
@@ -1564,7 +1534,7 @@ Window {
             anchors.topMargin: 2
             color: "#6f8090"
             font.pixelSize: 15
-            text: app.seasons.length + " stagioni   ·   A: episodi   ·   Y: segna come visto   ·   B: indietro"
+            text: app.seasons.length + " stagioni"
         }
 
         GridView {
@@ -1609,7 +1579,7 @@ Window {
         horizontalAlignment: Text.AlignHCenter
         color: "#6f8090"
         font.pixelSize: 18
-        text: "Nessuna stagione\n\nB: indietro"
+        text: "Nessuna stagione"
     }
 
     // ----------------------------------------------------------------- DETTAGLIO
@@ -1870,11 +1840,6 @@ Window {
                     onCancelled: root.keyboardOpen = false
                 }
 
-                Text {
-                    color: "#4a5a68"
-                    font.pixelSize: 14
-                    text: "A: premi    B: chiudi    (funziona anche una tastiera USB)"
-                }
             }
         }
     }
@@ -2095,16 +2060,6 @@ Window {
                 PlayerButton { text: "Statistiche"; active: app.playerFocus === 7 }
             }
 
-            // suggerimento quando il cursore e' spostato
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 8
-                visible: app.seekPending
-                color: "#7fd9ff"
-                font.pixelSize: 13
-                text: "A: vai qui     B: annulla"
-            }
         }
 
         // simbolo pausa: due barre, nessun glifo da font
@@ -2259,11 +2214,6 @@ Window {
                            text: root.subtitleLabel() }
                 }
 
-                Text {
-                    color: "#4a5a68"
-                    font.pixelSize: 12
-                    text: "su/giù: scegli    sinistra/destra: cambia    B: chiudi"
-                }
             }
         }
 
