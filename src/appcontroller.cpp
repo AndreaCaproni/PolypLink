@@ -62,6 +62,9 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   connect(&osdTimer_, &QTimer::timeout, this, [this]() {
     if (playerPaused_ || !playerActive_) return;
     if (!osdVisible_) return;
+    // Con il focus sulla barra di seek l'OSD resta fermo: l'utente sta
+    // scegliendo un punto e non deve perdere il cursore.
+    if (playerFocus_ == 0) return;
     osdVisible_ = false;
     emit osdChanged();
   });
