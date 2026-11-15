@@ -2,13 +2,12 @@
 
 > English: [README.md](README.md)
 
-**Client Jellyfin non ufficiale, nativo per Valve Steam Link (2015).**
+**Client Jellyfin nativo per Valve Steam Link (2015).**
 Niente Chromium, niente Electron, niente browser: un'app Qt Quick/C++ che parla
 direttamente con il decoder hardware del Link.
 
 > **Stato: beta 0.2.2** — già usabile per guardare film e serie, ancora in
-> rifinitura. **Non ufficiale:** non affiliato, approvato o sponsorizzato dal
-> progetto Jellyfin né da Valve.
+> rifinitura. Progetto indipendente, non affiliato al progetto Jellyfin.
 >
 > **Vibecoded:** codice generato con un assistente AI, poi testato e curato su
 > hardware Steam Link reale.
@@ -183,28 +182,12 @@ meglio mandare i miglioramenti upstream che pubblicare fork vibecoded separati.
 
 ---
 
-## Marchi e branding
-
-JellyLink è un progetto indipendente e non ufficiale. **Non è affiliato,
-approvato, sponsorizzato o supportato** dal progetto Jellyfin né da Valve
-Corporation.
-
-*Jellyfin* e il logo Jellyfin sono marchi del progetto Jellyfin.
-*Steam Link* e *Steam* sono marchi di Valve Corporation. Tutti gli altri marchi
-appartengono ai rispettivi proprietari.
-
-Il nome e il logo Jellyfin sono usati solo per identificare il servizio a cui
-il client si connette e per descrivere la compatibilità. **Non sono il branding
-di JellyLink** e non implicano alcuna approvazione. Se il progetto Jellyfin
-chiede una modifica o la rimozione, il progetto si adeguerà.
-
-L'icona attuale dell'app è un simbolo play generico; il logo Jellyfin dentro
-l'app è mostrato solo come indicatore del servizio.
-
 ## Licenza
 
 Codice: **MIT**, vedi [LICENSE](LICENSE).
 
 Componenti di terze parti: [THIRD_PARTY.md](THIRD_PARTY.md)
-(FFmpeg LGPL 2.1+, SDK Valve, Qt, nome e logo Jellyfin). Vedi **Marchi e
-branding** sopra per le note su Jellyfin e Valve.
+(FFmpeg LGPL 2.1+, SDK Valve, Qt).
+
+Jellyfin: <https://jellyfin.org>. JellyLink è un progetto indipendente, non
+affiliato al progetto Jellyfin.

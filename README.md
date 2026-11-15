@@ -2,13 +2,12 @@
 
 > Italiano: [README.it.md](README.it.md)
 
-**An unofficial native Jellyfin client for the Valve Steam Link (2015).**
+**A native Jellyfin client for the Valve Steam Link (2015).**
 No Chromium, no Electron, no browser: a Qt Quick/C++ app that talks directly to
 the Link's hardware decoder.
 
 > **Status: beta 0.2.2** — already usable for movies and TV shows, still being
-> polished. **Unofficial:** not affiliated with, endorsed by, or sponsored by
-> the Jellyfin project or Valve.
+> polished. Independent project, not affiliated with the Jellyfin project.
 >
 > **Vibecoded:** the code was generated with an AI assistant, then tested and
 > curated on real Steam Link hardware.
@@ -183,28 +182,12 @@ vibecoded forks.
 
 ---
 
-## Trademarks and branding
-
-JellyLink is an independent, unofficial project. It is **not affiliated with,
-endorsed by, sponsored by, or supported by** the Jellyfin project or Valve
-Corporation.
-
-*Jellyfin* and the Jellyfin logo are trademarks of the Jellyfin project.
-*Steam Link* and *Steam* are trademarks of Valve Corporation. All other
-trademarks are the property of their respective owners.
-
-The Jellyfin name and logo are used only to identify the service this client
-connects to and to describe compatibility. They are **not JellyLink's own
-branding**, and no endorsement is implied. If the Jellyfin project requests a
-change or removal, the project will comply.
-
-The current application icon is a generic play symbol; the in-app Jellyfin
-logo is shown only as a service marker.
-
 ## License
 
 Code: **MIT**, see [LICENSE](LICENSE).
 
 Third-party components: [THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+,
-Valve SDK, Qt, Jellyfin name and logo). See **Trademarks and branding** above
-for the Jellyfin and Valve trademark notices.
+Valve SDK, Qt).
+
+Jellyfin: <https://jellyfin.org>. JellyLink is an independent project, not
+affiliated with the Jellyfin project.
