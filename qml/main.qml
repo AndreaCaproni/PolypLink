@@ -175,10 +175,24 @@ Window {
         return app.detail.type === "Series"
     }
 
+    // Episodio: ultimo pulsante "Vai alla serie completa".
+    function hasSeriesLink() {
+        return app.detail.type === "Episode" &&
+               app.detail.seriesId !== undefined &&
+               app.detail.seriesId.length > 0
+    }
+
+    function seriesIndex() {
+        return hasSeriesLink() ? (hasResume() ? 4 : 3) : -1
+    }
+
     // Per le serie: 0 Riproduci, 1 Stagioni, 2 Visto, 3 Preferito (niente
-    // impostazioni di riproduzione). Per i film restano gli indici di prima.
+    // impostazioni di riproduzione). Per film/episodi restano gli indici di
+    // prima, con lo slot extra per la serie quando serve.
     function settingsStart() {
-        return isSeries() ? -1 : (hasResume() ? 4 : 3)
+        if (isSeries()) return -1
+        var base = hasResume() ? 4 : 3
+        return hasSeriesLink() ? base + 1 : base
     }
 
     function playedIndex() {
@@ -199,6 +213,7 @@ Window {
         else if (!isSeries() && hasResume() && root.detailFocus === 1) app.playFromStart()
         else if (root.detailFocus === playedIndex()) app.togglePlayed()
         else if (root.detailFocus === favoriteIndex()) app.toggleFavorite()
+        else if (root.detailFocus === seriesIndex()) openDetail(app.detail.seriesId)
         else if (s >= 0 && root.detailFocus === s) app.cycleQuality(1)
         else if (s >= 0 && root.detailFocus === s + 1) app.cycleAudio(1)
         else if (s >= 0 && root.detailFocus === s + 2) app.cycleSubtitle(1)
@@ -1660,7 +1675,8 @@ Window {
                     spacing: 10
 
                     Rectangle {
-                        width: 190; height: 46; radius: 23
+                        width: root.hasSeriesLink() ? 160 : 190
+                        height: 46; radius: 23
                         color: root.detailFocus === 0 ? "#00a4dc" : "#123243"
                         border.width: root.detailFocus === 0 ? 2 : 1
                         border.color: root.detailFocus === 0 ? "#7fd9ff" : "#1e2b38"
@@ -1685,7 +1701,8 @@ Window {
                     // "Play from beginning" del client web: stesso posto, solo
                     // quando c'e' una posizione da cui riprendere.
                     Rectangle {
-                        width: 230; height: 46; radius: 23
+                        width: root.hasSeriesLink() ? 200 : 230
+                        height: 46; radius: 23
                         visible: root.hasResume() && !root.isSeries()
                         color: root.detailFocus === 1 ? "#123243" : "#101920"
                         border.width: root.detailFocus === 1 ? 2 : 1
@@ -1695,7 +1712,8 @@ Window {
                     }
 
                     Rectangle {
-                        width: 205; height: 46; radius: 23
+                        width: root.hasSeriesLink() ? 180 : 205
+                        height: 46; radius: 23
                         color: root.detailFocus === root.playedIndex() ? "#123243" : "#101920"
                         border.width: root.detailFocus === root.playedIndex() ? 2 : 1
                         border.color: root.detailFocus === root.playedIndex() ? "#00a4dc" : "#1b2733"
@@ -1705,13 +1723,24 @@ Window {
                     }
 
                     Rectangle {
-                        width: 190; height: 46; radius: 23
+                        width: root.hasSeriesLink() ? 170 : 190
+                        height: 46; radius: 23
                         color: root.detailFocus === root.favoriteIndex() ? "#123243" : "#101920"
                         border.width: root.detailFocus === root.favoriteIndex() ? 2 : 1
                         border.color: root.detailFocus === root.favoriteIndex() ? "#00a4dc" : "#1b2733"
                         Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
                                text: (app.detail.favorite !== undefined && app.detail.favorite)
                                      ? "Togli preferito" : "Preferito" }
+                    }
+
+                    Rectangle {
+                        width: 200; height: 46; radius: 23
+                        visible: root.hasSeriesLink()
+                        color: root.detailFocus === root.seriesIndex() ? "#123243" : "#101920"
+                        border.width: root.detailFocus === root.seriesIndex() ? 2 : 1
+                        border.color: root.detailFocus === root.seriesIndex() ? "#00a4dc" : "#1b2733"
+                        Text { anchors.centerIn: parent; color: "#ffffff"; font.pixelSize: 14
+                               text: "Vai alla serie completa" }
                     }
                 }
 
