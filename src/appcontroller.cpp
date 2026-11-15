@@ -1,5 +1,6 @@
 #include "appcontroller.h"
 
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QSettings>
 #include <QElapsedTimer>
@@ -15,6 +16,10 @@
 #include <QtMath>
 
 namespace {
+
+QString uiText(const char* text) {
+  return QCoreApplication::translate("main", text);
+}
 
 QString formatDuration(qint64 ticks) {
   if (ticks <= 0) return QString();
@@ -193,6 +198,72 @@ QString AppController::serverLabel() const {
 }
 
 QString AppController::userImage() const { return client_.userImageUrl(); }
+
+bool AppController::nextEpisodeVisible() const {
+  if (!playerActive_ || nextEpisode_.isEmpty() || nextEpisodeDismissed_) return false;
+  if (playerDuration_ <= 1.0 || playerPaused_) return false;
+  const double remaining = playerDuration_ - playerPosition_;
+  return remaining > 0.0 && remaining <= 20.0;
+}
+
+void AppController::loadNextEpisode(const QString& seriesId,
+                                    const QString& currentId) {
+  if (seriesId.isEmpty() || currentId.isEmpty()) return;
+  const quint64 gen = playbackGen_;
+  client_.fetchEpisodes(
+      seriesId, QString(),
+      [this, gen, currentId](const QJsonDocument& doc, const QString& err) {
+        if (gen != playbackGen_ || !playerActive_ || !err.isEmpty()) return;
+        QVector<QJsonObject> eps;
+        for (const QJsonValue& v : doc.object().value(QStringLiteral("Items")).toArray())
+          eps.append(v.toObject());
+        std::sort(eps.begin(), eps.end(),
+                  [](const QJsonObject& a, const QJsonObject& b) {
+                    const int sa = a.value(QStringLiteral("ParentIndexNumber")).toInt();
+                    const int sb = b.value(QStringLiteral("ParentIndexNumber")).toInt();
+                    if (sa != sb) return sa < sb;
+                    return a.value(QStringLiteral("IndexNumber")).toInt() <
+                           b.value(QStringLiteral("IndexNumber")).toInt();
+                  });
+        int pos = -1;
+        for (int i = 0; i < eps.size(); ++i) {
+          if (eps.at(i).value(QStringLiteral("Id")).toString() == currentId) {
+            pos = i;
+            break;
+          }
+        }
+        if (pos < 0 || pos + 1 >= eps.size()) {
+          qInfo("[player] nessun prossimo episodio");
+          return;
+        }
+        nextEpisode_ = toMap(eps.at(pos + 1));
+        nextEpisodeDismissed_ = false;
+        qInfo("[player] prossimo episodio: %s",
+              qPrintable(nextEpisode_.value(QStringLiteral("name")).toString()));
+        emit nextEpisodeChanged();
+        emit playerUiChanged();
+      });
+}
+
+void AppController::retryPlayback() {
+  if (!playerActive_) return;
+  startPlaybackAt(playingItemId_, static_cast<qint64>(playerPosition_ * 1e7));
+}
+
+void AppController::playNextEpisode() {
+  if (nextEpisode_.isEmpty()) return;
+  const QString id = nextEpisode_.value(QStringLiteral("id")).toString();
+  if (id.isEmpty()) return;
+  pendingSeriesId_ = nextEpisode_.value(QStringLiteral("seriesId")).toString();
+  nextEpisodeDismissed_ = false;
+  startPlaybackAt(id, 0);
+}
+
+void AppController::dismissNextEpisode() {
+  if (nextEpisode_.isEmpty()) return;
+  nextEpisodeDismissed_ = true;
+  emit playerUiChanged();
+}
 
 void AppController::openPreviousEpisode() {
   const QString current = detail_.value(QStringLiteral("id")).toString();
@@ -989,6 +1060,7 @@ void AppController::playSeasonFromStart() {
   if (!seriesTitle_.isEmpty()) title = seriesTitle_ + QStringLiteral(" · ") + title;
   const double dur = ep.value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
   qualityKbps_ = defaultQualityKbps_;
+  pendingSeriesId_ = seasonInfo_.value(QStringLiteral("seriesId")).toString();
   startPlaybackAt(id, 0, title, dur);
 }
 
@@ -1012,6 +1084,7 @@ void AppController::playEpisode(const QJsonObject& episode) {
           .toDouble());
   const double dur = episode.value(QStringLiteral("RunTimeTicks")).toDouble() / 1e7;
   qualityKbps_ = defaultQualityKbps_;
+  pendingSeriesId_ = episode.value(QStringLiteral("SeriesId")).toString();
   qInfo("[player] serie: riproduco %s", qPrintable(title));
   startPlaybackAt(id, ticks, title, dur);
 }
@@ -1029,6 +1102,7 @@ void AppController::startPlayback(const QString& itemId) {
 
 void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                     const QString& title, double durationSec) {
+  const bool newItem = (!playerActive_ || itemId != playingItemId_);
   const quint64 gen = ++playbackGen_;
   mediaSourceId_.clear();
   qInfo("[diag] startPlaybackAt gen=%llu ticks=%lld player=%s",
@@ -1061,6 +1135,23 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
   playerStatus_.clear();
   playerActive_ = true;
   playerPaused_ = false;
+  playerLoading_ = true;
+  playerStalled_ = false;
+
+  QString nextSeriesId = pendingSeriesId_;
+  pendingSeriesId_.clear();
+  if (nextSeriesId.isEmpty() && newItem &&
+      itemId == detail_.value(QStringLiteral("id")).toString() &&
+      detail_.value(QStringLiteral("type")) == QLatin1String("Episode")) {
+    nextSeriesId = detail_.value(QStringLiteral("seriesId")).toString();
+  }
+  if (newItem) {
+    nextEpisode_.clear();
+    nextEpisodeDismissed_ = false;
+    emit nextEpisodeChanged();
+  }
+  if (newItem && !nextSeriesId.isEmpty()) loadNextEpisode(nextSeriesId, itemId);
+
   emit playerChanged();
   emit playerPositionChanged();
 
@@ -1146,9 +1237,14 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           qWarning("[player] avvio annullato: %s", qPrintable(err));
           playerActive_ = false;
           playerPaused_ = false;
+          playerLoading_ = false;
+          playerStalled_ = false;
           osdVisible_ = false;
+          nextEpisode_.clear();
+          nextEpisodeDismissed_ = false;
           setStatus(err.isEmpty() ? tr("Impossibile avviare la riproduzione")
                                   : err);
+          emit nextEpisodeChanged();
           emit playerChanged();
           emit osdChanged();
           return;
@@ -1175,6 +1271,10 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         });
         connect(player_, &Player::positionChanged, this, [this](double seconds) {
           playerPosition_ = seconds;
+          if (playerLoading_) {
+            playerLoading_ = false;
+            emit playerChanged();
+          }
           if (!seekPending_) seekPreview_ = seconds;
           emit playerPositionChanged();
           emit playerUiChanged();
@@ -1193,6 +1293,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         connect(player_, &Player::stalled, this, [this](bool stalled) {
           if (stalled) {
             playerStalled_ = true;
+            playerLoading_ = false;
             playerStatus_ = tr("Connessione persa… riprovo");
           } else if (playerStalled_) {
             playerStalled_ = false;
@@ -1203,7 +1304,12 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         connect(player_, &Player::failed, this, [this](const QString& message) {
           playerStatus_ = tr("Errore: %1").arg(message);
           playerActive_ = false;
+          playerLoading_ = false;
+          playerStalled_ = false;
+          nextEpisode_.clear();
+          nextEpisodeDismissed_ = false;
           setStatus(playerStatus_);
+          emit nextEpisodeChanged();
           emit playerChanged();
         });
         connect(player_, &Player::finished, this, [this]() {
@@ -1212,6 +1318,11 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                         static_cast<qint64>(playerPosition_ * 1e7),
                                         mediaSourceId_);
           playerActive_ = false;
+          playerLoading_ = false;
+          playerStalled_ = false;
+          nextEpisode_.clear();
+          nextEpisodeDismissed_ = false;
+          emit nextEpisodeChanged();
           emit playerChanged();
           // la home deve riflettere subito "Continua a guardare" e il prossimo episodio
           QTimer::singleShot(800, this, &AppController::refreshHome);
@@ -1235,6 +1346,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
 
 void AppController::teardownPlayer() {
   ++playbackGen_;
+  playerLoading_ = false;
+  playerStalled_ = false;
   if (player_ == nullptr) {
     qInfo("[diag] teardownPlayer: nessun player");
     return;
@@ -1264,6 +1377,9 @@ void AppController::teardownPlayer() {
 }
 
 void AppController::stopPlayback() {
+  nextEpisode_.clear();
+  nextEpisodeDismissed_ = false;
+  emit nextEpisodeChanged();
   if (player_ == nullptr) return;
   const qint64 position = static_cast<qint64>(playerPosition_ * 1e7);
   teardownPlayer();
@@ -1281,6 +1397,8 @@ void AppController::cycleAudio(int delta) {
   pos = (pos + delta + audioTracks_.size()) % audioTracks_.size();
   audioIndex_ = audioTracks_.at(pos).toMap().value(QStringLiteral("index")).toInt();
   emit tracksChanged();
+  showNotice(uiText("Audio") + QStringLiteral(": ") +
+             audioTracks_.at(pos).toMap().value(QStringLiteral("label")).toString());
 }
 
 void AppController::cycleSubtitle(int delta) {
@@ -1296,6 +1414,11 @@ void AppController::cycleSubtitle(int delta) {
   subtitleIndex_ = (pos == 0) ? -1
                               : subtitleTracks_.at(pos - 1).toMap().value(QStringLiteral("index")).toInt();
   emit tracksChanged();
+  const QString subtitleLabel =
+      subtitleIndex_ < 0
+          ? uiText("Spenti")
+          : subtitleTracks_.at(pos - 1).toMap().value(QStringLiteral("label")).toString();
+  showNotice(uiText("Sottotitoli") + QStringLiteral(": ") + subtitleLabel);
 }
 
 void AppController::cycleQuality(int delta) {
@@ -1305,6 +1428,8 @@ void AppController::cycleQuality(int delta) {
   pos = (pos + delta + 4) % 4;
   qualityKbps_ = qualities[pos];
   emit tracksChanged();
+  showNotice(uiText("Qualità") + QStringLiteral(": ") +
+             QString::number(qualityKbps_ / 1000) + QStringLiteral(" Mbps"));
 }
 
 void AppController::showOsd() {
@@ -1463,6 +1588,17 @@ void AppController::playerNavigate(int dx, int dy) {
 
 void AppController::playerConfirm() {
   if (!playerActive_ || settingsOpen_) return;
+  if (!osdVisible_) {
+    // Prima le due schede "urgenti": connessione persa e prossimo episodio.
+    if (playerStalled_) {
+      retryPlayback();
+      return;
+    }
+    if (nextEpisodeVisible()) {
+      playNextEpisode();
+      return;
+    }
+  }
   if (!osdVisible_) playerNavigate(0, 0);
 
   const double maxPos = playerDuration_ > 1.0 ? playerDuration_ - 1.0 : 0.0;
@@ -1524,6 +1660,10 @@ void AppController::playerBack() {
   if (!playerActive_) return;
   qInfo("[diag] playerBack: osdVisible=%d focus=%d", osdVisible_ ? 1 : 0,
         playerFocus_);
+  if (!osdVisible_ && nextEpisodeVisible()) {
+    dismissNextEpisode();
+    return;
+  }
   if (osdVisible_) {
     seekPending_ = false;
     seekTimer_.stop();

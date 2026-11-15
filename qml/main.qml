@@ -2082,7 +2082,7 @@ Window {
         id: toast
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 44
+        anchors.bottomMargin: app.playerActive ? 260 : 44
         width: toastLabel.implicitWidth + 40
         height: 38
         radius: 19
@@ -2381,6 +2381,238 @@ Window {
 
         }
 
+        // ---------------------------------------------------------- CARICAMENTO
+        Item {
+            id: loadingOverlay
+            property bool shown: false
+            anchors.fill: parent
+            z: 5
+            visible: shown
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 250
+                height: 120
+                radius: 16
+                color: "#ee0b0f14"
+                border.width: 1
+                border.color: "#2b6f8c"
+            }
+
+            Column {
+                anchors.centerIn: parent
+                spacing: 10
+
+                Item {
+                    width: 44
+                    height: 44
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Canvas {
+                        anchors.fill: parent
+                        onPaint: {
+                            var ctx = getContext("2d")
+                            ctx.reset()
+                            ctx.strokeStyle = "#7fd9ff"
+                            ctx.lineWidth = 4
+                            ctx.lineCap = "round"
+                            ctx.beginPath()
+                            ctx.arc(22, 22, 16, 0.6, 5.2)
+                            ctx.stroke()
+                        }
+                        RotationAnimation on rotation {
+                            from: 0; to: 360; duration: 900
+                            loops: Animation.Infinite
+                            running: loadingOverlay.shown
+                        }
+                    }
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: "#c9d4df"
+                    font.pixelSize: 16
+                    text: qsTr("caricamento…")
+                }
+            }
+        }
+
+        Timer {
+            id: loadingDelay
+            interval: 350
+            running: app.playerLoading && !app.playerStalled
+            onTriggered: loadingOverlay.shown = true
+            onRunningChanged: { if (!running) loadingOverlay.shown = false }
+        }
+
+        // ---------------------------------------------------- CONNESSIONE PERSA
+        Rectangle {
+            id: stalledCard
+            visible: app.playerStalled && app.playerActive
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 56
+            width: 620
+            height: 142
+            radius: 16
+            color: "#ee0b0f14"
+            border.width: 2
+            border.color: "#ff6b6b"
+            z: 25
+
+            Row {
+                anchors.centerIn: parent
+                spacing: 18
+
+                Item {
+                    width: 42
+                    height: 42
+
+                    Canvas {
+                        anchors.fill: parent
+                        onPaint: {
+                            var ctx = getContext("2d")
+                            ctx.reset()
+                            ctx.strokeStyle = "#ff8a8a"
+                            ctx.lineWidth = 4
+                            ctx.lineCap = "round"
+                            ctx.beginPath()
+                            ctx.arc(21, 21, 15, 0.6, 5.2)
+                            ctx.stroke()
+                        }
+                        RotationAnimation on rotation {
+                            from: 0; to: 360; duration: 1000
+                            loops: Animation.Infinite
+                            running: stalledCard.visible
+                        }
+                    }
+                }
+
+                Column {
+                    spacing: 8
+
+                    Text {
+                        color: "#ff8a8a"
+                        font.pixelSize: 23
+                        font.bold: true
+                        text: app.playerStatus
+                    }
+
+                    Rectangle {
+                        width: 150
+                        height: 34
+                        radius: 17
+                        color: "#2a1216"
+                        border.width: 1
+                        border.color: "#ff6b6b"
+
+                        Text {
+                            anchors.centerIn: parent
+                            color: "#ffb3b3"
+                            font.pixelSize: 15
+                            font.bold: true
+                            text: qsTr("Riprendi")
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---------------------------------------------------- PROSSIMO EPISODIO
+        Rectangle {
+            id: nextCard
+            visible: app.nextEpisodeVisible && !app.playerPaused && !app.osdVisible &&
+                     !app.settingsOpen && !app.statsOpen
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 36
+            anchors.bottomMargin: 36
+            width: 620
+            height: 178
+            radius: 14
+            color: "#ee0b0f14"
+            border.width: 2
+            border.color: "#00a4dc"
+            z: 8
+
+            Row {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 16
+
+                RoundedImage {
+                    width: 252
+                    height: 154
+                    radius: 10
+                    source: (app.nextEpisode.imageLandscape !== undefined &&
+                             app.nextEpisode.imageLandscape.length > 0)
+                            ? app.nextEpisode.imageLandscape
+                            : (app.nextEpisode.image !== undefined ? app.nextEpisode.image : "")
+                    sourceSizeWidth: 520
+                }
+
+                Column {
+                    width: parent.width - 268
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 6
+
+                    Text {
+                        width: parent.width
+                        color: "#7fd9ff"
+                        font.pixelSize: 14
+                        font.bold: true
+                        text: qsTr("Prossimo episodio")
+                    }
+                    Text {
+                        width: parent.width
+                        color: "#ffffff"
+                        font.pixelSize: 23
+                        font.bold: true
+                        elide: Text.ElideRight
+                        text: app.nextEpisode.name !== undefined ? app.nextEpisode.name : ""
+                    }
+                    Text {
+                        width: parent.width
+                        color: "#9fb0c0"
+                        font.pixelSize: 14
+                        elide: Text.ElideRight
+                        text: app.nextEpisode.subtitle !== undefined ? app.nextEpisode.subtitle : ""
+                    }
+
+                    Item { width: 1; height: 6 }
+
+                    Row {
+                        spacing: 8
+
+                        Canvas {
+                            width: 20
+                            height: 20
+                            anchors.verticalCenter: parent.verticalCenter
+                            onPaint: {
+                                var ctx = getContext("2d")
+                                ctx.reset()
+                                ctx.fillStyle = "#7fd9ff"
+                                ctx.beginPath()
+                                ctx.moveTo(5, 3)
+                                ctx.lineTo(17, 10)
+                                ctx.lineTo(5, 17)
+                                ctx.closePath()
+                                ctx.fill()
+                            }
+                        }
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: "#7fd9ff"
+                            font.pixelSize: 16
+                            font.bold: true
+                            text: qsTr("Riproduci")
+                        }
+                    }
+                }
+            }
+        }
+
         // simbolo pausa: due barre, nessun glifo da font
         Row {
             anchors.centerIn: parent
@@ -2394,6 +2626,7 @@ Window {
         // statistiche di transcodifica (tasto Start/Menu)
         Rectangle {
             visible: app.statsOpen
+            z: 6
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.margins: 24
@@ -2471,6 +2704,7 @@ Window {
         // impostazioni durante la riproduzione (Y)
         Rectangle {
             visible: app.settingsOpen
+            z: 6
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 180
@@ -2541,7 +2775,7 @@ Window {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 40
-            visible: app.playerStatus.length > 0
+            visible: app.playerStatus.length > 0 && !app.playerStalled
             color: "#ff6b6b"
             font.pixelSize: 20
             text: app.playerStatus
