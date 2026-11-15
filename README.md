@@ -9,7 +9,8 @@ the Link's hardware decoder.
 > **Status: beta 0.1.0** — already usable for movies and TV shows, still being
 > polished. Not affiliated with the Jellyfin project or Valve.
 >
-> **Vibecoded** with AI assistance; tested on real Steam Link hardware.
+> **Vibecoded:** the code was generated with an AI assistant, then tested and
+> curated on real Steam Link hardware.
 
 ---
 
@@ -162,6 +163,14 @@ build.sh        build + USB package
 - Automatic server discovery covers the **local /24**; servers on other VLANs
   must be entered manually.
 - **The UI is currently in Italian only.**
+
+---
+
+## Contributing
+
+This is the canonical repository. Bug reports and pull requests are welcome
+here: please send improvements upstream instead of publishing separate
+vibecoded forks.
 
 ---
 
