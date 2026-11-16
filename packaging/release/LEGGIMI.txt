@@ -1,0 +1,71 @@
+POLYPLINK — beta @VERSION_SHORT@
+Client Jellyfin nativo per Steam Link
+=====================================
+
+Niente browser, niente PC acceso: l'app gira sul Link e il server fa la
+transcodifica. Progetto indipendente, non affiliato al progetto Jellyfin.
+
+COSA C'È DENTRO
+steamlink/apps/polyplink.tgz
+        L'app (~860 KB). Include le librerie per decodificare l'audio AAC.
+
+COSA FARE
+1. Chiavetta USB FAT32 (consigliato) o EXT4.
+2. Copia la cartella "steamlink" nella RADICE della chiavetta:
+       USB/steamlink/apps/polyplink.tgz
+3. Inserisci la chiavetta con il Link SPENTO, poi accendi.
+4. L'installazione dura 1-2 minuti. Nella home compare "PolypLink".
+
+La chiavetta viene smontata subito dopo l'installazione: serve solo a
+trasportare l'app.
+
+PRIMO AVVIO
+1. Server: l'app cerca i Jellyfin sulla rete locale (UDP + scansione).
+   Se non trova nulla, scegli "Inserisci l'indirizzo del server" e scrivilo
+   con la tastiera a schermo (es. http://jellyfin.local:8096).
+   In alternativa puoi creare il file:
+       steamlink/config/system/jellyfin-server.txt
+   con dentro l'indirizzo del server.
+2. Accesso: nome utente e password, oppure Quick Connect (codice di 6 cifre
+   da inserire in Jellyfin).
+3. Lingua: al primo avvio segue la lingua di sistema. Puoi cambiarla da
+   Impostazioni → Lingua dell'interfaccia.
+
+NOTA SUL SERVER
+---------------
+La transcodifica DEVE essere abilitata sul server Jellyfin: PolypLink chiede
+sempre H.264 + AAC in HLS e non usa il direct play.
+
+LINGUA
+------
+L'interfaccia è disponibile in 21 lingue: italiano, inglese, spagnolo,
+francese, tedesco, portoghese (Brasile e Portogallo), russo, olandese,
+polacco, svedese, danese, norvegese bokmål, ceco, ucraino, catalano,
+turco, rumeno, greco, ungherese e finlandese.
+Le traduzioni sono un primo passaggio, non revisionate da madrelingua.
+Titoli, trame e generi seguono la lingua dei metadati impostata sulle
+librerie del server Jellyfin.
+
+PLAYER
+------
+- Qualità/bitrate massimo selezionabile da 4 a 100 Mbps.
+- Dissolvenza OSD selezionabile: 3, 5 o 8 secondi.
+- Sorgenti 4K limitate a 1080p lato server (evita gli errori del decoder).
+- Cartello "connessione persa" dopo 10 secondi senza avanzamento.
+- Scheda "prossimo episodio" nell'ultimo minuto (A avvia, B chiude).
+- Menu separati per Audio, Sottotitoli e Qualità.
+- Seek confermato solo con A; l'OSD resta fermo sulla barra.
+- Accelerazione del seek solo tenendo lo stick, fino a 3 minuti.
+
+NOTE SULLA BETA
+---------------
+- Seek e cambio tracce riavviano il flusso (~2 secondi).
+- Sottotitoli solo in burn-in (incisi dal server).
+- Niente ricerca, coda o autoplay del prossimo episodio.
+- Solo H.264: niente HEVC, HDR, AV1.
+- Qualità sopra ~40 Mbps: sperimentale; 80–100 Mbps possono saturare la
+  Ethernet 100 Mbit del Link.
+- Alcune voci di Account e Impostazioni mostrano "Funzionalità in arrivo".
+
+Log dell'app sul dispositivo:
+  /home/apps/polyplink/polyplink-run.log

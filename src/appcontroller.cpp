@@ -1,5 +1,7 @@
 #include "appcontroller.h"
 
+#include "redact.h"
+
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QSettings>
@@ -1387,7 +1389,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         }
         qInfo("[player] sessione: psid=%s msid=%s", qPrintable(playSessionId_),
               qPrintable(mediaSourceId_));
-        qInfo("[player] stream: %s", qPrintable(url.left(150)));
+        qInfo("[player] stream: %s", qPrintable(RedactSecrets(url).left(150)));
 
         player_ = new Player(this);
         connect(player_, &Player::statsChanged, this, [this](const QVariantMap& stats) {

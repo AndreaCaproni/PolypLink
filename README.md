@@ -78,6 +78,12 @@ Build the package with:
 ./build.sh --install /media/USB   # build and copy straight to the USB drive
 ```
 
+Release assets (USB zip, tgz and `SHA256SUMS`):
+
+```bash
+./scripts/package-release.sh
+```
+
 ---
 
 ## Controls

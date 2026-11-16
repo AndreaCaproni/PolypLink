@@ -102,7 +102,8 @@ for lib in "$ROOT/third_party/ffmpeg/lib/"*.so; do
   fi
 done
 cp "$ROOT/deploy/run.sh" "$APP/run.sh"
-chmod +x "$APP/run.sh"
+cp "$ROOT/scripts/migrate-settings.sh" "$APP/migrate-settings.sh"
+chmod +x "$APP/run.sh" "$APP/migrate-settings.sh"
 cp "$ROOT/packaging/icon.png" "$APP/icon.png"
 cat > "$APP/toc.txt" <<EOF
 name=PolypLink

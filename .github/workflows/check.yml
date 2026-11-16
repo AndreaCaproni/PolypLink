@@ -1,0 +1,38 @@
+name: checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt/QML tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qtbase5-dev qtdeclarative5-dev \
+            qtdeclarative5-dev-tools qttools5-dev-tools pkg-config
+
+      - name: Script syntax
+        run: |
+          for f in build.sh deploy/run.sh deploy/factory_test/run.sh.example scripts/*.sh tests/*.sh; do
+            bash -n "$f"
+          done
+
+      - name: QML lint
+        run: qmllint qml/*.qml
+
+      - name: Translation checks
+        run: python3 tests/check_translations.py
+
+      - name: Settings migration
+        run: sh tests/test_settings_migration.sh
+
+      - name: Log redaction
+        run: |
+          g++ -std=c++17 -fPIC tests/test_redact.cpp src/redact.cpp \
+            $(pkg-config --cflags --libs Qt5Core) -o /tmp/test_redact
+          /tmp/test_redact

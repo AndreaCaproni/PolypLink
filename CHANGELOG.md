@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Security
+
+- Redact `ApiKey`, `token`, `access_token` and `Authorization` values from logs.
+
+### Added
+
+- GitHub Actions checks: QML lint, translation completeness, settings migration
+  and log-redaction tests.
+- `scripts/package-release.sh`: builds the USB kit, creates the release zip/tgz
+  and writes `SHA256SUMS`.
+- Settings migration extracted to `scripts/migrate-settings.sh` and covered by a
+  test.
+
+### Fixed
+
+- Removed unused player variables/functions; the build is clean under
+  `-Wall -Wextra` again.
+
 ## 0.3.0-beta — 2026-11-16
 
 PolypLink rebrand and player tuning.

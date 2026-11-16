@@ -36,14 +36,8 @@ export HOME=/usr/local/polyplink
 mkdir -p "$HOME" 2>>"$LOG"
 
 # Migra le impostazioni della vecchia app (server, token, lingua, qualita').
-OLD_HOME=/usr/local/jellyfin-link
-OLD_CONF="$OLD_HOME/.config/jellyfin-link/Jellyfin Link.conf"
-NEW_CONF="$HOME/.config/polyplink/PolypLink.conf"
-if [ ! -f "$NEW_CONF" ] && [ -f "$OLD_CONF" ]; then
-    mkdir -p "$(dirname "$NEW_CONF")"
-    if cp "$OLD_CONF" "$NEW_CONF" 2>>"$LOG"; then
-        log "impostazioni migrate da $OLD_CONF"
-    fi
+if [ -x "$APP_DIR/migrate-settings.sh" ]; then
+    "$APP_DIR/migrate-settings.sh" /usr/local/jellyfin-link "$HOME" >>"$LOG" 2>&1 || true
 fi
 
 export QT_QPA_PLATFORM=eglfs

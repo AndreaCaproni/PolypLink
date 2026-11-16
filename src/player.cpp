@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include "redact.h"
+
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -47,19 +49,6 @@ constexpr int kAudioRate = 48000;
 constexpr int kAudioChannels = 2;
 constexpr int kAudioBlockFrames = 960;  // 20 ms
 constexpr size_t kAudioBlockBytes = kAudioBlockFrames * kAudioChannels * sizeof(int16_t);
-
-bool IsStartCode(const uint8_t* d, size_t n, size_t i) {
-  return i + 3 < n && d[i] == 0x00 && d[i + 1] == 0x00 && d[i + 2] == 0x01;
-}
-
-// Inizio di un access unit: AUD oppure prima slice del picture.
-bool IsAccessUnitStart(const uint8_t* d, size_t n, size_t i) {
-  if (!IsStartCode(d, n, i)) return false;
-  const int type = d[i + 3] & 0x1F;
-  if (type == 9) return true;
-  if (type == 1 || type == 5) return i + 4 < n && (d[i + 4] & 0x80) != 0;
-  return false;
-}
 
 QString firstUriAfterStreamInf(const QString& text, const QUrl& base) {
   const QStringList lines = text.split(QLatin1Char('\n'));
@@ -170,7 +159,7 @@ bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* o
     error_ = QStringLiteral("HTTP %1: %2").arg(status).arg(reply->errorString());
   }
 
-  QString shortUrl = url;
+  QString shortUrl = RedactSecrets(url);
   if (shortUrl.size() > 110) shortUrl = shortUrl.left(110) + "...";
   qInfo("[player] GET %d %d byte %s", status, static_cast<int>(out->size()),
         qPrintable(shortUrl));
@@ -198,7 +187,6 @@ namespace {
 // Un solo contesto video/audio per tutto il processo: distruggerli e ricrearli
 // a ogni film lascia il display in uno stato in cui il piano video non si
 // riaggancia (il primo film si vedeva, i successivi restavano neri).
-CSLVideoContext* g_videoCtx = nullptr;
 CSLAudioContext* g_audioCtx = nullptr;
 }  // namespace
 
@@ -347,7 +335,7 @@ bool Player::loadPlaylist(QNetworkAccessManager& nam) {
     stats_.insert("framerate", rate);
     break;
   }
-  qInfo("[player] variante: %s", qPrintable(variant));
+  qInfo("[player] variante: %s", qPrintable(RedactSecrets(variant)));
     cfg_.masterUrl = variant;
     if (!fetch(nam, variant, &body)) return false;
     text = QString::fromUtf8(body);
@@ -412,7 +400,7 @@ bool Player::loadPlaylist(QNetworkAccessManager& nam) {
   qInfo("[player] playlist: %d segmenti%s", static_cast<int>(segmentUrls_.size()),
         playlistEnded_ ? " (fine)" : "");
   if (!segmentUrls_.isEmpty()) {
-    qInfo("[player] primo segmento: %s", qPrintable(segmentUrls_.first().right(70)));
+    qInfo("[player] primo segmento: %s", qPrintable(RedactSecrets(segmentUrls_.first()).right(70)));
   }
   return !segmentUrls_.isEmpty();
 }
@@ -964,7 +952,6 @@ void Player::run() {
     }
 
     static qint64 lastStats = 0;
-    static int framesInWindow = 0;
     static int lastSubmitted = 0;
     if (wall.elapsed() - lastStats > 1000) {
       lastStats = wall.elapsed();
@@ -980,7 +967,6 @@ void Player::run() {
       st.insert("failed", failedFrames_);
       st.insert("dropped", droppedFrames_);
       lastSubmitted = submitted;
-      framesInWindow = 0;
       emit statsChanged(st);
     }
 

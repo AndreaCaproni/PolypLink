@@ -22,4 +22,8 @@ else
   echo "    qmllint non trovato (imposta STEAMLINK_SDK); salto"
 fi
 
+echo "==> test"
+python3 "$ROOT/tests/check_translations.py"
+sh "$ROOT/tests/test_settings_migration.sh"
+
 echo "fatto."

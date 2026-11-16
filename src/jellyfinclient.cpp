@@ -1,5 +1,7 @@
 #include "jellyfinclient.h"
 
+#include "redact.h"
+
 #include "version.h"
 
 #include <QJsonArray>
@@ -134,7 +136,7 @@ void JellyfinClient::sendGet(const QString& pathAndQuery, bool withToken, JsonCa
     reply->deleteLater();
     const QByteArray raw = reply->readAll();
     if (reply->property("timedOut").toBool()) {
-      qWarning("[api] timeout GET %s", qPrintable(pathAndQuery.left(160)));
+      qWarning("[api] timeout GET %s", qPrintable(RedactSecrets(pathAndQuery).left(160)));
       if (cb) cb(QJsonDocument(), tr("il server non risponde (timeout)"));
       return;
     }
@@ -142,7 +144,7 @@ void JellyfinClient::sendGet(const QString& pathAndQuery, bool withToken, JsonCa
     const QJsonDocument doc = QJsonDocument::fromJson(raw);
     if (status == 401 && withToken) emit unauthorized();
     if (reply->error() != QNetworkReply::NoError || status >= 400) {
-      qWarning("[api] HTTP %d GET %s", status, qPrintable(pathAndQuery.left(160)));
+      qWarning("[api] HTTP %d GET %s", status, qPrintable(RedactSecrets(pathAndQuery).left(160)));
       if (cb) cb(doc, parseError(doc, raw, status));
       return;
     }
@@ -165,7 +167,7 @@ void JellyfinClient::sendPost(const QString& pathAndQuery, const QJsonObject& bo
     reply->deleteLater();
     const QByteArray raw = reply->readAll();
     if (reply->property("timedOut").toBool()) {
-      qWarning("[api] timeout POST %s", qPrintable(pathAndQuery.left(160)));
+      qWarning("[api] timeout POST %s", qPrintable(RedactSecrets(pathAndQuery).left(160)));
       if (cb) cb(QJsonDocument(), tr("il server non risponde (timeout)"));
       return;
     }
@@ -173,7 +175,7 @@ void JellyfinClient::sendPost(const QString& pathAndQuery, const QJsonObject& bo
     const QJsonDocument doc = QJsonDocument::fromJson(raw);
     if (status == 401 && withToken) emit unauthorized();
     if (reply->error() != QNetworkReply::NoError || status >= 400) {
-      qWarning("[api] HTTP %d POST %s", status, qPrintable(pathAndQuery.left(160)));
+      qWarning("[api] HTTP %d POST %s", status, qPrintable(RedactSecrets(pathAndQuery).left(160)));
       if (cb) cb(doc, parseError(doc, raw, status));
       return;
     }
@@ -194,7 +196,7 @@ void JellyfinClient::sendDelete(const QString& pathAndQuery, bool withToken,
     reply->deleteLater();
     const QByteArray raw = reply->readAll();
     if (reply->property("timedOut").toBool()) {
-      qWarning("[api] timeout DELETE %s", qPrintable(pathAndQuery.left(160)));
+      qWarning("[api] timeout DELETE %s", qPrintable(RedactSecrets(pathAndQuery).left(160)));
       if (cb) cb(QJsonDocument(), tr("il server non risponde (timeout)"));
       return;
     }
@@ -202,7 +204,7 @@ void JellyfinClient::sendDelete(const QString& pathAndQuery, bool withToken,
     const QJsonDocument doc = QJsonDocument::fromJson(raw);
     if (status == 401 && withToken) emit unauthorized();
     if (reply->error() != QNetworkReply::NoError || status >= 400) {
-      qWarning("[api] HTTP %d DELETE %s", status, qPrintable(pathAndQuery.left(160)));
+      qWarning("[api] HTTP %d DELETE %s", status, qPrintable(RedactSecrets(pathAndQuery).left(160)));
       if (cb) cb(doc, parseError(doc, raw, status));
       return;
     }

@@ -79,6 +79,12 @@ Il pacchetto si crea con:
 ./build.sh --install /media/USB   # compila e copia direttamente sulla chiavetta
 ```
 
+Asset di release (zip USB, tgz e `SHA256SUMS`):
+
+```bash
+./scripts/package-release.sh
+```
+
 ---
 
 ## Comandi
