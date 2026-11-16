@@ -1,5 +1,5 @@
 #!/bin/sh
-# Hook di boot per JellyLink (esempio, senza dati personali).
+# Hook di boot per PolypLink (esempio, senza dati personali).
 #
 # Il firmware lo esegue come root all'avvio, mentre la chiavetta e' montata.
 # Serve solo a tenere abilitato SSH. Per usarlo:
