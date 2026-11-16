@@ -16,6 +16,11 @@ Window {
     property bool overviewOpen: false
     property bool languageOpen: false
     property int languageIndex: 0
+    property bool settingsChoiceOpen: false
+    property string settingsChoiceAction: ""
+    property string settingsChoiceTitle: ""
+    property var settingsChoiceItems: []
+    property int settingsChoiceIndex: 0
     // Dopo "segna come visto" il pulsante replay puo' sparire: il focus deve
     // seguire il pulsante Visto, non restare sull'indice numerico.
     property bool pendingPlayedFocus: false
@@ -328,6 +333,40 @@ Window {
         return language.current
     }
 
+    function openSettingsChoice(action) {
+        var items = []
+        var current = 0
+        settingsChoiceAction = action
+        if (action === "quality") {
+            var values = [4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000]
+            for (var i = 0; i < values.length; ++i) {
+                var selected = values[i] === app.qualityDefaultKbps
+                if (selected) current = i
+                items.push({ label: (values[i] / 1000) + " Mbps", value: values[i], selected: selected })
+            }
+            settingsChoiceTitle = qsTr("Bitrate massimo")
+        } else if (action === "osd") {
+            var seconds = [3, 5, 8]
+            for (var j = 0; j < seconds.length; ++j) {
+                var sel = seconds[j] === app.osdSeconds
+                if (sel) current = j
+                items.push({ label: qsTr("%1 secondi").arg(seconds[j]), value: seconds[j], selected: sel })
+            }
+            settingsChoiceTitle = qsTr("Dissolvenza OSD")
+        }
+        settingsChoiceItems = items
+        settingsChoiceIndex = current
+        settingsChoiceOpen = true
+    }
+
+    function confirmSettingsChoice() {
+        var item = settingsChoiceItems[settingsChoiceIndex]
+        if (item === undefined) return
+        if (settingsChoiceAction === "quality") app.setDefaultQuality(item.value)
+        else if (settingsChoiceAction === "osd") app.setOsdSeconds(item.value)
+        settingsChoiceOpen = false
+    }
+
     function currentMenuEntry() {
         var list = (page === "settings") ? settingsMenu : accountMenu
         if (menuIndex < 0 || menuIndex >= list.length)
@@ -519,6 +558,7 @@ Window {
     }
 
     function goBack() {
+        if (settingsChoiceOpen) { settingsChoiceOpen = false; return }
         if (languageOpen) { languageOpen = false; return }
         if (overviewOpen) { overviewOpen = false; return }
         if (keyboardOpen) { keyboardOpen = false; return }
@@ -2166,6 +2206,88 @@ Window {
 
     }
 
+    // ------------------------------------------- SELEZIONE IMPOSTAZIONI
+    Item {
+        anchors.fill: parent
+        visible: root.settingsChoiceOpen
+        z: 60
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#f20b0f14"
+        }
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 14
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: "#ffffff"
+                font.pixelSize: 28
+                font.bold: true
+                text: root.settingsChoiceTitle
+            }
+
+            Rectangle {
+                width: 520
+                height: Math.min(460, 54 + root.settingsChoiceItems.length * 42)
+                radius: 14
+                color: "#ee0b0f14"
+                border.width: 2
+                border.color: "#00a4dc"
+
+                ListView {
+                    id: settingsChoiceList
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    clip: true
+                    spacing: 2
+                    model: root.settingsChoiceItems
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    onVisibleChanged: {
+                        if (visible)
+                            positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
+                    }
+
+                    delegate: Rectangle {
+                        width: settingsChoiceList.width
+                        height: 40
+                        radius: 8
+                        color: index === root.settingsChoiceIndex ? "#123243" : "transparent"
+                        border.width: index === root.settingsChoiceIndex ? 2 : 0
+                        border.color: "#00a4dc"
+
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 14
+                            anchors.right: parent.right
+                            anchors.rightMargin: 28
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: index === root.settingsChoiceIndex ? "#ffffff" : "#dbe5ef"
+                            font.pixelSize: 16
+                            font.bold: index === root.settingsChoiceIndex
+                            elide: Text.ElideRight
+                            text: modelData.label
+                        }
+
+                        Rectangle {
+                            visible: modelData.selected
+                            width: 8
+                            height: 8
+                            radius: 4
+                            color: "#7fd9ff"
+                            anchors.right: parent.right
+                            anchors.rightMargin: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // ------------------------------------------------------- LINGUA INTERFACCIA
     Item {
         anchors.fill: parent
@@ -2799,6 +2921,25 @@ Window {
                 return
             }
 
+            if (root.settingsChoiceOpen) {
+                if (event.key === Qt.Key_Up) {
+                    root.settingsChoiceIndex = Math.max(0, root.settingsChoiceIndex - 1)
+                    settingsChoiceList.positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
+                } else if (event.key === Qt.Key_Down) {
+                    root.settingsChoiceIndex = Math.min(root.settingsChoiceItems.length - 1,
+                                                       root.settingsChoiceIndex + 1)
+                    settingsChoiceList.positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
+                } else if (event.key === Qt.Key_Return) {
+                    root.confirmSettingsChoice()
+                } else if (event.key === Qt.Key_Escape ||
+                           event.key === Qt.Key_Left ||
+                           event.key === Qt.Key_Backspace) {
+                    root.settingsChoiceOpen = false
+                }
+                event.accepted = true
+                return
+            }
+
             if (root.languageOpen) {
                 var langCols = 3
                 if (event.key === Qt.Key_Left) {
@@ -2978,10 +3119,8 @@ Window {
                     var action = entry.action
                     if (action === "logout" || action === "switchserver") {
                         app.logout()
-                    } else if (action === "quality") {
-                        app.cycleDefaultQuality(1)
-                    } else if (action === "osd") {
-                        app.cycleOsdSeconds(1)
+                    } else if (action === "quality" || action === "osd") {
+                        root.openSettingsChoice(action)
                     } else if (action === "test") {
                         app.testConnection()
                     } else if (action === "language") {

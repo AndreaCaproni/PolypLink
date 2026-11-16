@@ -154,6 +154,8 @@ class AppController : public QObject {
   Q_INVOKABLE void openFavorites();
   Q_INVOKABLE void cycleDefaultQuality(int delta);
   Q_INVOKABLE void cycleOsdSeconds(int delta);
+  Q_INVOKABLE void setDefaultQuality(int kbps);
+  Q_INVOKABLE void setOsdSeconds(int seconds);
   Q_INVOKABLE void testConnection();
   Q_INVOKABLE void resetSettings();
   Q_INVOKABLE void refreshUserStats();

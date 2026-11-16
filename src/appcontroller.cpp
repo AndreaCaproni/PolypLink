@@ -1783,6 +1783,28 @@ void AppController::saveDefaults() {
   s.setValue(QStringLiteral("osdSeconds"), osdSeconds_);
 }
 
+void AppController::setDefaultQuality(int kbps) {
+  static const int valid[] = {4000, 8000, 12000, 20000, 30000,
+                              40000, 50000, 60000, 80000, 100000};
+  bool ok = false;
+  for (int q : valid) if (q == kbps) ok = true;
+  if (!ok || defaultQualityKbps_ == kbps) return;
+  defaultQualityKbps_ = kbps;
+  saveDefaults();
+  emit tracksChanged();
+  showNotice(tr("Qualità predefinita: %1 Mbps").arg(kbps / 1000));
+}
+
+void AppController::setOsdSeconds(int seconds) {
+  if (seconds != 3 && seconds != 5 && seconds != 8) return;
+  if (osdSeconds_ == seconds) return;
+  osdSeconds_ = seconds;
+  osdTimer_.setInterval(seconds * 1000);
+  saveDefaults();
+  emit tracksChanged();
+  showNotice(tr("OSD: %1 secondi").arg(seconds));
+}
+
 void AppController::cycleDefaultQuality(int delta) {
   static const int values[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
   int pos = 2;
