@@ -19,7 +19,8 @@ class InputPump : public QObject {
   Q_OBJECT
 
  signals:
-  void keyPressed(int qtKey);
+  // autoRepeat=true solo per l'auto-repeat dello stick analogico.
+  void keyPressed(int qtKey, bool autoRepeat);
 
  public:
   explicit InputPump(QQuickWindow* window, QObject* parent = nullptr);
@@ -29,7 +30,7 @@ class InputPump : public QObject {
 
  private:
   void poll();
-  void sendKey(int qtKey);
+  void sendKey(int qtKey, bool autoRepeat = false);
   void handleAxis(int value, int negativeKey, int positiveKey, qint64 now,
                   int* lastDir, qint64* nextRepeat);
   static int mapButton(int sdlButton);

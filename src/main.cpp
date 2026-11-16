@@ -212,16 +212,17 @@ int main(int argc, char** argv) {
   auto* input = new InputPump(window, &app);
   if (!input->ok()) qWarning("[input] nessun controller disponibile");
 
-  QObject::connect(input, &InputPump::keyPressed, window, [window, &controller](int key) {
+  QObject::connect(input, &InputPump::keyPressed, window,
+                   [window, &controller](int key, bool autoRepeat) {
     if (controller.playerActive()) {
       switch (key) {
         // OSD navigabile come nel client Jellyfin: la barra e i pulsanti
         // ricevono il focus, il seek parte alla conferma o a fine corsa.
         case Qt::Key_Return: controller.playerConfirm(); break;
-        case Qt::Key_Left: controller.playerNavigate(-1, 0); break;
-        case Qt::Key_Right: controller.playerNavigate(1, 0); break;
-        case Qt::Key_Up: controller.playerNavigate(0, -1); break;
-        case Qt::Key_Down: controller.playerNavigate(0, 1); break;
+        case Qt::Key_Left: controller.playerNavigate(-1, 0, autoRepeat); break;
+        case Qt::Key_Right: controller.playerNavigate(1, 0, autoRepeat); break;
+        case Qt::Key_Up: controller.playerNavigate(0, -1, autoRepeat); break;
+        case Qt::Key_Down: controller.playerNavigate(0, 1, autoRepeat); break;
         case Qt::Key_Escape:
         case Qt::Key_Backspace: controller.playerBack(); break;
         case Qt::Key_Menu: controller.toggleStats(); break;

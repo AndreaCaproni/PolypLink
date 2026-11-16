@@ -1591,7 +1591,7 @@ void AppController::toggleStats() {
   emit playerUiChanged();
 }
 
-void AppController::playerNavigate(int dx, int dy) {
+void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
   if (playerMenuOpen_) {
     if (dy != 0) playerMenuMove(dy);
     else if (dx != 0) playerMenuClose();
@@ -1635,20 +1635,22 @@ void AppController::playerNavigate(int dx, int dy) {
       // Accelerazione: scatti consecutivi nella stessa direzione allargano
       // il passo. Con lo stick, che ripete, si attraversano anche i film
       // lunghi senza premere decine di volte.
-      const qint64 now = QDateTime::currentMSecsSinceEpoch();
-      if (dx != seekDirection_ || now - lastSeekMoveMs_ > 1500) {
+      // L'accelerazione scatta solo con l'auto-repeat dello stick.
+      // Una pressione singola (D-pad o stick appena mosso) fa sempre il passo base.
+      if (dx != seekDirection_) {
         seekSteps_ = 0;
         seekDirection_ = dx;
-      } else {
+      } else if (autoRepeat) {
         ++seekSteps_;
+      } else {
+        seekSteps_ = 0;
       }
-      lastSeekMoveMs_ = now;
 
       double step;
-      // tetto a 5 minuti: oltre si salta troppo e si perde il punto
+      // tetto a 3 minuti: oltre si salta troppo e si perde il punto
       if (seekSteps_ < 3) step = dx > 0 ? 30.0 : -10.0;
       else if (seekSteps_ < 6) step = dx > 0 ? 60.0 : -60.0;
-      else step = dx > 0 ? 300.0 : -300.0;
+      else step = dx > 0 ? 180.0 : -180.0;
 
       const double maxPos = playerDuration_ > 1.0 ? playerDuration_ - 1.0 : 0.0;
       seekPreview_ = qBound(0.0, seekPreview_ + step, maxPos);

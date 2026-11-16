@@ -38,7 +38,7 @@ understand MKV, HEVC, 4K or HDR.
 - **Resume**: *Resume* and *Play from beginning*, position synced with the
   server.
 - **Player** with a navigable OSD: seek bar with cursor and time preview,
-  acceleration up to 5 minutes, pause, -10/+30 seconds, audio track, subtitles,
+  acceleration up to 3 minutes, pause, -10/+30 seconds, audio track, subtitles,
   quality with dedicated dropdown menus, stats, a connection-lost card and a
   next-episode card.
 - **Sign in**: automatic server discovery (Jellyfin UDP + LAN scan), manual

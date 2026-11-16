@@ -173,7 +173,7 @@ class AppController : public QObject {
   Q_INVOKABLE void cycleQuality(int delta);
   Q_INVOKABLE void restartPlaybackAtPosition();
   // OSD navigabile (tasti instradati da main.cpp)
-  Q_INVOKABLE void playerNavigate(int dx, int dy);
+  Q_INVOKABLE void playerNavigate(int dx, int dy, bool autoRepeat = false);
   Q_INVOKABLE void playerConfirm();
   Q_INVOKABLE void playerBack();
   Q_INVOKABLE void toggleStats();
@@ -288,7 +288,6 @@ class AppController : public QObject {
   // scatti consecutivi sulla barra: il passo cresce (30 s -> 1 -> 5 -> 10 min)
   int seekDirection_ = 0;
   int seekSteps_ = 0;
-  qint64 lastSeekMoveMs_ = 0;
   double seekPreview_ = 0;
   bool seekPending_ = false;
   bool statsOpen_ = false;

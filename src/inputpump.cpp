@@ -62,9 +62,9 @@ int InputPump::mapButton(int sdlButton) {
   }
 }
 
-void InputPump::sendKey(int qtKey) {
+void InputPump::sendKey(int qtKey, bool autoRepeat) {
   if (qtKey == 0) return;
-  emit keyPressed(qtKey);
+  emit keyPressed(qtKey, autoRepeat);
 }
 
 void InputPump::handleAxis(int value, int negativeKey, int positiveKey, qint64 now,
@@ -77,12 +77,12 @@ void InputPump::handleAxis(int value, int negativeKey, int positiveKey, qint64 n
   if (value != *lastDir) {
     *lastDir = value;
     *nextRepeat = now + 350;  // pausa prima dell'auto-repeat
-    sendKey(value < 0 ? negativeKey : positiveKey);
+    sendKey(value < 0 ? negativeKey : positiveKey, false);
     return;
   }
   if (now >= *nextRepeat) {
     *nextRepeat = now + 120;
-    sendKey(value < 0 ? negativeKey : positiveKey);
+    sendKey(value < 0 ? negativeKey : positiveKey, true);
   }
 }
 
@@ -110,7 +110,7 @@ void InputPump::poll() {
       }
       case SDL_CONTROLLERBUTTONDOWN: {
         const int key = mapButton(ev.cbutton.button);
-        if (key != 0) sendKey(key);
+        if (key != 0) sendKey(key, false);
         break;
       }
       default:

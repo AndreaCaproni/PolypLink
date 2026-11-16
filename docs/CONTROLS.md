@@ -78,14 +78,15 @@ back.
 
 | Key | Action |
 |---|---|
-| left / right | move the cursor by **-10 s / +30 s** |
-| repeated presses | the step grows: **1 min**, then **5 min** (maximum) |
+| left / right tap | move the cursor by **-10 s / +30 s** |
+| hold the analog stick | the step grows: **1 min**, then **3 min** (maximum) |
 | **A** | confirm the jump |
 | **up** | hide the OSD immediately (video only) |
 | **down** | go to the buttons |
 
-Seeking starts on confirm **or 0.7 s after the last movement**: moving the
-cursor does not touch the stream. **B** with the cursor moved cancels.
+The jump starts **only when you press A**. Moving the cursor or waiting does not
+touch the stream; **down**, **up** or **B** cancels a pending jump. The OSD stays
+visible while the seek bar has focus.
 
 ### On the buttons
 

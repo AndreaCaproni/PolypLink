@@ -37,7 +37,7 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
 - **Ripresa**: *Riprendi* e *Riproduci dall'inizio*, posizione sincronizzata
   col server.
 - **Player** con OSD navigabile: barra di seek con cursore e anteprima del
-  tempo, passo accelerato fino a 5 minuti, pausa, -10/+30 secondi, traccia
+  tempo, passo accelerato fino a 3 minuti, pausa, -10/+30 secondi, traccia
   audio, sottotitoli, qualità con menu dedicati, statistiche, cartello
   connessione persa e scheda prossimo episodio.
 - **Accesso**: ricerca automatica del server (UDP Jellyfin + scansione della
