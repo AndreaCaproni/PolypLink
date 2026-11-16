@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt a la unitat USB</translation>
         <translation>Descartats (tard)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Properament: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Idioma de la interfície; els títols i les trames segueixen el servidor</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt a la unitat USB</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Taxa de bits màxima</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funcionalitat properament</translation>
     </message>
 </context>
 </TS>

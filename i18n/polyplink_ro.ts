@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
         <translation>Eliminate (întârziate)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>În curând: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Limba interfeței; titlurile și descrierile urmează serverul</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Rata de biți maximă</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funcție în curând</translation>
     </message>
 </context>
 </TS>

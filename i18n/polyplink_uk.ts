@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt на диску USB</translation>
         <translation>Відкинуто (пізно)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Незабаром: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Мова інтерфейсу; назви та описи беруться із сервера</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt на диску USB</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Максимальний бітрейт</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Функція незабаром</translation>
     </message>
 </context>
 </TS>

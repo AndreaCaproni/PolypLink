@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt auf dem USB-Laufwerk eingeben</trans
         <translation>Verworfen (spät)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Demnächst erhältlich: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Sprache der Oberfläche; Titel und Handlungen folgen dem Server</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt auf dem USB-Laufwerk eingeben</trans
     <message>
         <source>Bitrate massimo</source>
         <translation>Maximale Bitrate</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funktion folgt</translation>
     </message>
 </context>
 </TS>

@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
         <translation>Απορρίφθηκαν (καθυστέρηση)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Προσεχώς: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Γλώσσα διεπαφής; οι τίτλοι και οι υποθέσεις ακολουθούν τον διακομιστή</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
     <message>
         <source>Bitrate massimo</source>
         <translation>Μέγιστο bitrate</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Λειτουργία προσεχώς</translation>
     </message>
 </context>
 </TS>

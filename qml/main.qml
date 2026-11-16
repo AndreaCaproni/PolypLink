@@ -374,6 +374,11 @@ Window {
         return list[menuIndex]
     }
 
+    function isComingSoon() {
+        var action = currentMenuEntry().action
+        return action === undefined || action === ""
+    }
+
     function savedServerRow() {
         return app.serverLabel.length > 0 ? 1 : 0
     }
@@ -1560,6 +1565,14 @@ Window {
                     lineHeight: 1.2
                     wrapMode: Text.WordWrap
                     text: root.currentMenuEntry().desc
+                }
+                Text {
+                    width: parent.width
+                    color: "#7fd9ff"
+                    font.pixelSize: 14
+                    font.bold: true
+                    visible: root.isComingSoon()
+                    text: qsTr("Funzionalità in arrivo")
                 }
             }
 
@@ -3134,7 +3147,7 @@ Window {
                             : ("PolypLink " + appVersion)
                         menuHintTimer.restart()
                     } else {
-                        menuHint = qsTr("Voce in preparazione: %1").arg(entry.title)
+                        menuHint = qsTr("Funzionalità in arrivo")
                         menuHintTimer.restart()
                     }
                 } else if (event.key === Qt.Key_Escape || event.key === Qt.Key_Left) {

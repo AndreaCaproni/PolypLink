@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt op de USB-schijf zetten</translation
         <translation>Verworpen (laat)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Binnenkort verkrijgbaar: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Interfacetaal; titels en beschrijvingen volgen de server</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt op de USB-schijf zetten</translation
     <message>
         <source>Bitrate massimo</source>
         <translation>Maximale bitsnelheid</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Functie komt binnenkort</translation>
     </message>
 </context>
 </TS>

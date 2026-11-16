@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt na napędzie USB</translation>
         <translation>Pominięte (spóźnione)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Już wkrótce: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Język interfejsu; tytuły i opisy pochodzą z serwera</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt na napędzie USB</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Maksymalna przepływność</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funkcja już wkrótce</translation>
     </message>
 </context>
 </TS>

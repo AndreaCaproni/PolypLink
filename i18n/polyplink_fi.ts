@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt</translation>
         <translation>Pudotetut (myöhässä)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Tulossa pian: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Käyttöliittymän kieli; nimet ja kuvaukset tulevat palvelimelta</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Suurin bittinopeus</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Ominaisuus tulossa pian</translation>
     </message>
 </context>
 </TS>

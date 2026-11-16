@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt na unidade USB</translation>
         <translation>Descartados (atraso)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Em breve: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Idioma da interface; títulos e sinopses seguem o servidor</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt na unidade USB</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Taxa de bits máxima</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funcionalidade em breve</translation>
     </message>
 </context>
 </TS>

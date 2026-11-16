@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
         <translation>Dropped (late)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Coming soon: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Interface language; titles and plots follow the server</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Maximum bitrate</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Feature coming soon</translation>
     </message>
 </context>
 </TS>

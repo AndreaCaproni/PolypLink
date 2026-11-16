@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt na disku USB</translation>
         <translation>Zahozeno (pozdě)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Již brzy: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Jazyk rozhraní; názvy a popisy pocházejí ze serveru</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt na disku USB</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Maximální datový tok</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funkce již brzy</translation>
     </message>
 </context>
 </TS>

@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt helyére is elhelyezheti a USB megha
         <translation>Eldobott (késői)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Hamarosan: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Felület nyelve; a címek és leírások a szervert követik</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt helyére is elhelyezheti a USB megha
     <message>
         <source>Bitrate massimo</source>
         <translation>Maximális bitráta</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funkció hamarosan</translation>
     </message>
 </context>
 </TS>

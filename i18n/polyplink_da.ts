@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
         <translation>Droppet (sent)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Kommer snart: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Grænsefladesprog; titler og beskrivelser følger serveren</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Maksimal bitrate</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Funktion kommer snart</translation>
     </message>
 </context>
 </TS>

@@ -599,10 +599,6 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
         <translation>Düşürülen (geç)  %1</translation>
     </message>
     <message>
-        <source>Voce in preparazione: %1</source>
-        <translation>Çok yakında: %1</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Arayüz dili; başlıklar ve konular sunucuyu takip eder</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
     <message>
         <source>Bitrate massimo</source>
         <translation>Maksimum bit hızı</translation>
+    </message>
+    <message>
+        <source>Funzionalità in arrivo</source>
+        <translation>Özellik yakında</translation>
     </message>
 </context>
 </TS>
