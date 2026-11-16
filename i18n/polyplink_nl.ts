@@ -203,10 +203,6 @@
         <translation>Adres, poort, HTTPS en automatisch opnieuw verbinden</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maximale kwaliteit</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Ondertitels</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt op de USB-schijf zetten</translation
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Standaardbitsnelheid: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Maximale bitsnelheid</translation>
     </message>
 </context>
 </TS>

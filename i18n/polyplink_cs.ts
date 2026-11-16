@@ -203,10 +203,6 @@
         <translation>Adresa, port, HTTPS a automatické opětovné připojení</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maximální kvalita</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Titulky</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt na disku USB</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Výchozí datový tok: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Maximální datový tok</translation>
     </message>
 </context>
 </TS>

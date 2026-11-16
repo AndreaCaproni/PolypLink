@@ -203,10 +203,6 @@
         <translation>Адреса, порт, HTTPS і автоматичне повторне підключення</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Максимальна якість</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Субтитри</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt на диску USB</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Бітрейт за замовчуванням: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Максимальний бітрейт</translation>
     </message>
 </context>
 </TS>

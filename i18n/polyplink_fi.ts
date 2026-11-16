@@ -203,10 +203,6 @@
         <translation>Osoite, portti, HTTPS ja automaattinen uudelleenkytkentä</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maksimaalinen laatu</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Tekstitykset</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Oletusbittinopeus: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Suurin bittinopeus</translation>
     </message>
 </context>
 </TS>

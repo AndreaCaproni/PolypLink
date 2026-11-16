@@ -203,10 +203,6 @@
         <translation>Адрес, порт, HTTPS и автоматическое переподключение</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Максимальное качество</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Субтитры</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt на диске USB</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Битрейт по умолчанию: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Максимальный битрейт</translation>
     </message>
 </context>
 </TS>

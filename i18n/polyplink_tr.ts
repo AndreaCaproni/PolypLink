@@ -203,10 +203,6 @@
         <translation>Adres, port, HTTPS ve otomatik yeniden bağlanma</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maksimum kalite</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Altyazılar</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Varsayılan bit hızı: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Maksimum bit hızı</translation>
     </message>
 </context>
 </TS>

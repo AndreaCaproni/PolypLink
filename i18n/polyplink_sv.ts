@@ -203,10 +203,6 @@
         <translation>Adress, port, HTTPS och automatisk återanslutning</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maximal kvalitet</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Undertexter</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt på USB-enheten</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Standardbithastighet: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Maximal bithastighet</translation>
     </message>
 </context>
 </TS>

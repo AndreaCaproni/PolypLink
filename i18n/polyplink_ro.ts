@@ -203,10 +203,6 @@
         <translation>Adresă, port, HTTPS și reconectare automată</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Calitate maxima</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Subtitrări</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Rata de biți implicită: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Rata de biți maximă</translation>
     </message>
 </context>
 </TS>

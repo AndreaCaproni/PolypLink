@@ -203,10 +203,6 @@
         <translation>Adres, port, HTTPS i automatyczne ponowne połączenie</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maksymalna jakość</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Napisy</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt na napędzie USB</translation>
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Domyślna przepływność: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Maksymalna przepływność</translation>
     </message>
 </context>
 </TS>

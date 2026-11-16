@@ -203,10 +203,6 @@
         <translation>Διεύθυνση, θύρα, HTTPS και αυτόματη επανασύνδεση</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Μέγιστη ποιότητα</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Υπότιτλοι</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Προεπιλεγμένο bitrate: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Μέγιστο bitrate</translation>
     </message>
 </context>
 </TS>

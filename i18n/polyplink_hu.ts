@@ -203,10 +203,6 @@
         <translation>Cím, port, HTTPS és automatikus újracsatlakozás</translation>
     </message>
     <message>
-        <source>Qualità massima</source>
-        <translation>Maximális minőség</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Feliratok</translation>
     </message>
@@ -621,6 +617,10 @@ steamlink/config/system/jellyfin-server.txt helyére is elhelyezheti a USB megha
     <message>
         <source>Bitrate predefinito: 4–100 Mbps</source>
         <translation>Alapértelmezett bitráta: 4–100 Mbps</translation>
+    </message>
+    <message>
+        <source>Bitrate massimo</source>
+        <translation>Maximális bitráta</translation>
     </message>
 </context>
 </TS>

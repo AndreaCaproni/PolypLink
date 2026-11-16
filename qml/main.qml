@@ -34,7 +34,7 @@ Window {
 
     property var settingsMenu: [
         { title: qsTr("Server e connessione"), desc: qsTr("Indirizzo, porta, HTTPS e riconnessione automatica"), action: "test" },
-        { title: qsTr("Qualità massima"), desc: qsTr("Bitrate predefinito: 4–100 Mbps"), action: "quality" },
+        { title: qsTr("Bitrate massimo"), desc: qsTr("Bitrate predefinito: 4–100 Mbps"), action: "quality" },
         { title: qsTr("Sottotitoli"), desc: qsTr("Lingua predefinita, attivazione e burn-in") },
         { title: qsTr("Dissolvenza OSD"), desc: qsTr("Quanto resta visibile l'OSD"), action: "osd" },
         { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Lingua dell'interfaccia; titoli e trame seguono il server"), action: "language" },
