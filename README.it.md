@@ -2,15 +2,25 @@
 
 > English: [README.md](README.md)
 
+[![checks](https://github.com/AndreaCaproni/PolypLink/actions/workflows/check.yml/badge.svg)](https://github.com/AndreaCaproni/PolypLink/actions/workflows/check.yml)
+[![release](https://img.shields.io/github/v/release/AndreaCaproni/PolypLink?include_prereleases&label=release)](https://github.com/AndreaCaproni/PolypLink/releases)
+[![license](https://img.shields.io/github/license/AndreaCaproni/PolypLink)](LICENSE)
+![platform](https://img.shields.io/badge/platform-Steam%20Link%202015-1b2838)
+
 **Client Jellyfin nativo per Valve Steam Link (2015).**
 Niente Chromium, niente Electron, niente browser: un'app Qt Quick/C++ che parla
 direttamente con il decoder hardware del Link.
 
 > **Stato: beta 0.3.0** — già usabile per guardare film e serie, ancora in
 > rifinitura. Progetto indipendente, non affiliato al progetto Jellyfin.
->
-> **Vibecoded:** codice generato con un assistente AI, poi testato e curato su
-> hardware Steam Link reale.
+
+## Screenshot
+
+| Home | Dettaglio |
+|:---:|:---:|
+| ![Home](docs/images/screenshot-home.png) | ![Dettaglio](docs/images/screenshot-detail.png) |
+| **Player OSD** | **Impostazioni** |
+| ![Player OSD](docs/images/screenshot-player.png) | ![Impostazioni](docs/images/screenshot-settings.png) |
 
 ---
 
@@ -48,6 +58,17 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
   riprovare, *connessione persa* durante la riproduzione.
 - **Account** e **Impostazioni**: pagine presenti; le voci sono segnaposto per
   la versione stabile.
+
+---
+
+## Roadmap
+
+- Righe della home: mostra/nascondi e riordina.
+- Ricerca tra film, serie ed episodi.
+- Autoplay del prossimo episodio con countdown.
+- Trickplay: miniature sulla barra di seek.
+- Seek in-stream senza riavviare la transcodifica.
+- Revisione madrelingua delle 21 lingue.
 
 ---
 
@@ -186,6 +207,12 @@ build.sh        build + pacchetto USB
   per libreria in Jellyfin. La lingua dell'interfaccia non traduce i metadati.
 
 ---
+
+## Note di sviluppo
+
+Costruito con un forte supporto AI, poi testato e curato su hardware Steam Link
+reale. È una beta: aspettati qualche spigolo e allega log e dettagli hardware
+nelle segnalazioni.
 
 ## Contribuire
 

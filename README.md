@@ -2,15 +2,25 @@
 
 > Italiano: [README.it.md](README.it.md)
 
+[![checks](https://github.com/AndreaCaproni/PolypLink/actions/workflows/check.yml/badge.svg)](https://github.com/AndreaCaproni/PolypLink/actions/workflows/check.yml)
+[![release](https://img.shields.io/github/v/release/AndreaCaproni/PolypLink?include_prereleases&label=release)](https://github.com/AndreaCaproni/PolypLink/releases)
+[![license](https://img.shields.io/github/license/AndreaCaproni/PolypLink)](LICENSE)
+![platform](https://img.shields.io/badge/platform-Steam%20Link%202015-1b2838)
+
 **A native Jellyfin client for the Valve Steam Link (2015).**
 No Chromium, no Electron, no browser: a Qt Quick/C++ app that talks directly to
 the Link's hardware decoder.
 
 > **Status: beta 0.3.0** — already usable for movies and TV shows, still being
 > polished. Independent project, not affiliated with the Jellyfin project.
->
-> **Vibecoded:** the code was generated with an AI assistant, then tested and
-> curated on real Steam Link hardware.
+
+## Screenshots
+
+| Home | Detail |
+|:---:|:---:|
+| ![Home screen](docs/images/screenshot-home.png) | ![Detail page](docs/images/screenshot-detail.png) |
+| **Player OSD** | **Settings** |
+| ![Player OSD](docs/images/screenshot-player.png) | ![Settings](docs/images/screenshot-settings.png) |
 
 ---
 
@@ -48,6 +58,17 @@ understand MKV, HEVC, 4K or HDR.
   *connection lost* during playback.
 - **Account** and **Settings**: pages exist; their entries are placeholders for
   the stable release.
+
+---
+
+## Roadmap
+
+- Home rows: show/hide and reorder.
+- Search across movies, series and episodes.
+- Next-episode autoplay with countdown.
+- Trickplay thumbnails on the seek bar.
+- In-stream seeking without restarting the transcode.
+- More native-speaker review for the 21 UI languages.
 
 ---
 
@@ -185,6 +206,12 @@ build.sh        build + USB package
   item metadata.
 
 ---
+
+## Development notes
+
+Built with heavy AI assistance, then tested and curated on real Steam Link
+hardware. This is a beta: expect rough edges, and please include logs and
+hardware details in bug reports.
 
 ## Contributing
 
