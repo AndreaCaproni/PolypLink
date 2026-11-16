@@ -1,12 +1,32 @@
 # Changelog
 
-## Unreleased
+## 0.3.0-beta — 2026-11-16
+
+PolypLink rebrand and player tuning.
 
 ### Changed
 
 - Renamed the app from JellyLink to **PolypLink**, with new logos.
 - New package and binary name: `polyplink`. Existing settings are migrated on
   the first start.
+- Home icon and header logo use the new PolypLink artwork (thin border).
+- Settings: **Bitrate massimo** replaces the old quality entry and is chosen
+  from a list (4–100 Mbps) instead of cycling.
+- Settings: **Dissolvenza OSD** is chosen from a list (3/5/8 s).
+- Removed the placeholder Settings entries *Risoluzione massima*, *Audio
+  preferito*, *Precaricamento* and *Seek e accelerazione*.
+- Removed *Ripresa*, *Prossimo episodio*, *Statistiche di visione* and the
+  duplicate *Quick Connect* from Account.
+- Placeholder entries now show **Funzionalità in arrivo**.
+- Seek acceleration only starts while holding the analog stick; single taps
+  always use the base step. Maximum acceleration is now 3 minutes.
+- The player uses the selected bitrate for the decoder target; the stats panel
+  shows the real bitrate.
+
+### Fixed
+
+- **4K sources**: the transcode is capped to 1920×1080, so the server no longer
+  sends 2560×1072 frames that SLVideo rejected with *stream macroblock error*.
 
 ## 0.2.2-beta — 2026-11-16
 
