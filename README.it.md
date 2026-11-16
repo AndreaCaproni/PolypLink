@@ -161,6 +161,9 @@ build.sh        build + pacchetto USB
   prossimo episodio, niente miniature trickplay sulla barra.
 - Paginazione libreria limitata a 300 elementi per vista.
 - Solo **H.264 8-bit**: niente HEVC, HDR, AV1; il Link decodifica solo quello.
+- **La qualità arriva fino a 100 Mbps** come esperimento. Il Link ha Ethernet
+  100 Mbit, quindi 80–100 Mbps possono saturare il collegamento; sopra ~40 Mbps
+  il guadagno visivo è minimo e gli scatti diventano probabili.
 - Avviando un episodio dalla pagina serie/stagione il pannello **Audio** usa la
   traccia predefinita del server; le tracce dell'episodio si caricano
   aprendone la scheda.
