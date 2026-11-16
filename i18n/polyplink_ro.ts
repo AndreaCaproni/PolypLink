@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
         <translation>Limba interfeței; titlurile și descrierile urmează serverul</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Rata de biți implicită: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>Estompare OSD</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Cât timp rămâne vizibil OSD-ul</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Rata de biți implicită: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

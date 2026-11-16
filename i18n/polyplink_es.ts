@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt en el disco USB</translation>
         <translation>Idioma de la interfaz; los títulos y las tramas siguen al servidor</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Bitrate predeterminado: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>Fundido del OSD</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Cuánto tiempo permanece visible el OSD</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Bitrate predeterminado: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

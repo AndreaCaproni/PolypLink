@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
         <translation>Arayüz dili; başlıklar ve konular sunucuyu takip eder</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Varsayılan bit hızı: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>OSD solması</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>OSD ne kadar süre görünür kalır</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Varsayılan bit hızı: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

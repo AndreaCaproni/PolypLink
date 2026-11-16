@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt auf dem USB-Laufwerk eingeben</trans
         <translation>Sprache der Oberfläche; Titel und Handlungen folgen dem Server</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Standard-Bitrate: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>OSD-Überblendung</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Wie lange das OSD sichtbar bleibt</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Standard-Bitrate: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

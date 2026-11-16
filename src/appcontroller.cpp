@@ -50,10 +50,12 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   // impostazioni aperto resta fermo.
   QSettings settings;
   defaultQualityKbps_ = settings.value(QStringLiteral("defaultQualityKbps"), 12000).toInt();
-  if (defaultQualityKbps_ != 4000 && defaultQualityKbps_ != 8000 &&
-      defaultQualityKbps_ != 12000 && defaultQualityKbps_ != 20000 &&
-      defaultQualityKbps_ != 40000) {
-    defaultQualityKbps_ = 12000;
+  {
+    static const int valid[] = {4000, 8000, 12000, 20000, 30000,
+                                40000, 50000, 60000, 80000, 100000};
+    bool ok = false;
+    for (int q : valid) if (q == defaultQualityKbps_) ok = true;
+    if (!ok) defaultQualityKbps_ = 12000;
   }
   osdSeconds_ = settings.value(QStringLiteral("osdSeconds"), 5).toInt();
   if (osdSeconds_ != 3 && osdSeconds_ != 5 && osdSeconds_ != 8) osdSeconds_ = 5;
@@ -318,7 +320,7 @@ void AppController::openPlayerMenu(const QString& mode) {
               index == subtitleIndex_);
     }
   } else if (mode == QLatin1String("quality")) {
-    static const int qualities[] = {4000, 8000, 12000, 20000, 40000};
+    static const int qualities[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
     for (int q : qualities) {
       addItem(QString::number(q / 1000) + QStringLiteral(" Mbps"), q,
               q == qualityKbps_);
@@ -1538,10 +1540,10 @@ void AppController::cycleSubtitle(int delta) {
 }
 
 void AppController::cycleQuality(int delta) {
-  static const int qualities[] = {4000, 8000, 12000, 20000, 40000};
+  static const int qualities[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
   int pos = 2;
-  for (int i = 0; i < 5; ++i) if (qualities[i] == qualityKbps_) pos = i;
-  pos = (pos + delta + 5) % 5;
+  for (int i = 0; i < 10; ++i) if (qualities[i] == qualityKbps_) pos = i;
+  pos = (pos + delta + 10) % 10;
   qualityKbps_ = qualities[pos];
   emit tracksChanged();
 }
@@ -1775,10 +1777,10 @@ void AppController::saveDefaults() {
 }
 
 void AppController::cycleDefaultQuality(int delta) {
-  static const int values[] = {4000, 8000, 12000, 20000, 40000};
+  static const int values[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
   int pos = 2;
-  for (int i = 0; i < 5; ++i) if (values[i] == defaultQualityKbps_) pos = i;
-  pos = (pos + delta + 5) % 5;
+  for (int i = 0; i < 10; ++i) if (values[i] == defaultQualityKbps_) pos = i;
+  pos = (pos + delta + 10) % 10;
   defaultQualityKbps_ = values[pos];
   saveDefaults();
   emit tracksChanged();

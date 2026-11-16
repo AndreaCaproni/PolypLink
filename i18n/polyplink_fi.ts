@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt</translation>
         <translation>Käyttöliittymän kieli; nimet ja kuvaukset tulevat palvelimelta</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Oletusbittinopeus: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>OSD-häivytys</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Kuinka kauan OSD näkyy</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Oletusbittinopeus: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

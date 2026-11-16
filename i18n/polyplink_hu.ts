@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt helyére is elhelyezheti a USB megha
         <translation>Felület nyelve; a címek és leírások a szervert követik</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Alapértelmezett bitráta: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>OSD elhalványulása</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Mennyi ideig marad látható az OSD</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Alapértelmezett bitráta: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

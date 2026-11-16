@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt na disku USB</translation>
         <translation>Jazyk rozhraní; názvy a popisy pocházejí ze serveru</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Výchozí datový tok: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>Postupné skrývání OSD</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Jak dlouho zůstane OSD viditelné</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Výchozí datový tok: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

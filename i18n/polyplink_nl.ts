@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt op de USB-schijf zetten</translation
         <translation>Interfacetaal; titels en beschrijvingen volgen de server</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Standaardbitsnelheid: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>OSD-vervaging</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Hoe lang de OSD zichtbaar blijft</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Standaardbitsnelheid: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

@@ -161,6 +161,9 @@ build.sh        build + USB package
   thumbnails on the seek bar.
 - Library pagination is capped at 300 items per view.
 - **H.264 8-bit only**: no HEVC, HDR or AV1; the Link only decodes that.
+- **Quality goes up to 100 Mbps** as an experiment. The Link has 100 Mbit
+  Ethernet, so 80–100 Mbps can saturate the link; above ~40 Mbps the visual gain
+  is small and stutter becomes likely.
 - Starting an episode from a series/season page uses the server's **default
   audio track**; the episode's tracks load when you open its detail page.
 - Automatic server discovery covers the **local /24**; servers on other VLANs

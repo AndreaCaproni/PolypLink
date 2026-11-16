@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
         <translation>Grænsefladesprog; titler og beskrivelser følger serveren</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Standardbitrate: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>OSD-udtoning</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Hvor længe OSD'en vises</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Standardbitrate: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>

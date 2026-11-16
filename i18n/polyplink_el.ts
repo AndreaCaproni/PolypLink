@@ -611,16 +611,16 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
         <translation>Γλώσσα διεπαφής; οι τίτλοι και οι υποθέσεις ακολουθούν τον διακομιστή</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
-        <translation>Προεπιλεγμένο bitrate: 4, 8, 12, 20, 40 Mbps</translation>
-    </message>
-    <message>
         <source>Dissolvenza OSD</source>
         <translation>Σβήσιμο OSD</translation>
     </message>
     <message>
         <source>Quanto resta visibile l'OSD</source>
         <translation>Πόσο παραμένει ορατό το OSD</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4–100 Mbps</source>
+        <translation>Προεπιλεγμένο bitrate: 4–100 Mbps</translation>
     </message>
 </context>
 </TS>
