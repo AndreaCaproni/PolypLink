@@ -21,14 +21,14 @@ and present in the device firmware. All rights remain with Valve.
 
 ## Qt 5.14.1
 
-Provided by the Link firmware. JellyLink uses Qt Quick, Qt Network and Qt Gui
+Provided by the Link firmware. PolypLink uses Qt Quick, Qt Network and Qt Gui
 under the license Qt is distributed with in the firmware (LGPL/GPL/commercial).
 
 ## Jellyfin
 
 Jellyfin: <https://jellyfin.org>
 
-JellyLink is an independent project, not affiliated with the Jellyfin project.
+PolypLink is an independent project, not affiliated with the Jellyfin project.
 
 ## Fonts
 

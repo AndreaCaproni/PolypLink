@@ -5,16 +5,16 @@
 - Valve Steam Link (2015 hardware) with updated firmware.
 - A USB drive (FAT32 recommended, EXT4 works).
 - A Jellyfin server reachable from the Link's network, with **transcoding
-  enabled**: JellyLink always requests an H.264/AAC HLS transcode and does not
+  enabled**: PolypLink always requests an H.264/AAC HLS transcode and does not
   direct-play.
-- The `steamlink/apps/jellyfin-link.tgz` package (produced by `./build.sh`).
+- The `steamlink/apps/polyplink.tgz` package (produced by `./build.sh`).
 
 ## USB layout
 
 ```
 steamlink/
 ├── apps/
-│   └── jellyfin-link.tgz
+│   └── polyplink.tgz
 ├── config/system/
 │   ├── enable_ssh.txt          (optional, for debugging)
 │   └── jellyfin-server.txt     (optional)
@@ -33,7 +33,7 @@ steamlink/
    **root**.
 2. Power off the Link, insert the drive, power it on.
 3. Installation takes 1–2 minutes; the drive is unmounted right after.
-4. **JellyLink** appears on the Link home screen.
+4. **PolypLink** appears on the Link home screen.
 
 ## First start
 
@@ -55,15 +55,15 @@ contains personal data.
 
 App logs:
 
-- on the device: `/home/apps/jellyfin-link/jellyfin-link-run.log`
+- on the device: `/home/apps/polyplink/polyplink-run.log`
 - on the USB drive, at the next boot: log files in the drive root.
 
 ## Updating or uninstalling
 
 - **Update**: rebuild with `./build.sh`, copy `steamlink/` to the USB drive and
   boot the Link with the drive inserted.
-- **Uninstall**: remove `jellyfin-link.tgz` from the drive and reinstall, or
-  delete `/home/apps/jellyfin-link` on the device over SSH.
+- **Uninstall**: remove `polyplink.tgz` from the drive and reinstall, or
+  delete `/home/apps/polyplink` on the device over SSH.
 
 ## Troubleshooting
 

@@ -6,29 +6,29 @@
         <file>qml/PlayerButton.qml</file>
         <file>qml/PlayerIconButton.qml</file>
         <file>qml/ActionButton.qml</file>
-        <file>qml/assets/jellylink-logo.png</file>
+        <file>qml/assets/polyplink-logo.png</file>
         <file>qml/Keyboard.qml</file>
         <file>qml/RoundedImage.qml</file>
 
-        <file>i18n/jellylink_ca.qm</file>
-        <file>i18n/jellylink_cs.qm</file>
-        <file>i18n/jellylink_da.qm</file>
-        <file>i18n/jellylink_de.qm</file>
-        <file>i18n/jellylink_el.qm</file>
-        <file>i18n/jellylink_en.qm</file>
-        <file>i18n/jellylink_es.qm</file>
-        <file>i18n/jellylink_fi.qm</file>
-        <file>i18n/jellylink_fr.qm</file>
-        <file>i18n/jellylink_hu.qm</file>
-        <file>i18n/jellylink_nb.qm</file>
-        <file>i18n/jellylink_nl.qm</file>
-        <file>i18n/jellylink_pl.qm</file>
-        <file>i18n/jellylink_pt-BR.qm</file>
-        <file>i18n/jellylink_pt-PT.qm</file>
-        <file>i18n/jellylink_ro.qm</file>
-        <file>i18n/jellylink_ru.qm</file>
-        <file>i18n/jellylink_sv.qm</file>
-        <file>i18n/jellylink_tr.qm</file>
-        <file>i18n/jellylink_uk.qm</file>
+        <file>i18n/polyplink_ca.qm</file>
+        <file>i18n/polyplink_cs.qm</file>
+        <file>i18n/polyplink_da.qm</file>
+        <file>i18n/polyplink_de.qm</file>
+        <file>i18n/polyplink_el.qm</file>
+        <file>i18n/polyplink_en.qm</file>
+        <file>i18n/polyplink_es.qm</file>
+        <file>i18n/polyplink_fi.qm</file>
+        <file>i18n/polyplink_fr.qm</file>
+        <file>i18n/polyplink_hu.qm</file>
+        <file>i18n/polyplink_nb.qm</file>
+        <file>i18n/polyplink_nl.qm</file>
+        <file>i18n/polyplink_pl.qm</file>
+        <file>i18n/polyplink_pt-BR.qm</file>
+        <file>i18n/polyplink_pt-PT.qm</file>
+        <file>i18n/polyplink_ro.qm</file>
+        <file>i18n/polyplink_ru.qm</file>
+        <file>i18n/polyplink_sv.qm</file>
+        <file>i18n/polyplink_tr.qm</file>
+        <file>i18n/polyplink_uk.qm</file>
     </qresource>
 </RCC>

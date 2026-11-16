@@ -41,14 +41,14 @@ QString FindUsbLogPath() {
     for (const QString& a : level1) {
       const QString base1 = root + QLatin1Char('/') + a;
       if (QFileInfo::exists(base1 + QStringLiteral("/steamlink")))
-        return base1 + QStringLiteral("/jellyfin-link.log");
+        return base1 + QStringLiteral("/polyplink.log");
       QDir d1(base1);
       const QStringList level2 =
           d1.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
       for (const QString& b : level2) {
         const QString base2 = base1 + QLatin1Char('/') + b;
         if (QFileInfo::exists(base2 + QStringLiteral("/steamlink")))
-          return base2 + QStringLiteral("/jellyfin-link.log");
+          return base2 + QStringLiteral("/polyplink.log");
       }
     }
   }
@@ -82,7 +82,7 @@ void SetupLogging() {
   if (!path.isEmpty()) {
     g_usbLog.setFileName(path);
     if (g_usbLog.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-      g_usbLog.write("jellyfin-link — log su chiavetta\n");
+      g_usbLog.write("polyplink — log su chiavetta\n");
     }
   }
   qInstallMessageHandler(MessageHandler);
@@ -154,8 +154,8 @@ int main(int argc, char** argv) {
   // Se la finestra venisse nascosta (o chiusa) l'app non deve terminare:
   // il player puo' restare vivo anche senza UI.
   QGuiApplication::setQuitOnLastWindowClosed(false);
-  app.setApplicationName(QStringLiteral("Jellyfin Link"));
-  app.setOrganizationName(QStringLiteral("jellyfin-link"));
+  app.setApplicationName(QStringLiteral("PolypLink"));
+  app.setOrganizationName(QStringLiteral("polyplink"));
 
   QGuiApplication::setOverrideCursor(Qt::BlankCursor);
   qInfo("[avvio] piattaforma Qt: %s", qPrintable(QGuiApplication::platformName()));

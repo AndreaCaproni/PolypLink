@@ -1,4 +1,4 @@
-# JellyLink
+# PolypLink
 
 > Italiano: [README.it.md](README.it.md)
 
@@ -20,7 +20,7 @@ The official clients (Jellyfin Media Player, Jellyfin Web) are **jellyfin-web
 inside Chromium**. On the Link — single-core CPU, 256 MB of RAM — they don't
 start.
 
-JellyLink uses the Valve SDK and the firmware's `SLVideo`/`SLAudio` APIs to
+PolypLink uses the Valve SDK and the firmware's `SLVideo`/`SLAudio` APIs to
 decode H.264 in hardware and play AAC audio. The server does the heavy lifting:
 we **always** ask for an H.264 + AAC HLS transcode, so the box never has to
 understand MKV, HEVC, 4K or HDR.
@@ -55,7 +55,7 @@ understand MKV, HEVC, 4K or HDR.
 
 - Valve **Steam Link** (2015 hardware) with updated firmware.
 - A **Jellyfin** server reachable on your LAN (tested with Jellyfin 12.4).
-- **Transcoding MUST be enabled on the Jellyfin server.** JellyLink always asks
+- **Transcoding MUST be enabled on the Jellyfin server.** PolypLink always asks
   for an H.264 + AAC HLS transcode and does not direct-play; without server
   transcoding, videos will not start.
 - A **USB drive** for installation.
@@ -192,5 +192,5 @@ Code: **MIT**, see [LICENSE](LICENSE).
 Third-party components: [THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+,
 Valve SDK, Qt).
 
-Jellyfin: <https://jellyfin.org>. JellyLink is an independent project, not
+Jellyfin: <https://jellyfin.org>. PolypLink is an independent project, not
 affiliated with the Jellyfin project.

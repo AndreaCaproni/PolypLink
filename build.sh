@@ -10,7 +10,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APPNAME="jellyfin-link"
+APPNAME="polyplink"
 BUILD="$ROOT/build"
 DIST="$ROOT/dist"
 SDK="${STEAMLINK_SDK:-$ROOT/../steamlink-sdk}"
@@ -40,7 +40,7 @@ fi
 
 SDK_REAL="$(cd "$SDK" && pwd -P)"
 if [[ "$SDK_REAL" == *" "* ]]; then
-  SDK_LINK="/tmp/jellyfin-link-sdk"
+  SDK_LINK="/tmp/polyplink-sdk"
   rm -f "$SDK_LINK"
   ln -s "$SDK_REAL" "$SDK_LINK"
   SDK_REAL="$SDK_LINK"
@@ -105,7 +105,7 @@ cp "$ROOT/deploy/run.sh" "$APP/run.sh"
 chmod +x "$APP/run.sh"
 cp "$ROOT/packaging/icon.png" "$APP/icon.png"
 cat > "$APP/toc.txt" <<EOF
-name=JellyLink
+name=PolypLink
 icon=icon.png
 run=run.sh
 EOF
@@ -150,5 +150,5 @@ Sulla chiavetta:
 Oppure, direttamente:
   ./build.sh --install /media/tuo_utente/USB
 
-Log sul dispositivo: /home/apps/jellyfin-link/jellyfin-link-run.log
+Log sul dispositivo: /home/apps/polyplink/polyplink-run.log
 EOF

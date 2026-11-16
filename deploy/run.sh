@@ -1,5 +1,5 @@
 #!/bin/sh
-# Launcher di Jellyfin Link sul Valve Steam Link.
+# Launcher di PolypLink sul Valve Steam Link.
 #
 # Scrive un log dettagliato nella cartella dell'app (che sta su /home/apps, una
 # immagine disco persistente). La chiavetta NON e' montata mentre l'app gira:
@@ -12,9 +12,9 @@ cd "$APP_DIR" 2>/dev/null || exit 1
 # librerie ffmpeg (decoder AAC) incluse nel pacchetto
 export LD_LIBRARY_PATH="$APP_DIR/lib:$LD_LIBRARY_PATH"
 
-LOG="$APP_DIR/jellyfin-link-run.log"
+LOG="$APP_DIR/polyplink-run.log"
 if ! ( : > "$LOG" ) 2>/dev/null; then
-    LOG=/tmp/jellyfin-link-run.log
+    LOG=/tmp/polyplink-run.log
     ( : > "$LOG" ) 2>/dev/null || LOG=/dev/null
 fi
 
@@ -28,12 +28,23 @@ log "usb montata: $(grep -c /mnt/disk /proc/mounts 2>/dev/null) (0 = no, ed e' n
 log "contenuto:"
 ls -la >> "$LOG" 2>&1
 log "binario:"
-ls -l ./bin/jellyfin-link >> "$LOG" 2>&1
+ls -l ./bin/polyplink >> "$LOG" 2>&1
 log "ldd:"
-ldd ./bin/jellyfin-link >> "$LOG" 2>&1
+ldd ./bin/polyplink >> "$LOG" 2>&1
 
-export HOME=/usr/local/jellyfin-link
+export HOME=/usr/local/polyplink
 mkdir -p "$HOME" 2>>"$LOG"
+
+# Migra le impostazioni della vecchia app (server, token, lingua, qualita').
+OLD_HOME=/usr/local/jellyfin-link
+OLD_CONF="$OLD_HOME/.config/jellyfin-link/Jellyfin Link.conf"
+NEW_CONF="$HOME/.config/polyplink/PolypLink.conf"
+if [ ! -f "$NEW_CONF" ] && [ -f "$OLD_CONF" ]; then
+    mkdir -p "$(dirname "$NEW_CONF")"
+    if cp "$OLD_CONF" "$NEW_CONF" 2>>"$LOG"; then
+        log "impostazioni migrate da $OLD_CONF"
+    fi
+fi
 
 export QT_QPA_PLATFORM=eglfs
 # EGLFS disegna un cursore software in alto a sinistra: qui non serve
@@ -43,6 +54,6 @@ log "QT_QPA_PLATFORM=$QT_QPA_PLATFORM"
 renice -10 -p "$(pidof PE_Single_CPU)" >> "$LOG" 2>&1
 
 log "--- esecuzione ---"
-nice -n -10 ./bin/jellyfin-link >> "$LOG" 2>&1
+nice -n -10 ./bin/polyplink >> "$LOG" 2>&1
 rc=$?
 log "--- uscita: $rc ($(date)) ---"

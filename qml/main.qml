@@ -318,7 +318,7 @@ Window {
                 if (e.action === "profile") return app.userName
                 return app.serverLabel
             }
-            return "JellyLink " + appVersion
+            return "PolypLink " + appVersion
         }
         return ""
     }
@@ -586,7 +586,7 @@ Window {
         height: 56
         color: "#111a23"
 
-        // logo Jellyfin + nome dell'app
+        // logo PolypLink + nome dell'app
         Row {
             x: 24
             anchors.verticalCenter: parent.verticalCenter
@@ -596,7 +596,7 @@ Window {
                 width: 44
                 height: 44
                 anchors.verticalCenter: parent.verticalCenter
-                source: "qrc:/qml/assets/jellylink-logo.png"
+                source: "qrc:/qml/assets/polyplink-logo.png"
                 fillMode: Image.PreserveAspectFit
                 smooth: true
             }
@@ -608,7 +608,7 @@ Window {
                     color: "#ffffff"
                     font.pixelSize: 26
                     font.bold: true
-                    text: "Jelly"
+                    text: "Polyp"
                 }
                 Text {
                     color: "#00a4dc"
@@ -1538,7 +1538,7 @@ Window {
                 anchors.bottomMargin: 22
                 color: "#3f4c58"
                 font.pixelSize: 13
-                text: "JellyLink " + appVersion
+                text: "PolypLink " + appVersion
             }
         }
     }
@@ -3000,7 +3000,7 @@ Window {
                     } else if (action === "info") {
                         menuHint = page === "account"
                             ? (app.userName + "   ·   " + app.serverLabel)
-                            : ("JellyLink " + appVersion)
+                            : ("PolypLink " + appVersion)
                         menuHintTimer.restart()
                     } else {
                         menuHint = qsTr("Voce in preparazione: %1").arg(entry.title)

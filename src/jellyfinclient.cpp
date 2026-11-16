@@ -12,7 +12,7 @@
 
 namespace {
 
-constexpr const char* kClientName = "Jellyfin Link";
+constexpr const char* kClientName = "PolypLink";
 constexpr const char* kDeviceName = "Steam Link";
 
 // Un server che non risponde non deve bloccare la UI per sempre: Qt 5.14 non
@@ -463,7 +463,7 @@ void JellyfinClient::fetchPlaybackInfo(const QString& itemId, qint64 startTicks,
   }
 
   QJsonObject profile;
-  profile.insert(QStringLiteral("Name"), QStringLiteral("jellyfin-link"));
+  profile.insert(QStringLiteral("Name"), QStringLiteral("polyplink"));
   profile.insert(QStringLiteral("MaxStreamingBitrate"), qualityKbps * 1000);
   profile.insert(QStringLiteral("DirectPlayProfiles"), QJsonArray());
   profile.insert(QStringLiteral("TranscodingProfiles"), QJsonArray{transcode});

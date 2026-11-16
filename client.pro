@@ -17,7 +17,7 @@ LIBS += -L$$FFMPEG/lib -lavcodec -lswresample -lavutil
 LIBS += -L$$MARVELL_ROOTFS/usr/lib -lSLVideo -lSLAudio
 CONFIG -= app_bundle
 
-TARGET = jellyfin-link
+TARGET = polyplink
 TEMPLATE = app
 
 DEFINES += QT_DEPRECATED_WARNINGS

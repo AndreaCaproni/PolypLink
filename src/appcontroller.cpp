@@ -150,7 +150,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
 void AppController::applyConfigFile() {
   const QStringList candidates = {
       QStringLiteral("/mnt/config/system/jellyfin-server.txt"),
-      QStringLiteral("/home/apps/jellyfin-link/server.txt"),
+      QStringLiteral("/home/apps/polyplink/server.txt"),
   };
 
   QString url;

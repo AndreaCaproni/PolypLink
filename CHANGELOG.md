@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Renamed the app from JellyLink to **PolypLink**, with new logos.
+- New package and binary name: `polyplink`. Existing settings are migrated on
+  the first start.
+
 ## 0.2.2-beta — 2026-11-16
 
 Player OSD update.
@@ -35,7 +43,7 @@ Player OSD update.
   Portugal), Russian, Dutch, Polish, Swedish, Danish, Norwegian Bokmål, Czech,
   Ukrainian, Catalan, Turkish, Romanian, Greek, Hungarian, Finnish.
 - On first start the interface follows the system language (English fallback).
-- Qt translation files (`i18n/jellylink_*.ts`), ready for more languages.
+- Qt translation files (`i18n/polyplink_*.ts`), ready for more languages.
 
 ## 0.2.0-beta — 2026-11-15
 

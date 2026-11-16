@@ -109,7 +109,7 @@ void Language::apply() {
 
   if (current_ != QLatin1String("it")) {
     const QString path =
-        QStringLiteral(":/i18n/jellylink_%1.qm").arg(current_);
+        QStringLiteral(":/i18n/polyplink_%1.qm").arg(current_);
     if (translator_.load(path)) {
       QCoreApplication::installTranslator(&translator_);
     } else {
