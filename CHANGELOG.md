@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.3.1-beta — 2026-11-17
+
+Hardening release: security, tests, migrations and packaging.
 
 ### Security
 
@@ -16,6 +18,7 @@
   test.
 - License notices (MIT, FFmpeg LGPL, third-party) are now included in the app
   package and in the USB release zip.
+- README with badges, screenshot placeholders, roadmap and development notes.
 
 ### Fixed
 
