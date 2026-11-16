@@ -14,6 +14,8 @@
   and writes `SHA256SUMS`.
 - Settings migration extracted to `scripts/migrate-settings.sh` and covered by a
   test.
+- License notices (MIT, FFmpeg LGPL, third-party) are now included in the app
+  package and in the USB release zip.
 
 ### Fixed
 

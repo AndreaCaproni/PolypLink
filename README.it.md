@@ -228,5 +228,8 @@ Codice: **MIT**, vedi [LICENSE](LICENSE).
 Componenti di terze parti: [THIRD_PARTY.md](THIRD_PARTY.md)
 (FFmpeg LGPL 2.1+, SDK Valve, Qt).
 
+I pacchetti di release includono una cartella `licenses/` con licenza MIT,
+testo LGPL di FFmpeg e note di terze parti.
+
 Jellyfin: <https://jellyfin.org>. PolypLink è un progetto indipendente, non
 affiliato al progetto Jellyfin.

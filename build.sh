@@ -105,6 +105,14 @@ cp "$ROOT/deploy/run.sh" "$APP/run.sh"
 cp "$ROOT/scripts/migrate-settings.sh" "$APP/migrate-settings.sh"
 chmod +x "$APP/run.sh" "$APP/migrate-settings.sh"
 cp "$ROOT/packaging/icon.png" "$APP/icon.png"
+
+# Note di licenza che devono viaggiare con il binario.
+mkdir -p "$APP/licenses"
+cp "$ROOT/LICENSE" "$APP/licenses/LICENSE"
+cp "$ROOT/THIRD_PARTY.md" "$APP/licenses/THIRD_PARTY.md"
+cp "$ROOT/third_party/ffmpeg/LICENSE.LGPLv2.1" "$APP/licenses/FFMPEG-LGPL-2.1.txt"
+cp "$ROOT/packaging/licenses/README.txt" "$APP/licenses/README.txt"
+
 cat > "$APP/toc.txt" <<EOF
 name=PolypLink
 icon=icon.png

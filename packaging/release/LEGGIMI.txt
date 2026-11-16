@@ -7,7 +7,8 @@ transcodifica. Progetto indipendente, non affiliato al progetto Jellyfin.
 
 COSA C'È DENTRO
 steamlink/apps/polyplink.tgz
-        L'app (~860 KB). Include le librerie per decodificare l'audio AAC.
+        L'app (~860 KB). Include le librerie per decodificare l'audio AAC
+        e le note di licenza in licenses/.
 
 COSA FARE
 1. Chiavetta USB FAT32 (consigliato) o EXT4.
