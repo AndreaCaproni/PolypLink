@@ -207,56 +207,12 @@
         <translation>Maksimaalinen laatu</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Oletusbittinopeus: 4, 8, 12, 20 Mbps tai automaattinen</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Suurin resoluutio</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p tai automaattinen</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Ensisijainen ääni</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Kieli ja kanavat (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Tekstitykset</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Oletuskieli, käyttöönotto ja sisäänpoltto</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Esilataus</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Kuinka monta segmenttiä on pidettävä valmiina ennen aloittamista</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Etsiminen ja kiihtyvyys</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Aloitusaskel ja kiihtyvyysrajoitus</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Kesto, sisältö ja toiminta keskeytettynä</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Valitse toinen Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Linkitä sovellus kirjoittamatta salasanaa</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Istunto ja palvelin</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Yhteyden tila ja palvelimen versio</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Jatka</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Synkronoi toistokohta</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Seuraava jakso</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Automaattinen aloitus jakson lopussa</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Katselutilastot</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Katsottu aika ja historia</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt</translation>
         <translation>Resoluutio    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Bittinopeus       %1 Mbps (pyydetty 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Bittinopeus       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Käyttöliittymän kieli; nimet ja kuvaukset tulevat palvelimelta</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Oletusbittinopeus: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>OSD-häivytys</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Kuinka kauan OSD näkyy</translation>
     </message>
 </context>
 </TS>

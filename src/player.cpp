@@ -781,7 +781,7 @@ void Player::run() {
     const unsigned fpsInt = static_cast<unsigned>(fps + 0.5);
     SLVideo_SetStreamTargetFramerate(static_cast<CSLVideoStream*>(videoStream_),
                                      fpsInt, 1);
-    SLVideo_SetStreamTargetBitrate(static_cast<CSLVideoStream*>(videoStream_), 12000);
+    SLVideo_SetStreamTargetBitrate(static_cast<CSLVideoStream*>(videoStream_), cfg_.maxBitrateKbps);
     videoFps_ = static_cast<double>(fpsInt);
     qInfo("[player] framerate target: %.3f fps", fps);
     Trace("framerate target: %.3f", fps);

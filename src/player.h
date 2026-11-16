@@ -42,6 +42,7 @@ class Player : public QThread {
     QString authHeader;
     qint64 startTicks = 0;
     qint64 durationTicks = 0;
+    int maxBitrateKbps = 12000;
   };
 
   explicit Player(QObject* parent = nullptr);

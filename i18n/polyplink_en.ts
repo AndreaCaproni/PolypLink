@@ -207,56 +207,12 @@
         <translation>Maximum quality</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Default bitrate: 4, 8, 12, 20 Mbps or automatic</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Maximum resolution</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p or automatic</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Preferred audio</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Language and channels (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Subtitles</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Default language, enabling and burn-in</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Preloading</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>How many segments to keep ready before starting</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Seeking and acceleration</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Initial step and acceleration cap</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Duration, contents and behavior when paused</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Choose another Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Link the app without typing the password</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Session and server</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Connection status and server version</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Resume</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Sync the playback position</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Next episode</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Automatic start at the end of an episode</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Viewing statistics</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Time watched and history</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -679,12 +607,20 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
         <translation>Coming soon: %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Bitrate       %1 Mbps (requested 12)</translation>
-    </message>
-    <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Interface language; titles and plots follow the server</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Default bitrate: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>OSD fade</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>How long the OSD stays visible</translation>
     </message>
 </context>
 </TS>

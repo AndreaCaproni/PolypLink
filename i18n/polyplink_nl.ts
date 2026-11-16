@@ -207,56 +207,12 @@
         <translation>Maximale kwaliteit</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Standaard bitrate: 4, 8, 12, 20 Mbps of automatisch</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Maximale resolutie</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p of automatisch</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Voorkeursaudio</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Taal en kanalen (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Ondertitels</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Standaardtaal, inschakelen en inbranden</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Voorladen</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Hoeveel segmenten u gereed moet houden voordat u begint</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Zoeken en versnellen</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Initiële stap en versnellingslimiet</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Duur, inhoud en gedrag bij pauze</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Kies een andere Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Koppel de app zonder het wachtwoord te typen</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Sessie en server</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Verbindingsstatus en serverversie</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Hervatten</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Synchroniseer de afspeelpositie</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Volgende aflevering</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Automatische start aan het einde van een aflevering</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Kijkstatistieken</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Tijd bekeken en geschiedenis</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt op de USB-schijf zetten</translation
         <translation>Resolutie    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Bitsnelheid       %1 Mbps (aangevraagd 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Bitsnelheid       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt op de USB-schijf zetten</translation
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Interfacetaal; titels en beschrijvingen volgen de server</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Standaardbitsnelheid: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>OSD-vervaging</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Hoe lang de OSD zichtbaar blijft</translation>
     </message>
 </context>
 </TS>

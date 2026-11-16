@@ -207,56 +207,12 @@
         <translation>Максимальное качество</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Битрейт по умолчанию: 4, 8, 12, 20 Mbps или автоматический.</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Максимальное разрешение</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p или автоматически</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Предпочитаемый звук</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Язык и каналы (стерео/5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Субтитры</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Язык по умолчанию, включение и запись</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Предварительная загрузка</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Сколько сегментов нужно подготовить перед запуском</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Поиск и ускорение</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Начальный шаг и ограничение ускорения</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Продолжительность, содержание и поведение при паузе</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Выбрать другой Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Свяжите приложение, не вводя пароль</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Сессия и сервер</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Статус подключения и версия сервера</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Продолжение</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Синхронизировать позицию воспроизведения</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Следующий выпуск</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Автоматический запуск в конце эпизода</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Статистика просмотра</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Время просмотра и история</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt на диске USB</translation>
         <translation>Разрешение    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Битрейт       %1 Mbps (запрошено 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Битрейт       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt на диске USB</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Язык интерфейса; названия и описания берутся с сервера</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Битрейт по умолчанию: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>Затухание OSD</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Сколько времени OSD остаётся видимым</translation>
     </message>
 </context>
 </TS>

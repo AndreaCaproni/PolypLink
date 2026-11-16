@@ -207,56 +207,12 @@
         <translation>Maksimum kalite</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Varsayılan bit hızı: 4, 8, 12, 20 Mbps veya otomatik</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Maksimum çözünürlük</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p veya otomatik</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Tercih edilen ses</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Dil ve kanallar (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Altyazılar</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Varsayılan dil, etkinleştirme ve yazma</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Ön yükleme</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Başlamadan önce kaç segmentin hazır tutulması gerektiği</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Arama ve hızlanma</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>İlk adım ve hızlanma sınırı</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Duraklatıldığında süre, içerik ve davranış</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Başka bir Jellyfin seçin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Şifreyi yazmadan uygulamayı bağlayın</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Oturum ve sunucu</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Bağlantı durumu ve sunucu sürümü</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Devam</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Oynatma konumunu senkronize edin</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Sonraki bölüm</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Bir bölümün sonunda otomatik başlatma</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>İzleme istatistikleri</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>İzlenme süresi ve tarih</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
         <translation>Çözünürlük    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Bit hızı       %1 Mbps (istenen 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Bit hızı       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Arayüz dili; başlıklar ve konular sunucuyu takip eder</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Varsayılan bit hızı: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>OSD solması</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>OSD ne kadar süre görünür kalır</translation>
     </message>
 </context>
 </TS>

@@ -51,7 +51,8 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   QSettings settings;
   defaultQualityKbps_ = settings.value(QStringLiteral("defaultQualityKbps"), 12000).toInt();
   if (defaultQualityKbps_ != 4000 && defaultQualityKbps_ != 8000 &&
-      defaultQualityKbps_ != 12000 && defaultQualityKbps_ != 20000) {
+      defaultQualityKbps_ != 12000 && defaultQualityKbps_ != 20000 &&
+      defaultQualityKbps_ != 40000) {
     defaultQualityKbps_ = 12000;
   }
   osdSeconds_ = settings.value(QStringLiteral("osdSeconds"), 5).toInt();
@@ -317,7 +318,7 @@ void AppController::openPlayerMenu(const QString& mode) {
               index == subtitleIndex_);
     }
   } else if (mode == QLatin1String("quality")) {
-    static const int qualities[] = {4000, 8000, 12000, 20000};
+    static const int qualities[] = {4000, 8000, 12000, 20000, 40000};
     for (int q : qualities) {
       addItem(QString::number(q / 1000) + QStringLiteral(" Mbps"), q,
               q == qualityKbps_);
@@ -1456,6 +1457,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         cfg.authHeader = client_.authHeader();
         cfg.startTicks = startTicks;
         cfg.durationTicks = static_cast<qint64>(playerDuration_ * 1e7);
+        cfg.maxBitrateKbps = qualityKbps_;
 
         if (mediaSourceId_.isEmpty()) mediaSourceId_ = itemId;
         client_.reportPlaybackStart(itemId, playSessionId_, startTicks,
@@ -1536,10 +1538,10 @@ void AppController::cycleSubtitle(int delta) {
 }
 
 void AppController::cycleQuality(int delta) {
-  static const int qualities[] = {4000, 8000, 12000, 20000};
+  static const int qualities[] = {4000, 8000, 12000, 20000, 40000};
   int pos = 2;
-  for (int i = 0; i < 4; ++i) if (qualities[i] == qualityKbps_) pos = i;
-  pos = (pos + delta + 4) % 4;
+  for (int i = 0; i < 5; ++i) if (qualities[i] == qualityKbps_) pos = i;
+  pos = (pos + delta + 5) % 5;
   qualityKbps_ = qualities[pos];
   emit tracksChanged();
 }
@@ -1773,10 +1775,10 @@ void AppController::saveDefaults() {
 }
 
 void AppController::cycleDefaultQuality(int delta) {
-  static const int values[] = {4000, 8000, 12000, 20000};
+  static const int values[] = {4000, 8000, 12000, 20000, 40000};
   int pos = 2;
-  for (int i = 0; i < 4; ++i) if (values[i] == defaultQualityKbps_) pos = i;
-  pos = (pos + delta + 4) % 4;
+  for (int i = 0; i < 5; ++i) if (values[i] == defaultQualityKbps_) pos = i;
+  pos = (pos + delta + 5) % 5;
   defaultQualityKbps_ = values[pos];
   saveDefaults();
   emit tracksChanged();

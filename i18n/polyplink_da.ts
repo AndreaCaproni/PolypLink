@@ -207,56 +207,12 @@
         <translation>Maksimal kvalitet</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Standard bitrate: 4, 8, 12, 20 Mbps eller automatisk</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Maksimal opløsning</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p eller automatisk</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Foretrukken lyd</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Sprog og kanaler (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Undertekster</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Standardsprog, aktivering og indbrænding</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Forudlæsning</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Hvor mange segmenter skal holdes klar før start</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Søgning og acceleration</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Indledende trin og accelerationshætte</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Varighed, indhold og adfærd ved pause</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Vælg en anden Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Link appen uden at indtaste adgangskoden</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Session og server</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Forbindelsesstatus og serverversion</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Fortsæt</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Synkroniser afspilningspositionen</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Næste afsnit</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Automatisk start i slutningen af ​​en episode</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Visningsstatistik</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Overvåget tid og historie</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
         <translation>Opløsning    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Bitrate       %1 Mbps (anmodet 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Bitrate       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Grænsefladesprog; titler og beskrivelser følger serveren</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Standardbitrate: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>OSD-udtoning</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Hvor længe OSD'en vises</translation>
     </message>
 </context>
 </TS>

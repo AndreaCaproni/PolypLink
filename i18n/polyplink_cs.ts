@@ -207,56 +207,12 @@
         <translation>Maximální kvalita</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Výchozí datový tok: 4, 8, 12, 20 Mbps nebo automaticky</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Maximální rozlišení</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p nebo automaticky</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Preferovaný zvuk</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Jazyk a kanály (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Titulky</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Výchozí jazyk, povolení a vypálení</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Předběžné nabíjení</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Kolik segmentů je třeba mít připravených před zahájením</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Hledání a zrychlení</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Počáteční krok a čepice zrychlení</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Trvání, obsah a chování při pozastavení</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Vyberte si jiný Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Propojte aplikaci bez zadávání hesla</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Relace a server</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Stav připojení a verze serveru</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Pokračovat</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Synchronizujte pozici přehrávání</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Další epizoda</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Automatický start na konci epizody</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Statistiky sledování</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Sledovaný čas a historie</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt na disku USB</translation>
         <translation>Rozlišení    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Datový tok       %1 Mbps (vyžádáno 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Datový tok       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt na disku USB</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Jazyk rozhraní; názvy a popisy pocházejí ze serveru</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Výchozí datový tok: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>Postupné skrývání OSD</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Jak dlouho zůstane OSD viditelné</translation>
     </message>
 </context>
 </TS>

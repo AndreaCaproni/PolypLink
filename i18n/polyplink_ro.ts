@@ -207,56 +207,12 @@
         <translation>Calitate maxima</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Rata de biți implicită: 4, 8, 12, 20 Mbps sau automat</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Rezolutie maxima</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p sau automat</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Audio preferat</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Limbă și canale (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Subtitrări</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Limba implicită, activare și burn-in</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Preîncărcare</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Câte segmente să ții gata înainte de a începe</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Căutarea și accelerarea</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Pasul inițial și limita de accelerație</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Durata, conținutul și comportamentul la pauză</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Alegeți un alt Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Conectați aplicația fără a introduce parola</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Sesiune și server</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Starea conexiunii și versiunea serverului</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Reluare</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Sincronizați poziția de redare</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Următorul episod</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Pornire automată la sfârșitul unui episod</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Statistici de vizionare</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Timpul urmărit și istorie</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
         <translation>Rezoluție    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Rata de biți       %1 Mbps (solicitat 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Rata de biți       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Limba interfeței; titlurile și descrierile urmează serverul</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Rata de biți implicită: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>Estompare OSD</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Cât timp rămâne vizibil OSD-ul</translation>
     </message>
 </context>
 </TS>

@@ -207,56 +207,12 @@
         <translation>Maksymalna jakość</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Domyślny bitrate: 4, 8, 12, 20 Mbps lub automatyczny</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Maksymalna rozdzielczość</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p lub automatycznie</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Preferowany dźwięk</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Język i kanały (stereo / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Napisy</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Domyślny język, włączanie i wypalanie</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Wstępne ładowanie</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Ile segmentów należy przygotować przed rozpoczęciem</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Szukanie i przyspieszanie</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Krok początkowy i limit przyspieszenia</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Czas trwania, zawartość i zachowanie po wstrzymaniu</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Wybierz inny Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Połącz aplikację bez wpisywania hasła</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Sesja i serwer</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Stan połączenia i wersja serwera</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Wznów</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Zsynchronizuj pozycję odtwarzania</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Następny odcinek</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Automatyczne rozpoczęcie na końcu odcinka</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Statystyki oglądania</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Czas obserwowany i historia</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt na napędzie USB</translation>
         <translation>Rozdzielczość    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Przepływność       %1 Mbps (wymagane 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Przepływność       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt na napędzie USB</translation>
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Język interfejsu; tytuły i opisy pochodzą z serwera</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Domyślna przepływność: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>Zanikanie OSD</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Jak długo OSD pozostaje widoczne</translation>
     </message>
 </context>
 </TS>

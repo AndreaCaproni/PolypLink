@@ -34,13 +34,9 @@ Window {
 
     property var settingsMenu: [
         { title: qsTr("Server e connessione"), desc: qsTr("Indirizzo, porta, HTTPS e riconnessione automatica"), action: "test" },
-        { title: qsTr("Qualità massima"), desc: qsTr("Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico"), action: "quality" },
-        { title: qsTr("Risoluzione massima"), desc: qsTr("720p, 1080p o automatica") },
-        { title: qsTr("Audio preferito"), desc: qsTr("Lingua e canali (stereo / 5.1)") },
+        { title: qsTr("Qualità massima"), desc: qsTr("Bitrate predefinito: 4, 8, 12, 20, 40 Mbps"), action: "quality" },
         { title: qsTr("Sottotitoli"), desc: qsTr("Lingua predefinita, attivazione e burn-in") },
-        { title: qsTr("Precaricamento"), desc: qsTr("Quanti segmenti tenere pronti prima di partire") },
-        { title: qsTr("Seek e accelerazione"), desc: qsTr("Passo iniziale e tetto dell'accelerazione") },
-        { title: qsTr("OSD"), desc: qsTr("Durata, contenuti e comportamento in pausa"), action: "osd" },
+        { title: qsTr("Dissolvenza OSD"), desc: qsTr("Quanto resta visibile l'OSD"), action: "osd" },
         { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Lingua dell'interfaccia; titoli e trame seguono il server"), action: "language" },
         { title: qsTr("Scala dell'interfaccia"), desc: qsTr("Dimensione di testi e card") },
         { title: qsTr("Tema"), desc: qsTr("Scuro, chiaro, automatico") },
@@ -57,12 +53,8 @@ Window {
         { title: qsTr("Cambia utente"), desc: qsTr("Torna alla schermata di accesso"), action: "logout" },
         { title: qsTr("Esci"), desc: qsTr("Chiude la sessione e cancella il token"), action: "logout" },
         { title: qsTr("Cambia server"), desc: qsTr("Scegli un altro Jellyfin"), action: "switchserver" },
-        { title: qsTr("Quick Connect"), desc: qsTr("Associa l'app senza digitare la password") },
         { title: qsTr("Sessione e server"), desc: qsTr("Stato della connessione e versione del server"), action: "info" },
-        { title: qsTr("Ripresa"), desc: qsTr("Sincronizza la posizione di visione") },
-        { title: qsTr("Righe della home"), desc: qsTr("Scegli quali righe mostrare") },
-        { title: qsTr("Prossimo episodio"), desc: qsTr("Avvio automatico a fine puntata") },
-        { title: qsTr("Statistiche di visione"), desc: qsTr("Tempo visto e cronologia") }
+        { title: qsTr("Righe della home"), desc: qsTr("Scegli quali righe mostrare") }
     ]
 
     Timer {
@@ -2704,7 +2696,7 @@ Window {
                     color: "#c9d4df"
                     font.pixelSize: 14
                     text: app.playerStats.bandwidth !== undefined
-                          ? qsTr("Bitrate       %1 Mbps (richiesti 12)").arg((app.playerStats.bandwidth / 1000000).toFixed(1))
+                          ? qsTr("Bitrate       %1").arg((app.playerStats.bandwidth / 1000000).toFixed(1) + " Mbps")
                           : qsTr("Bitrate       %1").arg("?")
                 }
                 Text {

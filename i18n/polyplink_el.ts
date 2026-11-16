@@ -207,56 +207,12 @@
         <translation>Μέγιστη ποιότητα</translation>
     </message>
     <message>
-        <source>Bitrate predefinito: 4, 8, 12, 20 Mbps o automatico</source>
-        <translation>Προεπιλεγμένος ρυθμός bit: 4, 8, 12, 20 Mbps ή αυτόματο</translation>
-    </message>
-    <message>
-        <source>Risoluzione massima</source>
-        <translation>Μέγιστη ανάλυση</translation>
-    </message>
-    <message>
-        <source>720p, 1080p o automatica</source>
-        <translation>720p, 1080p ή αυτόματη</translation>
-    </message>
-    <message>
-        <source>Audio preferito</source>
-        <translation>Προτιμώμενος ήχος</translation>
-    </message>
-    <message>
-        <source>Lingua e canali (stereo / 5.1)</source>
-        <translation>Γλώσσα και κανάλια (στερεοφωνικό / 5.1)</translation>
-    </message>
-    <message>
         <source>Sottotitoli</source>
         <translation>Υπότιτλοι</translation>
     </message>
     <message>
         <source>Lingua predefinita, attivazione e burn-in</source>
         <translation>Προεπιλεγμένη γλώσσα, ενεργοποίηση και εγγραφή</translation>
-    </message>
-    <message>
-        <source>Precaricamento</source>
-        <translation>Προφόρτωση</translation>
-    </message>
-    <message>
-        <source>Quanti segmenti tenere pronti prima di partire</source>
-        <translation>Πόσα τμήματα να κρατήσετε έτοιμα πριν ξεκινήσετε</translation>
-    </message>
-    <message>
-        <source>Seek e accelerazione</source>
-        <translation>Αναζήτηση και επιτάχυνση</translation>
-    </message>
-    <message>
-        <source>Passo iniziale e tetto dell'accelerazione</source>
-        <translation>Αρχικό βήμα και ανώτατο όριο επιτάχυνσης</translation>
-    </message>
-    <message>
-        <source>OSD</source>
-        <translation>OSD</translation>
-    </message>
-    <message>
-        <source>Durata, contenuti e comportamento in pausa</source>
-        <translation>Διάρκεια, περιεχόμενο και συμπεριφορά σε παύση</translation>
     </message>
     <message>
         <source>Lingua dell'interfaccia</source>
@@ -359,28 +315,12 @@
         <translation>Επιλέξτε ένα άλλο Jellyfin</translation>
     </message>
     <message>
-        <source>Quick Connect</source>
-        <translation>Quick Connect</translation>
-    </message>
-    <message>
-        <source>Associa l'app senza digitare la password</source>
-        <translation>Συνδέστε την εφαρμογή χωρίς να πληκτρολογήσετε τον κωδικό πρόσβασης</translation>
-    </message>
-    <message>
         <source>Sessione e server</source>
         <translation>Συνεδρία και διακομιστής</translation>
     </message>
     <message>
         <source>Stato della connessione e versione del server</source>
         <translation>Κατάσταση σύνδεσης και έκδοση διακομιστή</translation>
-    </message>
-    <message>
-        <source>Ripresa</source>
-        <translation>Συνέχιση</translation>
-    </message>
-    <message>
-        <source>Sincronizza la posizione di visione</source>
-        <translation>Συγχρονίστε τη θέση αναπαραγωγής</translation>
     </message>
     <message>
         <source>Righe della home</source>
@@ -393,18 +333,6 @@
     <message>
         <source>Prossimo episodio</source>
         <translation>Επόμενο επεισόδιο</translation>
-    </message>
-    <message>
-        <source>Avvio automatico a fine puntata</source>
-        <translation>Αυτόματη έναρξη στο τέλος ενός επεισοδίου</translation>
-    </message>
-    <message>
-        <source>Statistiche di visione</source>
-        <translation>Στατιστικά παρακολούθησης</translation>
-    </message>
-    <message>
-        <source>Tempo visto e cronologia</source>
-        <translation>Παρακολούθηση χρόνου και ιστορία</translation>
     </message>
     <message>
         <source>Spenti</source>
@@ -643,10 +571,6 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
         <translation>Ανάλυση    %1</translation>
     </message>
     <message>
-        <source>Bitrate       %1 Mbps (richiesti 12)</source>
-        <translation>Ρυθμός bit       %1 Mbps (ζητήθηκε 12)</translation>
-    </message>
-    <message>
         <source>Bitrate       %1</source>
         <translation>Ρυθμός bit       %1</translation>
     </message>
@@ -685,6 +609,18 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
     <message>
         <source>Lingua dell'interfaccia; titoli e trame seguono il server</source>
         <translation>Γλώσσα διεπαφής; οι τίτλοι και οι υποθέσεις ακολουθούν τον διακομιστή</translation>
+    </message>
+    <message>
+        <source>Bitrate predefinito: 4, 8, 12, 20, 40 Mbps</source>
+        <translation>Προεπιλεγμένο bitrate: 4, 8, 12, 20, 40 Mbps</translation>
+    </message>
+    <message>
+        <source>Dissolvenza OSD</source>
+        <translation>Σβήσιμο OSD</translation>
+    </message>
+    <message>
+        <source>Quanto resta visibile l'OSD</source>
+        <translation>Πόσο παραμένει ορατό το OSD</translation>
     </message>
 </context>
 </TS>
