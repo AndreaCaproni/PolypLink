@@ -593,8 +593,8 @@ Window {
             spacing: 10
 
             Image {
-                width: 34
-                height: 34
+                width: 44
+                height: 44
                 anchors.verticalCenter: parent.verticalCenter
                 source: "qrc:/qml/assets/jellylink-logo.png"
                 fillMode: Image.PreserveAspectFit
