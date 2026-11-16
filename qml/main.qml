@@ -593,8 +593,8 @@ Window {
             spacing: 10
 
             Image {
-                width: 44
-                height: 44
+                width: 48
+                height: 48
                 anchors.verticalCenter: parent.verticalCenter
                 source: "qrc:/qml/assets/polyplink-logo.png"
                 fillMode: Image.PreserveAspectFit
