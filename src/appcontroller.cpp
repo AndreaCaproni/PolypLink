@@ -1305,6 +1305,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                   QStringLiteral("SubtitleStreamIndex"),
                   QStringLiteral("SubtitleMethod"),
                   QStringLiteral("AudioStreamIndex"),
+                  QStringLiteral("MaxWidth"),
+                  QStringLiteral("MaxHeight"),
                   QStringLiteral("EnableAutoStreamCopy"),
                   QStringLiteral("AllowVideoStreamCopy"),
                   QStringLiteral("AllowAudioStreamCopy")};
@@ -1326,6 +1328,11 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                 q.addQueryItem(QStringLiteral("SubtitleStreamIndex"),
                                QStringLiteral("-1"));
               }
+              // Il decoder del Link arriva a 1920x1080: senza questo limite
+              // Jellyfin puo' mandare 2560x1072 da sorgenti 4K e SLVideo
+              // rifiuta ogni frame con "stream macroblock error".
+              q.addQueryItem(QStringLiteral("MaxWidth"), QStringLiteral("1920"));
+              q.addQueryItem(QStringLiteral("MaxHeight"), QStringLiteral("1080"));
               // Il Link decodifica solo H.264/AAC: forziamo il re-encode per
               // avere timestamp e pacing prevedibili (il copy faceva scattare).
               q.addQueryItem(QStringLiteral("EnableAutoStreamCopy"), QStringLiteral("false"));

@@ -462,12 +462,34 @@ void JellyfinClient::fetchPlaybackInfo(const QString& itemId, qint64 startTicks,
     subtitleProfiles.append(sp);
   }
 
+  // Il decoder del Link non supera 1920x1080: dichiararlo anche nel profilo,
+  // cosi' Jellyfin non sceglie 2560x1072 per le sorgenti 4K.
+  QJsonArray videoConditions;
+  {
+    QJsonObject w;
+    w.insert(QStringLiteral("Condition"), QStringLiteral("LessThanEqual"));
+    w.insert(QStringLiteral("Property"), QStringLiteral("Width"));
+    w.insert(QStringLiteral("Value"), QStringLiteral("1920"));
+    w.insert(QStringLiteral("IsRequired"), false);
+    videoConditions.append(w);
+    QJsonObject h;
+    h.insert(QStringLiteral("Condition"), QStringLiteral("LessThanEqual"));
+    h.insert(QStringLiteral("Property"), QStringLiteral("Height"));
+    h.insert(QStringLiteral("Value"), QStringLiteral("1080"));
+    h.insert(QStringLiteral("IsRequired"), false);
+    videoConditions.append(h);
+  }
+  QJsonObject codecProfile;
+  codecProfile.insert(QStringLiteral("Type"), QStringLiteral("Video"));
+  codecProfile.insert(QStringLiteral("Codec"), QStringLiteral("h264"));
+  codecProfile.insert(QStringLiteral("Conditions"), videoConditions);
+
   QJsonObject profile;
   profile.insert(QStringLiteral("Name"), QStringLiteral("polyplink"));
   profile.insert(QStringLiteral("MaxStreamingBitrate"), qualityKbps * 1000);
   profile.insert(QStringLiteral("DirectPlayProfiles"), QJsonArray());
   profile.insert(QStringLiteral("TranscodingProfiles"), QJsonArray{transcode});
-  profile.insert(QStringLiteral("CodecProfiles"), QJsonArray());
+  profile.insert(QStringLiteral("CodecProfiles"), QJsonArray{codecProfile});
   profile.insert(QStringLiteral("SubtitleProfiles"), subtitleProfiles);
 
   QJsonObject body;
