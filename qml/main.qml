@@ -1,5 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Window 2.14
+import "."
 
 Window {
     id: root
@@ -8,7 +9,7 @@ Window {
     visible: true
     width: Screen.width > 0 ? Screen.width : 1280
     height: Screen.height > 0 ? Screen.height : 720
-    color: app.playerActive ? "#00000000" : "#0b0f14"
+    color: app.playerActive ? Theme.transparent : Theme.bg
 
     // --- navigazione ---------------------------------------------------------
     property string page: "home"
@@ -611,8 +612,8 @@ Window {
         anchors.fill: parent
         visible: !app.playerActive
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#0b0f14" }
-            GradientStop { position: 1.0; color: "#101922" }
+            GradientStop { position: 0.0; color: Theme.bg }
+            GradientStop { position: 1.0; color: Theme.bgAlt }
         }
     }
 
@@ -621,7 +622,7 @@ Window {
         id: header
         width: parent.width
         height: 56
-        color: "#111a23"
+        color: Theme.header
 
         // logo PolypLink + nome dell'app
         Row {
@@ -642,13 +643,13 @@ Window {
                 spacing: 0
                 anchors.verticalCenter: parent.verticalCenter
                 Text {
-                    color: "#ffffff"
+                    color: Theme.text
                     font.pixelSize: 26
                     font.bold: true
                     text: "Polyp"
                 }
                 Text {
-                    color: "#00a4dc"
+                    color: Theme.accent
                     font.pixelSize: 26
                     font.bold: true
                     text: "Link"
@@ -659,13 +660,13 @@ Window {
                 width: 46
                 height: 20
                 radius: 10
-                color: "#182430"
+                color: Theme.chip
                 border.width: 1
-                border.color: "#2b6f8c"
+                border.color: Theme.borderAccent
 
                 Text {
                     anchors.centerIn: parent
-                    color: "#7fd9ff"
+                    color: Theme.accentSoft
                     font.pixelSize: 11
                     font.bold: true
                     text: "beta"
@@ -682,15 +683,15 @@ Window {
             height: 36
             radius: 18
             visible: app.state === "home"
-            color: root.navFocus && root.navIndex === 0 ? "#123243" : "transparent"
+            color: root.navFocus && root.navIndex === 0 ? Theme.selected : "transparent"
             border.width: root.navFocus && root.navIndex === 0 ? 2 : 0
-            border.color: "#00a4dc"
+            border.color: Theme.accent
             Text {
                 anchors.centerIn: parent
                 text: qsTr("Home")
                 font.pixelSize: 17
                 font.bold: root.page === "home"
-                color: root.page === "home" ? "#ffffff" : "#93a4b5"
+                color: root.page === "home" ? Theme.text : Theme.textMuted
             }
         }
 
@@ -702,15 +703,15 @@ Window {
             height: 36
             radius: 18
             visible: app.state === "home"
-            color: root.navFocus && root.navIndex === 1 ? "#123243" : "transparent"
+            color: root.navFocus && root.navIndex === 1 ? Theme.selected : "transparent"
             border.width: root.navFocus && root.navIndex === 1 ? 2 : 0
-            border.color: "#00a4dc"
+            border.color: Theme.accent
             Text {
                 anchors.centerIn: parent
                 text: qsTr("Preferiti")
                 font.pixelSize: 17
                 font.bold: root.page === "favorites"
-                color: root.page === "favorites" ? "#ffffff" : "#93a4b5"
+                color: root.page === "favorites" ? Theme.text : Theme.textMuted
             }
         }
 
@@ -718,7 +719,7 @@ Window {
             anchors.left: parent.left
             anchors.leftMargin: 252
             anchors.verticalCenter: parent.verticalCenter
-            color: "#6f8090"
+            color: Theme.textDim
             font.pixelSize: 17
             visible: app.state !== "home"
             text: app.state === "login" ? qsTr("scegli il server") : app.serverLabel
@@ -734,9 +735,9 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: settingsBtn.left
             anchors.rightMargin: 10
-            color: root.navFocus && root.navIndex === 2 ? "#123243" : "#182430"
+            color: root.navFocus && root.navIndex === 2 ? Theme.selected : Theme.chip
             border.width: root.navFocus && root.navIndex === 2 ? 2 : 1
-            border.color: root.navFocus && root.navIndex === 2 ? "#00a4dc" : "#243040"
+            border.color: root.navFocus && root.navIndex === 2 ? Theme.accent : Theme.borderStrong
 
             Row {
                 id: avatarRow
@@ -750,13 +751,13 @@ Window {
 
                     Rectangle {
                         width: 10; height: 10; radius: 5
-                        color: "#c9d4df"
+                        color: Theme.textSoft
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: 2
                     }
                     Rectangle {
                         width: 18; height: 9; radius: 4.5
-                        color: "#c9d4df"
+                        color: Theme.textSoft
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: 14
                     }
@@ -766,7 +767,7 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     width: Math.min(implicitWidth, 160)
                     elide: Text.ElideRight
-                    color: "#e6eef5"
+                    color: Theme.text
                     font.pixelSize: 16
                     text: app.userName
                 }
@@ -783,16 +784,16 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 24
-            color: root.navFocus && root.navIndex === 3 ? "#123243" : "#182430"
+            color: root.navFocus && root.navIndex === 3 ? Theme.selected : Theme.chip
             border.width: root.navFocus && root.navIndex === 3 ? 2 : 1
-            border.color: root.navFocus && root.navIndex === 3 ? "#00a4dc" : "#243040"
+            border.color: root.navFocus && root.navIndex === 3 ? Theme.accent : Theme.borderStrong
 
             Canvas {
                 id: gearIcon
                 anchors.centerIn: parent
                 width: 24
                 height: 24
-                property color tint: root.navFocus && root.navIndex === 3 ? "#ffffff" : "#c9d4df"
+                property color tint: root.navFocus && root.navIndex === 3 ? Theme.text : Theme.textSoft
                 onTintChanged: requestPaint()
                 onPaint: {
                     var ctx = getContext("2d")
@@ -831,7 +832,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 30
                 font.bold: true
                 text: qsTr("Scegli il tuo server Jellyfin")
@@ -840,7 +841,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#7f8c9b"
+                color: Theme.textDim
                 font.pixelSize: 17
                 wrapMode: Text.WordWrap
                 text: app.searching
@@ -856,17 +857,17 @@ Window {
                 height: 62
                 radius: 8
                 visible: root.savedServerRow() === 1
-                color: root.serverIndex === 0 ? "#123243" : "#141e28"
+                color: root.serverIndex === 0 ? Theme.selected : Theme.panel
                 border.width: root.serverIndex === 0 ? 2 : 1
-                border.color: root.serverIndex === 0 ? "#00a4dc" : "#1e2b38"
+                border.color: root.serverIndex === 0 ? Theme.accent : Theme.border
 
                 Column {
                     anchors.left: parent.left
                     anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2
-                    Text { color: "#ffffff"; font.pixelSize: 20; text: qsTr("Server salvato") }
-                    Text { color: "#6f8090"; font.pixelSize: 15; text: app.serverLabel }
+                    Text { color: Theme.text; font.pixelSize: 20; text: qsTr("Server salvato") }
+                    Text { color: Theme.textDim; font.pixelSize: 15; text: app.serverLabel }
                 }
             }
 
@@ -876,17 +877,17 @@ Window {
                     width: parent.width
                     height: 62
                     radius: 8
-                    color: index + root.savedServerRow() === root.serverIndex ? "#123243" : "#141e28"
+                    color: index + root.savedServerRow() === root.serverIndex ? Theme.selected : Theme.panel
                     border.width: index + root.savedServerRow() === root.serverIndex ? 2 : 1
-                    border.color: index + root.savedServerRow() === root.serverIndex ? "#00a4dc" : "#1e2b38"
+                    border.color: index + root.savedServerRow() === root.serverIndex ? Theme.accent : Theme.border
 
                     Column {
                         anchors.left: parent.left
                         anchors.leftMargin: 16
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 2
-                        Text { color: "#ffffff"; font.pixelSize: 20; text: modelData.name }
-                        Text { color: "#6f8090"; font.pixelSize: 15; text: modelData.address }
+                        Text { color: Theme.text; font.pixelSize: 20; text: modelData.name }
+                        Text { color: Theme.textDim; font.pixelSize: 15; text: modelData.address }
                     }
                 }
             }
@@ -895,13 +896,13 @@ Window {
                 width: parent.width
                 height: 52
                 radius: 8
-                color: root.serverIndex === app.servers.length + root.savedServerRow() ? "#123243" : "transparent"
+                color: root.serverIndex === app.servers.length + root.savedServerRow() ? Theme.selected : "transparent"
                 border.width: 1
-                border.color: root.serverIndex === app.servers.length + root.savedServerRow() ? "#00a4dc" : "#1e2b38"
+                border.color: root.serverIndex === app.servers.length + root.savedServerRow() ? Theme.accent : Theme.border
 
                 Text {
                     anchors.centerIn: parent
-                    color: "#9fb0c0"
+                    color: Theme.textMuted
                     font.pixelSize: 17
                     text: qsTr("Inserisci l'indirizzo del server…")
                 }
@@ -910,7 +911,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#4a5a68"
+                color: Theme.textFaint
                 font.pixelSize: 15
                 wrapMode: Text.WordWrap
                 text: qsTr("A: seleziona    X/R: cerca in rete (LAN + UDP)    B: esci\nL'indirizzo si può anche mettere in\nsteamlink/config/system/jellyfin-server.txt sulla chiavetta")
@@ -932,7 +933,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 28
                 font.bold: true
                 text: qsTr("Accedi a %1").arg(app.serverLabel)
@@ -941,7 +942,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#6f8090"
+                color: Theme.textDim
                 font.pixelSize: 17
                 text: app.serverLabel.length > 0 ? "" : app.serverLabel
             }
@@ -956,12 +957,12 @@ Window {
                     width: parent.width
                     height: 62
                     radius: 8
-                    color: root.authIndex === 0 ? "#123243" : "#141e28"
+                    color: root.authIndex === 0 ? Theme.selected : Theme.panel
                     border.width: root.authIndex === 0 ? 2 : 1
-                    border.color: root.authIndex === 0 ? "#00a4dc" : "#1e2b38"
+                    border.color: root.authIndex === 0 ? Theme.accent : Theme.border
                     Text {
                         anchors.centerIn: parent
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 20
                         text: qsTr("Nome utente e password")
                     }
@@ -971,12 +972,12 @@ Window {
                     width: parent.width
                     height: 62
                     radius: 8
-                    color: root.authIndex === 1 ? "#123243" : "#141e28"
+                    color: root.authIndex === 1 ? Theme.selected : Theme.panel
                     border.width: root.authIndex === 1 ? 2 : 1
-                    border.color: root.authIndex === 1 ? "#00a4dc" : "#1e2b38"
+                    border.color: root.authIndex === 1 ? Theme.accent : Theme.border
                     Text {
                         anchors.centerIn: parent
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 20
                         text: qsTr("Quick Connect (codice a 6 cifre)")
                     }
@@ -994,16 +995,16 @@ Window {
                     width: parent.width
                     height: 62
                     radius: 8
-                    color: root.authIndex === 0 ? "#123243" : "#141e28"
+                    color: root.authIndex === 0 ? Theme.selected : Theme.panel
                     border.width: root.authIndex === 0 ? 2 : 1
-                    border.color: root.authIndex === 0 ? "#00a4dc" : "#1e2b38"
+                    border.color: root.authIndex === 0 ? Theme.accent : Theme.border
 
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 16
                         anchors.top: parent.top
                         anchors.topMargin: 8
-                        color: "#6f8090"
+                        color: Theme.textDim
                         font.pixelSize: 14
                         text: qsTr("nome utente")
                     }
@@ -1012,7 +1013,7 @@ Window {
                         anchors.leftMargin: 16
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 10
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 20
                         text: root.credUser.length > 0 ? root.credUser : "—"
                     }
@@ -1022,16 +1023,16 @@ Window {
                     width: parent.width
                     height: 62
                     radius: 8
-                    color: root.authIndex === 1 ? "#123243" : "#141e28"
+                    color: root.authIndex === 1 ? Theme.selected : Theme.panel
                     border.width: root.authIndex === 1 ? 2 : 1
-                    border.color: root.authIndex === 1 ? "#00a4dc" : "#1e2b38"
+                    border.color: root.authIndex === 1 ? Theme.accent : Theme.border
 
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 16
                         anchors.top: parent.top
                         anchors.topMargin: 8
-                        color: "#6f8090"
+                        color: Theme.textDim
                         font.pixelSize: 14
                         text: qsTr("password")
                     }
@@ -1040,7 +1041,7 @@ Window {
                         anchors.leftMargin: 16
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 10
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 20
                         text: root.credPass.length > 0 ? root.maskText(root.credPass) : "—"
                     }
@@ -1050,13 +1051,13 @@ Window {
                     width: parent.width
                     height: 52
                     radius: 26
-                    color: root.authIndex === 2 ? "#00a4dc" : "#123243"
+                    color: root.authIndex === 2 ? Theme.accent : Theme.selected
                     border.width: root.authIndex === 2 ? 2 : 1
-                    border.color: root.authIndex === 2 ? "#7fd9ff" : "#1e2b38"
+                    border.color: root.authIndex === 2 ? Theme.accentSoft : Theme.border
 
                     Text {
                         anchors.centerIn: parent
-                        color: root.authIndex === 2 ? "#00121a" : "#ffffff"
+                        color: root.authIndex === 2 ? Theme.accentText : Theme.text
                         font.pixelSize: 19
                         font.bold: true
                         text: qsTr("Entra")
@@ -1081,7 +1082,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 28
                 font.bold: true
                 text: qsTr("Collega questo dispositivo")
@@ -1090,7 +1091,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#00a4dc"
+                color: Theme.accent
                 font.pixelSize: 88
                 font.bold: true
                 font.letterSpacing: 12
@@ -1100,7 +1101,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#9fb0c0"
+                color: Theme.textMuted
                 font.pixelSize: 18
                 wrapMode: Text.WordWrap
                 text: app.quickConnectStatus
@@ -1170,7 +1171,7 @@ Window {
                     anchors.left: parent.left
                     anchors.leftMargin: 24
                     anchors.top: parent.top
-                    color: root.rowIndex === 3 ? "#ffffff" : "#93a4b5"
+                    color: root.rowIndex === 3 ? Theme.text : Theme.textMuted
                     font.pixelSize: 24
                     font.bold: true
                     text: qsTr("Librerie")
@@ -1195,9 +1196,9 @@ Window {
                         width: 190
                         height: 90
                         radius: 10
-                        color: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? "#123243" : "#141e28"
+                        color: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? Theme.selected : Theme.panel
                         border.width: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? 2 : 1
-                        border.color: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? "#00a4dc" : "#1e2b38"
+                        border.color: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? Theme.accent : Theme.border
 
                         Text {
                             anchors.left: parent.left
@@ -1205,7 +1206,7 @@ Window {
                             anchors.right: parent.right
                             anchors.rightMargin: 14
                             anchors.verticalCenter: parent.verticalCenter
-                            color: "#ffffff"
+                            color: Theme.text
                             font.pixelSize: 19
                             elide: Text.ElideRight
                             text: modelData.name
@@ -1237,7 +1238,7 @@ Window {
             Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                color: "#ff9a9a"
+                color: Theme.dangerText
                 font.pixelSize: 24
                 font.bold: true
                 wrapMode: Text.WordWrap
@@ -1257,7 +1258,7 @@ Window {
             x: 24
             anchors.top: parent.top
             anchors.topMargin: 10
-            color: "#ffffff"
+            color: Theme.text
             font.pixelSize: 28
             font.bold: true
             text: app.libraryTitle
@@ -1268,7 +1269,7 @@ Window {
             anchors.rightMargin: 24
             anchors.top: parent.top
             anchors.topMargin: 16
-            color: "#5b6b7c"
+            color: Theme.textFaint
             font.pixelSize: 15
             text: root.countItems(app.libraryItems.length)
         }
@@ -1306,14 +1307,10 @@ Window {
     }
 
     // ------------------------------------------------------- LIBRERIA VUOTA
-    Text {
-        anchors.centerIn: parent
+    EmptyState {
         visible: app.state === "home" && (page === "library" || page === "favorites") &&
                  app.libraryItems.length === 0 && !app.loading
-        horizontalAlignment: Text.AlignHCenter
-        color: "#6f8090"
-        font.pixelSize: 18
-        text: page === "favorites" ? qsTr("Nessun preferito") : qsTr("Nessuna voce in questa libreria")
+        label: page === "favorites" ? qsTr("Nessun preferito") : qsTr("Nessuna voce in questa libreria")
     }
 
     // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
@@ -1331,7 +1328,7 @@ Window {
         Text {
             x: 40
             y: 12
-            color: "#ffffff"
+            color: Theme.text
             font.pixelSize: 30
             font.bold: true
             text: page === "settings" ? qsTr("Impostazioni") : qsTr("Account")
@@ -1340,7 +1337,7 @@ Window {
             x: 40
             y: 52
             width: 540
-            color: "#6f8090"
+            color: Theme.textDim
             font.pixelSize: 14
             elide: Text.ElideRight
             text: page === "settings"
@@ -1364,10 +1361,10 @@ Window {
                 height: 48
                 radius: 8
                 color: index === root.menuIndex
-                       ? "#123243"
-                       : (index % 2 === 0 ? "#121c26" : "#101922")
+                       ? Theme.selected
+                       : (index % 2 === 0 ? Theme.panelAlternate : Theme.bgAlt)
                 border.width: index === root.menuIndex ? 2 : 0
-                border.color: "#00a4dc"
+                border.color: Theme.accent
 
                 Text {
                     anchors.left: parent.left
@@ -1375,7 +1372,7 @@ Window {
                     anchors.right: parent.right
                     anchors.rightMargin: root.menuValue(modelData).length > 0 ? 150 : 14
                     anchors.verticalCenter: parent.verticalCenter
-                    color: index === root.menuIndex ? "#ffffff" : "#dbe5ef"
+                    color: index === root.menuIndex ? Theme.text : Theme.textSoft
                     font.pixelSize: 16
                     font.bold: index === root.menuIndex
                     elide: Text.ElideRight
@@ -1386,7 +1383,7 @@ Window {
                     anchors.right: parent.right
                     anchors.rightMargin: 14
                     anchors.verticalCenter: parent.verticalCenter
-                    color: "#7fd9ff"
+                    color: Theme.accentSoft
                     font.pixelSize: 14
                     visible: root.menuValue(modelData).length > 0
                     text: root.menuValue(modelData)
@@ -1401,9 +1398,9 @@ Window {
             width: 620
             height: parent.height - 32
             radius: 16
-            color: "#0e1620"
+            color: Theme.panelDeep
             border.width: 1
-            border.color: "#1c2a38"
+            border.color: Theme.borderSoft
 
             Rectangle {
                 x: 28
@@ -1411,7 +1408,7 @@ Window {
                 width: 4
                 height: 54
                 radius: 2
-                color: "#00a4dc"
+                color: Theme.accent
                 visible: page === "settings"
             }
 
@@ -1429,13 +1426,13 @@ Window {
                     Rectangle {
                         anchors.fill: parent
                         radius: 42
-                        color: "#182430"
+                        color: Theme.chip
                         border.width: 1
-                        border.color: "#243040"
+                        border.color: Theme.borderStrong
                     }
                     Text {
                         anchors.centerIn: parent
-                        color: "#c9d4df"
+                        color: Theme.textSoft
                         font.pixelSize: 34
                         font.bold: true
                         text: app.userName.length > 0 ? app.userName.charAt(0).toUpperCase() : "?"
@@ -1452,13 +1449,13 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 4
                     Text {
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 24
                         font.bold: true
                         text: app.userName
                     }
                     Text {
-                        color: "#6f8090"
+                        color: Theme.textDim
                         font.pixelSize: 14
                         text: app.serverLabel
                     }
@@ -1474,54 +1471,54 @@ Window {
 
                 Rectangle {
                     width: 130; height: 64; radius: 10
-                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
                     Column {
                         anchors.centerIn: parent
                         spacing: 2
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
                                text: app.userStats.movies !== undefined ? app.userStats.movies : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Film") }
+                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Film") }
                     }
                 }
                 Rectangle {
                     width: 130; height: 64; radius: 10
-                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
                     Column {
                         anchors.centerIn: parent
                         spacing: 2
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
                                text: app.userStats.series !== undefined ? app.userStats.series : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Serie") }
+                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Serie") }
                     }
                 }
                 Rectangle {
                     width: 130; height: 64; radius: 10
-                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
                     Column {
                         anchors.centerIn: parent
                         spacing: 2
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
                                text: app.userStats.episodes !== undefined ? app.userStats.episodes : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Episodi") }
+                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Episodi") }
                     }
                 }
                 Rectangle {
                     width: 130; height: 64; radius: 10
-                    color: "#121c26"; border.width: 1; border.color: "#1c2a38"
+                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
                     Column {
                         anchors.centerIn: parent
                         spacing: 2
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#7fd9ff"; font.pixelSize: 20; font.bold: true
+                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
                                text: app.userStats.favorites !== undefined ? app.userStats.favorites : "–" }
                         Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: "#6f8090"; font.pixelSize: 12; text: qsTr("Preferiti") }
+                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Preferiti") }
                     }
                 }
             }
@@ -1531,7 +1528,7 @@ Window {
                 y: 202
                 width: parent.width - 56
                 height: 1
-                color: "#1c2a38"
+                color: Theme.borderSoft
                 visible: root.isProfileView()
             }
 
@@ -1544,7 +1541,7 @@ Window {
 
                 Text {
                     width: parent.width
-                    color: "#ffffff"
+                    color: Theme.text
                     font.pixelSize: 28
                     font.bold: true
                     wrapMode: Text.WordWrap
@@ -1552,7 +1549,7 @@ Window {
                 }
                 Text {
                     width: parent.width
-                    color: "#7fd9ff"
+                    color: Theme.accentSoft
                     font.pixelSize: 22
                     font.bold: true
                     visible: root.menuValue(root.currentMenuEntry()).length > 0
@@ -1560,7 +1557,7 @@ Window {
                 }
                 Text {
                     width: parent.width
-                    color: "#8fa3b6"
+                    color: Theme.textSubtle
                     font.pixelSize: 15
                     lineHeight: 1.2
                     wrapMode: Text.WordWrap
@@ -1568,7 +1565,7 @@ Window {
                 }
                 Text {
                     width: parent.width
-                    color: "#7fd9ff"
+                    color: Theme.accentSoft
                     font.pixelSize: 14
                     font.bold: true
                     visible: root.isComingSoon()
@@ -1581,7 +1578,7 @@ Window {
                 anchors.leftMargin: 28
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 22
-                color: "#3f4c58"
+                color: Theme.textFaint
                 font.pixelSize: 13
                 text: "PolypLink " + appVersion
             }
@@ -1619,7 +1616,7 @@ Window {
 
                 Text {
                     width: parent.width
-                    color: "#ffffff"
+                    color: Theme.text
                     font.pixelSize: 26
                     font.bold: true
                     elide: Text.ElideRight
@@ -1628,7 +1625,7 @@ Window {
 
                 Text {
                     width: parent.width
-                    color: "#6f8090"
+                    color: Theme.textDim
                     font.pixelSize: 15
                     elide: Text.ElideRight
                     text: app.seriesTitle + "   ·   " + root.countEpisodes(app.episodes.length)
@@ -1654,7 +1651,7 @@ Window {
                         icon: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
                               ? "heart-filled" : "heart-empty"
                         customIconColor: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                                         ? "#ff4d4d" : "#ffffff"
+                                         ? Theme.favorite : Theme.text
                         label: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
                                ? qsTr("Togli preferito") : qsTr("Preferito")
                         active: root.seasonActionsFocus && root.seasonAction === 2
@@ -1664,7 +1661,7 @@ Window {
                 Text {
                     width: parent.width
                     height: 40
-                    color: "#8fa3b6"
+                    color: Theme.textSubtle
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
                     maximumLineCount: 2
@@ -1695,9 +1692,9 @@ Window {
                 Rectangle {
                     anchors.fill: parent
                     radius: 8
-                    color: index === root.epIndex && !root.seasonActionsFocus ? "#123243" : "#101920"
+                    color: index === root.epIndex && !root.seasonActionsFocus ? Theme.selected : Theme.panelAlt
                     border.width: index === root.epIndex && !root.seasonActionsFocus ? 2 : 1
-                    border.color: index === root.epIndex && !root.seasonActionsFocus ? "#00a4dc" : "#1b2733"
+                    border.color: index === root.epIndex && !root.seasonActionsFocus ? Theme.accent : Theme.borderDark
                 }
 
                 RoundedImage {
@@ -1718,7 +1715,7 @@ Window {
                     anchors.rightMargin: 110
                     anchors.top: parent.top
                     anchors.topMargin: 12
-                    color: "#ffffff"
+                    color: Theme.text
                     font.pixelSize: 19
                     font.bold: index === root.epIndex && !root.seasonActionsFocus
                     elide: Text.ElideRight
@@ -1737,7 +1734,7 @@ Window {
                     anchors.rightMargin: 110
                     anchors.top: epRowTitle.bottom
                     anchors.topMargin: 3
-                    color: "#8fa3b6"
+                    color: Theme.textSubtle
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
                     maximumLineCount: 2
@@ -1752,11 +1749,11 @@ Window {
                     width: 78
                     height: 22
                     radius: 4
-                    color: "#0b0f14"
+                    color: Theme.bg
                     border.width: 1
-                    border.color: "#2b6f8c"
+                    border.color: Theme.borderAccent
                     visible: modelData.played !== undefined && modelData.played
-                    Text { anchors.centerIn: parent; color: "#7fd9ff"; font.pixelSize: 12; text: qsTr("VISTO") }
+                    Text { anchors.centerIn: parent; color: Theme.accentSoft; font.pixelSize: 12; text: qsTr("VISTO") }
                 }
 
                 Rectangle {
@@ -1767,14 +1764,14 @@ Window {
                     width: 220
                     height: 4
                     radius: 2
-                    color: "#22303d"
+                    color: Theme.borderDark
                     visible: modelData.progress !== undefined && modelData.progress > 0
 
                     Rectangle {
                         height: parent.height
                         radius: 2
                         width: parent.width * Math.min(1, (modelData.progress !== undefined ? modelData.progress : 0) / 100.0)
-                        color: "#00a4dc"
+                        color: Theme.accent
                     }
                 }
             }
@@ -1782,14 +1779,10 @@ Window {
     }
 
     // -------------------------------------------------------- STAGIONE VUOTA
-    Text {
-        anchors.centerIn: parent
+    EmptyState {
         visible: app.state === "home" && page === "episodes" && !root.detailOpen &&
                  app.episodes.length === 0 && !app.loading
-        horizontalAlignment: Text.AlignHCenter
-        color: "#6f8090"
-        font.pixelSize: 18
-        text: qsTr("Nessun episodio in questa stagione")
+        label: qsTr("Nessun episodio in questa stagione")
     }
 
     // ----------------------------------------------------------------- STAGIONI
@@ -1803,7 +1796,7 @@ Window {
             x: 24
             anchors.top: parent.top
             anchors.topMargin: 10
-            color: "#ffffff"
+            color: Theme.text
             font.pixelSize: 26
             font.bold: true
             text: app.seriesTitle
@@ -1814,7 +1807,7 @@ Window {
             anchors.leftMargin: 24
             anchors.top: seasonHeader.bottom
             anchors.topMargin: 2
-            color: "#6f8090"
+            color: Theme.textDim
             font.pixelSize: 15
             text: root.countSeasons(app.seasons.length)
         }
@@ -1854,14 +1847,10 @@ Window {
     }
 
     // --------------------------------------------------------- STAGIONI VUOTE
-    Text {
-        anchors.centerIn: parent
+    EmptyState {
         visible: app.state === "home" && page === "seasons" &&
                  app.seasons.length === 0 && !app.loading
-        horizontalAlignment: Text.AlignHCenter
-        color: "#6f8090"
-        font.pixelSize: 18
-        text: qsTr("Nessuna stagione")
+        label: qsTr("Nessuna stagione")
     }
 
     // ----------------------------------------------------------------- DETTAGLIO
@@ -1882,9 +1871,9 @@ Window {
         Rectangle {
             anchors.fill: parent
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#cc0b0f14" }
-                GradientStop { position: 0.55; color: "#990b0f14" }
-                GradientStop { position: 1.0; color: "#f20b0f14" }
+                GradientStop { position: 0.0; color: Theme.overlayLight }
+                GradientStop { position: 0.55; color: Theme.overlayMenu }
+                GradientStop { position: 1.0; color: Theme.overlay }
             }
         }
 
@@ -1914,7 +1903,7 @@ Window {
 
                 Text {
                     width: parent.width
-                    color: "#ffffff"
+                    color: Theme.text
                     font.pixelSize: 30
                     font.bold: true
                     elide: Text.ElideRight
@@ -1923,7 +1912,7 @@ Window {
 
                 Text {
                     width: parent.width
-                    color: "#9fb0c0"
+                    color: Theme.textMuted
                     font.pixelSize: 15
                     text: {
                         var parts = []
@@ -1970,7 +1959,7 @@ Window {
                         icon: (app.detail.favorite !== undefined && app.detail.favorite)
                               ? "heart-filled" : "heart-empty"
                         customIconColor: (app.detail.favorite !== undefined && app.detail.favorite)
-                                         ? "#ff4d4d" : "#ffffff"
+                                         ? Theme.favorite : Theme.text
                         label: (app.detail.favorite !== undefined && app.detail.favorite)
                                ? qsTr("Togli preferito") : qsTr("Preferito")
                         active: root.detailFocus === root.favoriteIndex()
@@ -1998,7 +1987,7 @@ Window {
                 Text {
                     width: parent.width
                     height: 78
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 15
                     wrapMode: Text.WordWrap
                     elide: Text.ElideRight
@@ -2012,50 +2001,50 @@ Window {
 
                     Rectangle {
                         width: 520; height: 40; radius: 8
-                        color: root.detailFocus === root.settingsStart() ? "#123243" : "#101920"
+                        color: root.detailFocus === root.settingsStart() ? Theme.selected : Theme.panelAlt
                         border.width: 1
-                        border.color: root.detailFocus === root.settingsStart() ? "#00a4dc" : "#1b2733"
+                        border.color: root.detailFocus === root.settingsStart() ? Theme.accent : Theme.borderDark
                         Text { anchors.left: parent.left; anchors.leftMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#9fb0c0"; font.pixelSize: 15; text: qsTr("Qualità") }
+                               color: Theme.textMuted; font.pixelSize: 15; text: qsTr("Qualità") }
                         Text { anchors.right: parent.right; anchors.rightMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#ffffff"; font.pixelSize: 15
+                               color: Theme.text; font.pixelSize: 15
                                text: (app.qualityKbps / 1000) + " Mbps" }
                     }
 
                     Rectangle {
                         width: 520; height: 40; radius: 8
-                        color: root.detailFocus === root.settingsStart() + 1 ? "#123243" : "#101920"
+                        color: root.detailFocus === root.settingsStart() + 1 ? Theme.selected : Theme.panelAlt
                         border.width: 1
-                        border.color: root.detailFocus === root.settingsStart() + 1 ? "#00a4dc" : "#1b2733"
+                        border.color: root.detailFocus === root.settingsStart() + 1 ? Theme.accent : Theme.borderDark
                         Text { anchors.left: parent.left; anchors.leftMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#9fb0c0"; font.pixelSize: 15; text: qsTr("Audio") }
+                               color: Theme.textMuted; font.pixelSize: 15; text: qsTr("Audio") }
                         Text { anchors.right: parent.right; anchors.rightMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#ffffff"; font.pixelSize: 15
+                               color: Theme.text; font.pixelSize: 15
                                text: root.audioLabel() }
                     }
 
                     Rectangle {
                         width: 520; height: 40; radius: 8
-                        color: root.detailFocus === root.settingsStart() + 2 ? "#123243" : "#101920"
+                        color: root.detailFocus === root.settingsStart() + 2 ? Theme.selected : Theme.panelAlt
                         border.width: 1
-                        border.color: root.detailFocus === root.settingsStart() + 2 ? "#00a4dc" : "#1b2733"
+                        border.color: root.detailFocus === root.settingsStart() + 2 ? Theme.accent : Theme.borderDark
                         Text { anchors.left: parent.left; anchors.leftMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#9fb0c0"; font.pixelSize: 15; text: qsTr("Sottotitoli") }
+                               color: Theme.textMuted; font.pixelSize: 15; text: qsTr("Sottotitoli") }
                         Text { anchors.right: parent.right; anchors.rightMargin: 14
                                anchors.verticalCenter: parent.verticalCenter
-                               color: "#ffffff"; font.pixelSize: 15
+                               color: Theme.text; font.pixelSize: 15
                                text: root.subtitleLabel() }
                     }
                 }
 
                 Text {
                     width: parent.width
-                    color: "#7f8c9b"
+                    color: Theme.textDim
                     font.pixelSize: 13
                     elide: Text.ElideRight
                     text: root.metaLine(app.detail)
@@ -2072,7 +2061,7 @@ Window {
 
         Rectangle {
             anchors.fill: parent
-            color: "#c0000000"
+            color: Theme.overlayDarker
         }
 
         Rectangle {
@@ -2080,9 +2069,9 @@ Window {
             width: 1040
             height: 470
             radius: 14
-            color: "#0f1821"
+            color: Theme.headerDeep
             border.width: 1
-            border.color: "#243040"
+            border.color: Theme.borderStrong
 
             Column {
                 anchors.centerIn: parent
@@ -2092,15 +2081,15 @@ Window {
                     width: 1000
                     height: 46
                     radius: 7
-                    color: "#0a1118"
+                    color: Theme.bgDeep
                     border.width: 1
-                    border.color: "#2a3b4b"
+                    border.color: Theme.borderStrong
 
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 14
                         anchors.verticalCenter: parent.verticalCenter
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 21
                         text: root.kbTarget === "pass"
                               ? root.maskText(keyboard.text) : keyboard.text
@@ -2130,14 +2119,14 @@ Window {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: 30
-        color: "#0d151d"
+        color: Theme.statusBar
         visible: app.statusMessage.length > 0 || app.loading
 
         Text {
             anchors.left: parent.left
             anchors.leftMargin: 24
             anchors.verticalCenter: parent.verticalCenter
-            color: "#8fa3b6"
+            color: Theme.textSubtle
             font.pixelSize: 15
             text: app.loading ? qsTr("caricamento…") : app.statusMessage
         }
@@ -2145,29 +2134,9 @@ Window {
 
 
     // ------------------------------------------------------------------- toast
-    Rectangle {
-        id: toast
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: app.playerActive ? 260 : 44
-        width: toastLabel.implicitWidth + 40
-        height: 38
-        radius: 19
-        color: "#e6123243"
-        border.width: 1
-        border.color: "#00a4dc"
-        opacity: app.notice.length > 0 ? 1 : 0
-        visible: opacity > 0
-        z: 30
-        Behavior on opacity { NumberAnimation { duration: 250 } }
-
-        Text {
-            id: toastLabel
-            anchors.centerIn: parent
-            color: "#e6f7ff"
-            font.pixelSize: 15
-            text: app.notice
-        }
+    Toast {
+        text: app.notice
+        bottomOffset: app.playerActive ? 260 : 44
     }
 
     // ---------------------------------------------------------- TRAMA COMPLETA
@@ -2178,7 +2147,7 @@ Window {
 
         Rectangle {
             anchors.fill: parent
-            color: "#f20b0f14"
+            color: Theme.overlay
         }
 
         Column {
@@ -2188,7 +2157,7 @@ Window {
 
             Text {
                 width: parent.width
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 28
                 font.bold: true
                 elide: Text.ElideRight
@@ -2207,7 +2176,7 @@ Window {
                 Text {
                     id: overviewFullText
                     width: overviewFlick.width
-                    color: "#dbe5ef"
+                    color: Theme.textSoft
                     font.pixelSize: 18
                     lineHeight: 1.25
                     wrapMode: Text.WordWrap
@@ -2227,7 +2196,7 @@ Window {
 
         Rectangle {
             anchors.fill: parent
-            color: "#f20b0f14"
+            color: Theme.overlay
         }
 
         Column {
@@ -2236,7 +2205,7 @@ Window {
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 28
                 font.bold: true
                 text: root.settingsChoiceTitle
@@ -2246,9 +2215,9 @@ Window {
                 width: 520
                 height: Math.min(460, 54 + root.settingsChoiceItems.length * 42)
                 radius: 14
-                color: "#ee0b0f14"
+                color: Theme.overlayPanel
                 border.width: 2
-                border.color: "#00a4dc"
+                border.color: Theme.accent
 
                 ListView {
                     id: settingsChoiceList
@@ -2268,9 +2237,9 @@ Window {
                         width: settingsChoiceList.width
                         height: 40
                         radius: 8
-                        color: index === root.settingsChoiceIndex ? "#123243" : "transparent"
+                        color: index === root.settingsChoiceIndex ? Theme.selected : "transparent"
                         border.width: index === root.settingsChoiceIndex ? 2 : 0
-                        border.color: "#00a4dc"
+                        border.color: Theme.accent
 
                         Text {
                             anchors.left: parent.left
@@ -2278,7 +2247,7 @@ Window {
                             anchors.right: parent.right
                             anchors.rightMargin: 28
                             anchors.verticalCenter: parent.verticalCenter
-                            color: index === root.settingsChoiceIndex ? "#ffffff" : "#dbe5ef"
+                            color: index === root.settingsChoiceIndex ? Theme.text : Theme.textSoft
                             font.pixelSize: 16
                             font.bold: index === root.settingsChoiceIndex
                             elide: Text.ElideRight
@@ -2290,7 +2259,7 @@ Window {
                             width: 8
                             height: 8
                             radius: 4
-                            color: "#7fd9ff"
+                            color: Theme.accentSoft
                             anchors.right: parent.right
                             anchors.rightMargin: 14
                             anchors.verticalCenter: parent.verticalCenter
@@ -2309,7 +2278,7 @@ Window {
 
         Rectangle {
             anchors.fill: parent
-            color: "#f20b0f14"
+            color: Theme.overlay
         }
 
         Column {
@@ -2318,7 +2287,7 @@ Window {
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 28
                 font.bold: true
                 text: qsTr("Lingua dell'interfaccia")
@@ -2343,13 +2312,13 @@ Window {
                         height: 54
                         anchors.centerIn: parent
                         radius: 27
-                        color: index === root.languageIndex ? "#123243" : "#141e28"
+                        color: index === root.languageIndex ? Theme.selected : Theme.panel
                         border.width: index === root.languageIndex ? 2 : 1
-                        border.color: index === root.languageIndex ? "#00a4dc" : "#1e2b38"
+                        border.color: index === root.languageIndex ? Theme.accent : Theme.border
 
                         Text {
                             anchors.centerIn: parent
-                            color: index === root.languageIndex ? "#ffffff" : "#dbe5ef"
+                            color: index === root.languageIndex ? Theme.text : Theme.textSoft
                             font.pixelSize: 19
                             font.bold: index === root.languageIndex
                             text: modelData.name
@@ -2386,8 +2355,8 @@ Window {
                 anchors.bottom: parent.bottom
                 height: 230
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#00000000" }
-                    GradientStop { position: 1.0; color: "#e6000000" }
+                    GradientStop { position: 0.0; color: Theme.transparent }
+                    GradientStop { position: 1.0; color: Theme.overlayDark }
                 }
             }
 
@@ -2399,7 +2368,7 @@ Window {
                 anchors.rightMargin: 24
                 anchors.bottom: osdBar.top
                 anchors.bottomMargin: 16
-                color: "#ffffff"
+                color: Theme.text
                 font.pixelSize: 24
                 font.bold: true
                 elide: Text.ElideRight
@@ -2412,7 +2381,7 @@ Window {
                 anchors.rightMargin: 48
                 anchors.bottom: osdBar.top
                 anchors.bottomMargin: 18
-                color: app.seekPending ? "#ffffff" : "#c9d4df"
+                color: app.seekPending ? Theme.text : Theme.textSoft
                 font.pixelSize: 18
                 text: root.fmtTime(app.seekPending ? app.seekPreview : app.playerPosition) +
                       "  /  " + root.fmtTime(app.playerDuration)
@@ -2433,7 +2402,7 @@ Window {
                     anchors.fill: parent
                     anchors.margins: -10
                     radius: 14
-                    color: "#2200a4dc"
+                    color: Theme.accentGlow
                     visible: app.playerFocus === 0 && app.osdVisible
                 }
 
@@ -2442,7 +2411,7 @@ Window {
                     width: parent.width
                     height: 7
                     radius: 3
-                    color: "#55ffffff"
+                    color: Theme.track
                 }
 
                 Rectangle {
@@ -2452,7 +2421,7 @@ Window {
                            : 0
                     height: 7
                     radius: 3
-                    color: "#00a4dc"
+                    color: Theme.accent
                 }
 
                 Rectangle {
@@ -2460,7 +2429,7 @@ Window {
                     width: 8
                     height: 24
                     radius: 4
-                    color: app.seekPending ? "#ffffff" : "#7fd9ff"
+                    color: app.seekPending ? Theme.text : Theme.accentSoft
                     anchors.verticalCenter: parent.verticalCenter
                     x: app.playerDuration > 0
                        ? Math.max(0, Math.min(parent.width - width,
@@ -2474,9 +2443,9 @@ Window {
                     width: 120
                     height: 34
                     radius: 8
-                    color: "#f20b0f14"
+                    color: Theme.overlay
                     border.width: 1
-                    border.color: "#00a4dc"
+                    border.color: Theme.accent
                     anchors.bottom: parent.top
                     anchors.bottomMargin: 4
                     x: Math.max(0, Math.min(parent.width - width,
@@ -2484,7 +2453,7 @@ Window {
 
                     Text {
                         anchors.centerIn: parent
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 16
                         font.bold: true
                         text: root.fmtTime(app.seekPreview)
@@ -2498,7 +2467,7 @@ Window {
                     radius: 14
                     color: "transparent"
                     border.width: app.playerFocus === 0 && app.osdVisible ? 2 : 0
-                    border.color: "#00a4dc"
+                    border.color: Theme.accent
                 }
             }
 
@@ -2540,9 +2509,9 @@ Window {
             width: 520
             height: Math.min(430, 52 + app.playerMenuItems.length * 42)
             radius: 14
-            color: "#ee0b0f14"
+            color: Theme.overlayPanel
             border.width: 2
-            border.color: "#00a4dc"
+            border.color: Theme.accent
             z: 12
 
             Text {
@@ -2551,7 +2520,7 @@ Window {
                 anchors.leftMargin: 18
                 anchors.top: parent.top
                 anchors.topMargin: 12
-                color: "#7fd9ff"
+                color: Theme.accentSoft
                 font.pixelSize: 16
                 font.bold: true
                 text: app.playerMenuMode === "audio" ? qsTr("Audio") :
@@ -2577,9 +2546,9 @@ Window {
                     width: playerMenuList.width
                     height: 40
                     radius: 8
-                    color: index === app.playerMenuIndex ? "#123243" : "transparent"
+                    color: index === app.playerMenuIndex ? Theme.selected : "transparent"
                     border.width: index === app.playerMenuIndex ? 2 : 0
-                    border.color: "#00a4dc"
+                    border.color: Theme.accent
 
                     Text {
                         anchors.left: parent.left
@@ -2587,7 +2556,7 @@ Window {
                         anchors.right: parent.right
                         anchors.rightMargin: 28
                         anchors.verticalCenter: parent.verticalCenter
-                        color: index === app.playerMenuIndex ? "#ffffff" : "#dbe5ef"
+                        color: index === app.playerMenuIndex ? Theme.text : Theme.textSoft
                         font.pixelSize: 16
                         font.bold: index === app.playerMenuIndex
                         elide: Text.ElideRight
@@ -2599,7 +2568,7 @@ Window {
                         width: 8
                         height: 8
                         radius: 4
-                        color: "#7fd9ff"
+                        color: Theme.accentSoft
                         anchors.right: parent.right
                         anchors.rightMargin: 14
                         anchors.verticalCenter: parent.verticalCenter
@@ -2627,9 +2596,9 @@ Window {
             width: 620
             height: 142
             radius: 16
-            color: "#ee0b0f14"
+            color: Theme.overlayPanel
             border.width: 2
-            border.color: "#ff6b6b"
+            border.color: Theme.danger
             z: 25
 
             Row {
@@ -2664,7 +2633,7 @@ Window {
                     spacing: 8
 
                     Text {
-                        color: "#ff8a8a"
+                        color: Theme.dangerSoft
                         font.pixelSize: 23
                         font.bold: true
                         text: app.playerStatus
@@ -2674,13 +2643,13 @@ Window {
                         width: 150
                         height: 34
                         radius: 17
-                        color: "#2a1216"
+                        color: Theme.dangerBg
                         border.width: 1
-                        border.color: "#ff6b6b"
+                        border.color: Theme.danger
 
                         Text {
                             anchors.centerIn: parent
-                            color: "#ffb3b3"
+                            color: Theme.dangerText
                             font.pixelSize: 15
                             font.bold: true
                             text: qsTr("Riprendi")
@@ -2702,9 +2671,9 @@ Window {
             width: 620
             height: 178
             radius: 14
-            color: "#ee0b0f14"
+            color: Theme.overlayPanel
             border.width: 2
-            border.color: "#00a4dc"
+            border.color: Theme.accent
             z: 8
 
             Row {
@@ -2730,14 +2699,14 @@ Window {
 
                     Text {
                         width: parent.width
-                        color: "#7fd9ff"
+                        color: Theme.accentSoft
                         font.pixelSize: 14
                         font.bold: true
                         text: qsTr("Prossimo episodio")
                     }
                     Text {
                         width: parent.width
-                        color: "#ffffff"
+                        color: Theme.text
                         font.pixelSize: 23
                         font.bold: true
                         elide: Text.ElideRight
@@ -2745,7 +2714,7 @@ Window {
                     }
                     Text {
                         width: parent.width
-                        color: "#9fb0c0"
+                        color: Theme.textMuted
                         font.pixelSize: 14
                         elide: Text.ElideRight
                         text: app.nextEpisode.subtitle !== undefined ? app.nextEpisode.subtitle : ""
@@ -2775,7 +2744,7 @@ Window {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            color: "#7fd9ff"
+                            color: Theme.accentSoft
                             font.pixelSize: 16
                             font.bold: true
                             text: qsTr("Riproduci")
@@ -2791,8 +2760,8 @@ Window {
             spacing: 14
             visible: app.playerPaused
 
-            Rectangle { width: 16; height: 52; radius: 3; color: "#ffffff" }
-            Rectangle { width: 16; height: 52; radius: 3; color: "#ffffff" }
+            Rectangle { width: 16; height: 52; radius: 3; color: Theme.text }
+            Rectangle { width: 16; height: 52; radius: 3; color: Theme.text }
         }
 
         // statistiche di transcodifica (tasto Start/Menu)
@@ -2805,9 +2774,9 @@ Window {
             width: 470
             height: statsColumn.height + 28
             radius: 10
-            color: "#cc0b0f14"
+            color: Theme.overlayLight
             border.width: 1
-            border.color: "#2b6f8c"
+            border.color: Theme.borderAccent
 
             Column {
                 id: statsColumn
@@ -2817,56 +2786,56 @@ Window {
                 spacing: 4
 
                 Text {
-                    color: "#7fd9ff"
+                    color: Theme.accentSoft
                     font.pixelSize: 16
                     font.bold: true
                     text: qsTr("Transcodifica (server)")
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Risoluzione   %1").arg(app.playerStats.resolution !== undefined ? app.playerStats.resolution : "?")
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: app.playerStats.bandwidth !== undefined
                           ? qsTr("Bitrate       %1").arg((app.playerStats.bandwidth / 1000000).toFixed(1) + " Mbps")
                           : qsTr("Bitrate       %1").arg("?")
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Codec         %1").arg(app.playerStats.codecs !== undefined ? app.playerStats.codecs : "?")
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("FPS inviati   %1").arg(app.playerStats.fps !== undefined ? app.playerStats.fps : 0)
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Coda video    %1 frame").arg(app.playerStats.queueVideo !== undefined ? app.playerStats.queueVideo : 0)
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Coda audio    %1 ms").arg(app.playerStats.queueAudio !== undefined
                           ? Math.round(app.playerStats.queueAudio / 48) : 0)
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Segmento      %1 ms (download+demux)").arg(app.playerStats.segmentMs !== undefined ? app.playerStats.segmentMs : 0)
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Frame rifiutati  %1").arg(app.playerStats.failed !== undefined ? app.playerStats.failed : 0)
                 }
                 Text {
-                    color: "#c9d4df"
+                    color: Theme.textSoft
                     font.pixelSize: 14
                     text: qsTr("Scartati (ritardo)  %1").arg(app.playerStats.dropped !== undefined ? app.playerStats.dropped : 0)
                 }
@@ -2878,7 +2847,7 @@ Window {
             anchors.top: parent.top
             anchors.topMargin: 40
             visible: app.playerStatus.length > 0 && !app.playerStalled
-            color: "#ff6b6b"
+            color: Theme.danger
             font.pixelSize: 20
             text: app.playerStatus
         }

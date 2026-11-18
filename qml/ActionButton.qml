@@ -1,4 +1,5 @@
 import QtQuick 2.14
+import "."
 
 // Pulsante azione compatto: solo icona quando non ha il focus, icona + testo
 // quando lo ha. Icone disegnate (niente font di simboli).
@@ -16,10 +17,10 @@ Rectangle {
     height: 48
     radius: 24
 
-    color: primary ? (active ? "#1d5a75" : "#00a4dc")
-                   : (active ? "#123243" : "#101920")
+    color: primary ? (active ? Theme.primaryActive : Theme.accent)
+                   : (active ? Theme.selected : Theme.panelAlt)
     border.width: active ? 2 : 1
-    border.color: active ? "#7fd9ff" : (primary ? "#7fd9ff" : "#1b2733")
+    border.color: active ? Theme.accentSoft : (primary ? Theme.accentSoft : Theme.borderDark)
 
     Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
@@ -32,7 +33,7 @@ Rectangle {
 
         property color tint: button.customIconColor.a > 0
                               ? button.customIconColor
-                              : (button.primary && !button.active ? "#00121a" : "#ffffff")
+                              : (button.primary && !button.active ? Theme.accentText : Theme.text)
         property string iconName: button.icon
         onTintChanged: requestPaint()
         onIconNameChanged: requestPaint()
@@ -127,7 +128,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         opacity: button.active ? 1 : 0
         visible: opacity > 0
-        color: button.primary && !button.active ? "#00121a" : "#ffffff"
+        color: button.primary && !button.active ? Theme.accentText : Theme.text
         font.pixelSize: 15
         text: button.label
 

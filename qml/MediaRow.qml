@@ -1,4 +1,5 @@
 import QtQuick 2.14
+import "."
 
 Item {
     id: row
@@ -17,7 +18,7 @@ Item {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: 24
-        color: row.active ? "#ffffff" : "#93a4b5"
+        color: row.active ? Theme.text : Theme.textMuted
         font.pixelSize: 24
         font.bold: true
         text: row.title

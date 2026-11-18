@@ -169,6 +169,8 @@ Quick QML and script check:
 ```
 src/            C++: UI controller, API client, HLS player, TS demux
 qml/            Qt Quick UI (virtual 1280x720 canvas, scaled)
+qml/Theme.qml   shared palette and metrics
+qml/Toast.qml   shared toast component
 deploy/         launcher and boot hook for the USB drive
 packaging/      app icon
 third_party/    minimal FFmpeg (AAC only) + LGPL license

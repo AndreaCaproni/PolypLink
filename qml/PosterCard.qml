@@ -1,4 +1,5 @@
 import QtQuick 2.14
+import "."
 
 Item {
     id: card
@@ -21,7 +22,7 @@ Item {
         anchors.fill: frame
         anchors.margins: -5
         radius: 12
-        color: "#2e00a4dc"
+        color: Theme.accentGlowSoft
         visible: card.active
         z: -1
     }
@@ -34,7 +35,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 8
-            color: "#1a2430"
+            color: Theme.borderDeep
         }
 
         RoundedImage {
@@ -49,7 +50,7 @@ Item {
             width: parent.width - 16
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
-            color: "#5b6b7c"
+            color: Theme.textFaint
             font.pixelSize: 14
             text: card.title
             visible: card.image.length === 0
@@ -63,14 +64,14 @@ Item {
             anchors.margins: 10
             height: 5
             radius: 3
-            color: "#66000000"
+            color: Theme.overlayMedium
             visible: card.progress > 0
 
             Rectangle {
                 height: parent.height
                 radius: 3
                 width: parent.width * Math.min(1, card.progress / 100.0)
-                color: "#00a4dc"
+                color: Theme.accent
             }
         }
 
@@ -82,14 +83,14 @@ Item {
             width: 50
             height: 20
             radius: 5
-            color: "#dd0b0f14"
+            color: Theme.posterOverlay
             border.width: 1
-            border.color: "#2b6f8c"
+            border.color: Theme.borderAccent
             visible: card.played
 
             Text {
                 anchors.centerIn: parent
-                color: "#7fd9ff"
+                color: Theme.accentSoft
                 font.pixelSize: 11
                 font.bold: true
                 text: qsTr("VISTO")
@@ -102,7 +103,7 @@ Item {
             radius: 8
             color: "transparent"
             border.width: card.active ? 3 : 1
-            border.color: card.active ? "#00a4dc" : "#243040"
+            border.color: card.active ? Theme.accent : Theme.borderStrong
         }
     }
 
@@ -111,7 +112,7 @@ Item {
         anchors.topMargin: 6
         width: parent.width
         height: card.wide ? 40 : 42
-        color: card.active ? "#ffffff" : "#c9d4df"
+        color: card.active ? Theme.text : Theme.textSoft
         font.pixelSize: 17
         font.bold: card.active
         wrapMode: Text.WordWrap
@@ -124,7 +125,7 @@ Item {
         anchors.top: frame.bottom
         anchors.topMargin: 50
         width: parent.width
-        color: "#6f8090"
+        color: Theme.textDim
         font.pixelSize: 14
         elide: Text.ElideRight
         text: card.subtitle
@@ -136,7 +137,7 @@ Item {
         anchors.top: frame.bottom
         anchors.topMargin: 70
         width: parent.width
-        color: "#5f7c8f"
+        color: Theme.textSubtleAlt
         font.pixelSize: 12
         elide: Text.ElideRight
         text: card.library

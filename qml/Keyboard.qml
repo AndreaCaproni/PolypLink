@@ -1,4 +1,5 @@
 import QtQuick 2.14
+import "."
 
 // Tastiera a schermo: serve perche' su una console non c'e' tastiera fisica.
 // Include lettere (con maiuscole), cifre e i simboli che servono per un URL o
@@ -86,15 +87,15 @@ Item {
                         width: ("" + modelData).length > 2 ? 186 : 90
                         height: 40
                         radius: 6
-                        color: (kb.row === keyRow.r && kb.col === index) ? "#00a4dc" : "#18232e"
+                        color: (kb.row === keyRow.r && kb.col === index) ? Theme.accent : Theme.key
                         border.width: 1
                         border.color: (kb.row === keyRow.r && kb.col === index)
-                                      ? "#7fd9ff" : "#243040"
+                                      ? Theme.accentSoft : Theme.borderStrong
 
                         Text {
                             anchors.centerIn: parent
                             color: (kb.row === keyRow.r && kb.col === index)
-                                   ? "#00121a" : "#e6eef6"
+                                   ? Theme.accentText : Theme.text
                             font.pixelSize: 18
                             font.bold: (kb.row === keyRow.r && kb.col === index)
                             text: kb.display("" + modelData)

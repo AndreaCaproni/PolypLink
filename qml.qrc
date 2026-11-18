@@ -9,6 +9,10 @@
         <file>qml/assets/polyplink-logo.png</file>
         <file>qml/Keyboard.qml</file>
         <file>qml/RoundedImage.qml</file>
+        <file>qml/Theme.qml</file>
+        <file>qml/qmldir</file>
+        <file>qml/Toast.qml</file>
+        <file>qml/EmptyState.qml</file>
 
         <file>i18n/polyplink_ca.qm</file>
         <file>i18n/polyplink_cs.qm</file>

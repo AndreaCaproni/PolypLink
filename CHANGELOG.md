@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- QML refactor: shared `Theme` singleton for colors/sizes, plus reusable
+  `Toast` and `EmptyState` components. Hardcoded colors removed from the main
+  view and components.
+
 ## 0.3.1-beta — 2026-11-17
 
 Hardening release: security, tests, migrations and packaging.
