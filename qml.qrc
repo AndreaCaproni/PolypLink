@@ -13,6 +13,10 @@
         <file>qml/qmldir</file>
         <file>qml/Toast.qml</file>
         <file>qml/EmptyState.qml</file>
+        <file>qml/HeaderBar.qml</file>
+        <file>qml/ServerPage.qml</file>
+        <file>qml/AuthPage.qml</file>
+        <file>qml/QuickConnectPage.qml</file>
 
         <file>i18n/polyplink_ca.qm</file>
         <file>i18n/polyplink_cs.qm</file>

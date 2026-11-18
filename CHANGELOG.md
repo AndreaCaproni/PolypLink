@@ -7,6 +7,9 @@
 - QML refactor: shared `Theme` singleton for colors/sizes, plus reusable
   `Toast` and `EmptyState` components. Hardcoded colors removed from the main
   view and components.
+- Header bar and login flow (server selection, credentials, Quick Connect)
+  extracted from `main.qml` into `HeaderBar`, `ServerPage`, `AuthPage` and
+  `QuickConnectPage`.
 
 ## 0.3.1-beta — 2026-11-17
 
