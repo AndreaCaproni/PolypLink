@@ -9,6 +9,10 @@
 APP_DIR=$(dirname "$0")
 cd "$APP_DIR" 2>/dev/null || exit 1
 
+# Il token Jellyfin e' salvato nel file di configurazione: creiamo file e
+# directory leggibili solo da root (l'app gira come root sul Link).
+umask 077
+
 # librerie ffmpeg (decoder AAC) incluse nel pacchetto
 export LD_LIBRARY_PATH="$APP_DIR/lib:$LD_LIBRARY_PATH"
 
@@ -33,11 +37,21 @@ log "ldd:"
 ldd ./bin/polyplink >> "$LOG" 2>&1
 
 export HOME=/usr/local/polyplink
-mkdir -p "$HOME" 2>>"$LOG"
+mkdir -p "$HOME/.config/polyplink" 2>>"$LOG"
+chmod 700 "$HOME" "$HOME/.config" "$HOME/.config/polyplink" 2>>"$LOG" || true
 
 # Migra le impostazioni della vecchia app (server, token, lingua, qualita').
 if [ -x "$APP_DIR/migrate-settings.sh" ]; then
     "$APP_DIR/migrate-settings.sh" /usr/local/jellyfin-link "$HOME" >>"$LOG" 2>&1 || true
+fi
+CONF="$HOME/.config/polyplink/PolypLink.conf"
+if [ -f "$CONF" ]; then
+    chmod 600 "$CONF" 2>>"$LOG" || true
+fi
+# Anche la vecchia configurazione JellyLink contiene il token.
+OLD_CONF="/usr/local/jellyfin-link/.config/jellyfin-link/Jellyfin Link.conf"
+if [ -f "$OLD_CONF" ]; then
+    chmod 600 "$OLD_CONF" 2>>"$LOG" || true
 fi
 
 export QT_QPA_PLATFORM=eglfs

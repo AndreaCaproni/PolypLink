@@ -23,7 +23,9 @@ trasportare l'app.
 PRIMO AVVIO
 1. Server: l'app cerca i Jellyfin sulla rete locale (UDP + scansione).
    Se non trova nulla, scegli "Inserisci l'indirizzo del server" e scrivilo
-   con la tastiera a schermo (es. http://jellyfin.local:8096).
+   con la tastiera a schermo (es. https://jellyfin.example.com). Per un server
+   LAN senza HTTPS inserisci l'indirizzo HTTP e la porta 8096; usa HTTP solo su
+   una rete fidata.
    In alternativa puoi creare il file:
        steamlink/config/system/jellyfin-server.txt
    con dentro l'indirizzo del server.

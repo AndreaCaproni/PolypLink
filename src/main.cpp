@@ -18,6 +18,7 @@
 #include "buildstamp.h"
 #include "inputpump.h"
 #include "language.h"
+#include "redact.h"
 #include "version.h"
 
 // ---------------------------------------------------------------------------
@@ -64,10 +65,13 @@ void MessageHandler(QtMsgType type, const QMessageLogContext&, const QString& ms
     case QtCriticalMsg: level = "crit"; break;
     case QtFatalMsg: level = "fatal"; break;
   }
+  // Redige qui, non solo nei singoli qWarning: cosi' copriamo anche i
+  // messaggi generati da Qt/QML (per esempio gli URL delle immagini che
+  // contengono api_key) e ogni log futuro.
   const QString line = QStringLiteral("%1 [%2] %3\n")
                            .arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz"))
                            .arg(QLatin1String(level))
-                           .arg(msg);
+                           .arg(RedactSecrets(msg));
   fputs(line.toLocal8Bit().constData(), stderr);
   fflush(stderr);
   if (g_usbLog.isOpen()) {

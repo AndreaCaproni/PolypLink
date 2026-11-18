@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += src/main.cpp \
            src/inputpump.cpp \
            src/jellyfinclient.cpp \
+           src/serverurl.cpp \
            src/redact.cpp \
            src/discovery.cpp \
            src/language.cpp \
@@ -34,6 +35,7 @@ SOURCES += src/main.cpp \
 
 HEADERS += src/inputpump.h \
            src/jellyfinclient.h \
+           src/serverurl.h \
            src/redact.h \
            src/discovery.h \
            src/language.h \

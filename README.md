@@ -85,6 +85,22 @@ understand MKV, HEVC, 4K or HDR.
 
 ---
 
+## Security
+
+- **HTTPS is recommended.** The client verifies TLS certificates and rejects
+  self-signed ones; use a valid certificate or a reverse proxy. HTTP still
+  works for a trusted LAN, but credentials and playback tokens travel
+  unencrypted.
+- Manual server addresses use **HTTPS by default** for public hostnames and
+  HTTP only for private/LAN hosts.
+- The Jellyfin token is stored in the app config with owner-only permissions
+  (`0600`); log messages, including QML warnings, are redacted before they are
+  written to stderr or the USB log.
+- The old plaintext `user=`/`pass=` directives in `jellyfin-server.txt` are no
+  longer supported. Sign in from the app or use Quick Connect.
+
+---
+
 ## Installation
 
 The step-by-step guide is in **[docs/INSTALL.md](docs/INSTALL.md)**.
@@ -186,6 +202,8 @@ build.sh        build + USB package
   this inside the player is the next step.
 - **Burn-in subtitles only** (rendered by the server); no external or styled
   subtitles.
+- **Self-signed HTTPS certificates are not accepted.** Use a valid certificate
+  or a reverse proxy; otherwise HTTP is limited to a trusted LAN.
 - **No search**, no playback queue, no next-episode autoplay, no trickplay
   thumbnails on the seek bar.
 - Library pagination is capped at 300 items per view.
@@ -231,7 +249,7 @@ Third-party components: [THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+,
 Valve SDK, Qt).
 
 Release packages include a `licenses/` folder with the MIT license, the FFmpeg
-LGPL text and the third-party notices.
+LGPL text, the FFmpeg source offer and the third-party notices.
 
 Jellyfin: <https://jellyfin.org>. PolypLink is an independent project, not
 affiliated with the Jellyfin project.

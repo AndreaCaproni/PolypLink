@@ -17,6 +17,10 @@ printf '[General]\nserver=http://example\nlanguage=it\n' > "$OLD_CONF"
 "$ROOT/scripts/migrate-settings.sh" "$OLD_HOME" "$NEW_HOME"
 [ -f "$NEW_CONF" ] || { echo "FAIL: config non migrata"; exit 1; }
 grep -q '^server=http://example$' "$NEW_CONF" || { echo "FAIL: contenuto errato"; exit 1; }
+MODE=$(stat -c '%a' "$NEW_CONF" 2>/dev/null || echo "")
+[ "$MODE" = "600" ] || { echo "FAIL: permessi config $MODE (atteso 600)"; exit 1; }
+OLD_MODE=$(stat -c '%a' "$OLD_CONF" 2>/dev/null || echo "")
+[ "$OLD_MODE" = "600" ] || { echo "FAIL: permessi vecchia config $OLD_MODE (atteso 600)"; exit 1; }
 
 # Una seconda esecuzione non deve sovrascrivere la configurazione nuova.
 printf 'keep=me\n' > "$NEW_CONF"

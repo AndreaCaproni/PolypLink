@@ -22,10 +22,14 @@ steamlink/
     └── run.sh                  (optional boot hook)
 ```
 
-- `jellyfin-server.txt` contains the server address, e.g.
-  `http://192.168.1.20:8096`. If missing, the app asks for it on first start.
+- `jellyfin-server.txt` contains only the server address, e.g.
+  `https://jellyfin.example.com` or `http://192.168.1.20:8096` for a trusted
+  LAN. If missing, the app asks for it on first start. Old `user=`/`pass=`
+  directives are ignored: credentials are entered in the app or with Quick
+  Connect.
 - `factory_test/run.sh` is the hook the firmware runs at every boot. It is only
-  needed for SSH/debugging; the app installs fine without it.
+  needed for SSH/debugging; the app installs fine without it. The generated
+  `dist/steamlink/` can contain your public key: do not share that folder.
 
 ## Steps
 
@@ -40,11 +44,25 @@ steamlink/
 1. **Server**: if there is no `jellyfin-server.txt`, the app scans the network
    (Jellyfin UDP + local subnet on port 8096). If nothing is found, choose
    *Enter server address* and type it with the on-screen keyboard (arrows + A).
-   Port `8096` is added automatically if you omit it.
+   Public hostnames default to HTTPS; private/LAN addresses default to HTTP and
+   get port `8096` automatically. For HTTPS use the port your certificate is
+   served on (usually 443, or 8920 for Jellyfin's built-in HTTPS).
+   Self-signed certificates are rejected.
 2. **Sign in**: *Username and password* (on-screen keyboard with SHIFT and
    symbols) or **Quick Connect** (6-digit code entered in Jellyfin, Settings →
    Quick Connect).
 3. You are on the home screen.
+
+## Security
+
+- **Use HTTPS when the server is not on a trusted LAN.** With HTTP, the
+  username/password exchange and the Jellyfin token are not encrypted.
+- The client verifies TLS certificates. Self-signed certificates are rejected:
+  use a certificate from a trusted CA or a reverse proxy.
+- The token is stored in the app configuration with owner-only permissions
+  (`0600`). Logs are redacted, including QML image-loading warnings.
+- Do not share the generated `dist/steamlink/` folder: it may include your
+  personal `factory_test/run.sh` with an SSH public key.
 
 ## SSH and debugging (optional)
 

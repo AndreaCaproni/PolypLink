@@ -1,6 +1,7 @@
 #include "appcontroller.h"
 
 #include "redact.h"
+#include "serverurl.h"
 
 #include <QCoreApplication>
 #include <QDateTime>
@@ -148,10 +149,11 @@ AppController::AppController(QObject* parent) : QObject(parent) {
 // percorso e' persistente e leggibile dall'app. Serve perche' la scoperta UDP
 // non attraversa Docker (rete bridge) ne' reti con broadcast isolato.
 //
-// Formato del file (una direttiva per riga, # per i commenti):
-//   http://192.168.1.10:8096
-//   user=mario
-//   pass=segreta
+// Formato del file (una riga, # per i commenti):
+//   https://jellyfin.example.com
+// Le vecchie direttive user=/pass= sono ignorate: le credenziali non vanno
+// scritte in un file di testo sulla chiavetta. Si usa la schermata di accesso
+// o Quick Connect.
 void AppController::applyConfigFile() {
   const QStringList candidates = {
       QStringLiteral("/mnt/config/system/jellyfin-server.txt"),
@@ -159,9 +161,8 @@ void AppController::applyConfigFile() {
   };
 
   QString url;
-  QString user;
-  QString pass;
   QString used;
+  bool legacyCredentials = false;
 
   for (const QString& path : candidates) {
     QFile f(path);
@@ -170,18 +171,22 @@ void AppController::applyConfigFile() {
     for (const QString& raw : lines) {
       const QString line = raw.trimmed();
       if (line.isEmpty() || line.startsWith(QLatin1Char('#'))) continue;
-      if (line.startsWith(QLatin1String("user="))) {
-        user = line.mid(5).trimmed();
-      } else if (line.startsWith(QLatin1String("pass="))) {
-        pass = line.mid(5).trimmed();
-      } else if (url.isEmpty()) {
-        url = line;
+      if (line.startsWith(QLatin1String("user=")) ||
+          line.startsWith(QLatin1String("pass="))) {
+        legacyCredentials = true;
+        continue;
       }
+      if (url.isEmpty()) url = line;
     }
     if (!url.isEmpty()) {
       used = path;
       break;
     }
+  }
+
+  if (legacyCredentials) {
+    qWarning("[security] user=/pass= in jellyfin-server.txt ignorati: "
+             "rimuovi le credenziali in chiaro dal file");
   }
 
   if (url.isEmpty()) {
@@ -190,30 +195,11 @@ void AppController::applyConfigFile() {
     return;
   }
 
-  qInfo("[config] server da %s: %s (utente: %s)",
-        qPrintable(used), qPrintable(url),
-        user.isEmpty() ? "quick connect" : qPrintable(user));
+  qInfo("[config] server da %s: %s", qPrintable(used),
+        qPrintable(RedactSecrets(url)));
 
   client_.setServer(url, true);
   client_.setServerName(QString());
-
-  if (!user.isEmpty() && !pass.isEmpty()) {
-    setState(QStringLiteral("quickconnect"));
-    qcStatus_ = tr("Accesso in corso…");
-    emit quickConnectChanged();
-    client_.authenticate(user, pass, [this](const QJsonDocument&, const QString& err) {
-      if (!err.isEmpty()) {
-        setStatus(err);
-        qcStatus_ = tr("Accesso fallito: %1").arg(err);
-        emit quickConnectChanged();
-        setState(QStringLiteral("login"));
-        return;
-      }
-      afterLogin();
-    });
-    return;
-  }
-
   setState(QStringLiteral("auth"));
 }
 
@@ -459,16 +445,17 @@ void AppController::discover() {
 }
 
 void AppController::setManualServer(const QString& url) {
-  QString u = url.trimmed();
+  QString u = NormalizeServerUrl(url);
   if (u.isEmpty()) return;
-  if (!u.startsWith(QLatin1String("http://")) && !u.startsWith(QLatin1String("https://"))) {
-    u.prepend(QLatin1String("http://"));
-  }
-  // Se manca la porta, il client ufficiale usa 8096.
+
+  // HTTP locale: Jellyfin usa 8096. HTTPS pubblico: si lascia la porta
+  // predefinita (443) o quella scritta dall'utente, per non indovinare male
+  // dietro un reverse proxy.
+  const bool secure = u.startsWith(QLatin1String("https://"));
   const int schemeEnd = u.indexOf(QLatin1String("://"));
   const QString hostPart = schemeEnd >= 0 ? u.mid(schemeEnd + 3) : u;
-  if (!hostPart.contains(QLatin1Char(':')) && !hostPart.contains(QLatin1Char('/'))) {
-    while (u.endsWith(QLatin1Char('/'))) u.chop(1);
+  if (!secure && !hostPart.contains(QLatin1Char(':')) &&
+      !hostPart.contains(QLatin1Char('/'))) {
     u += QLatin1String(":8096");
   }
   client_.setServer(u);

@@ -28,6 +28,16 @@ int main(int argc, char** argv) {
         QStringLiteral("http://server/a?access_token=***&x=1"));
   check(QStringLiteral("Authorization: Bearer abc123"),
         QStringLiteral("Authorization: ***"));
+  check(QStringLiteral("MediaBrowser Client=\"PolypLink\", Token=\"abc123\""),
+        QStringLiteral("MediaBrowser Client=\"PolypLink\", Token=\"***\""));
+  check(QStringLiteral("X-Emby-Token: abc123"),
+        QStringLiteral("X-Emby-Token: ***"));
+  check(QStringLiteral("QML Image: Error decoding: http://server/Items/x/Images/"
+                       "Primary?api_key=secret123: Connection refused"),
+        QStringLiteral("QML Image: Error decoding: http://server/Items/x/Images/"
+                       "Primary?api_key=***: Connection refused"));
+  check(QStringLiteral("http://user:pass@server/a?x=1"),
+        QStringLiteral("http://user:***@server/a?x=1"));
   check(QStringLiteral("http://server/a?x=1&y=2"),
         QStringLiteral("http://server/a?x=1&y=2"));
 

@@ -1,9 +1,13 @@
 #include "jellyfinclient.h"
 
 #include "redact.h"
+#include "serverurl.h"
 
 #include "version.h"
 
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkReply>
@@ -29,14 +33,23 @@ void armTimeout(QNetworkReply* reply, int ms = 10000) {
   timer->start(ms);
 }
 
-QString normalizeServer(QString url) {
-  url = url.trimmed();
-  while (url.endsWith(QLatin1Char('/'))) url.chop(1);
-  if (!url.isEmpty() && !url.startsWith(QLatin1String("http://")) &&
-      !url.startsWith(QLatin1String("https://"))) {
-    url.prepend(QLatin1String("http://"));
+// Il token e' un segreto: il file di configurazione non deve essere leggibile
+// da altri utenti/processi del dispositivo. Sul Link non c'e' un keyring, quindi
+// la difesa pratica e' 0600 sul file e 0700 sulla directory dell'app.
+void SecureSettingsFile(QSettings& settings) {
+  settings.sync();
+  const QString path = settings.fileName();
+  if (path.isEmpty()) return;
+
+  const QFileInfo info(path);
+  if (info.dir().exists()) {
+    QFile::setPermissions(info.dir().absolutePath(),
+                          QFileDevice::ReadOwner | QFileDevice::WriteOwner |
+                              QFileDevice::ExeOwner);
   }
-  return url;
+  if (info.exists()) {
+    QFile::setPermissions(path, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+  }
 }
 
 }  // namespace
@@ -51,16 +64,22 @@ JellyfinClient::JellyfinClient(QObject* parent) : QObject(parent) {
     deviceId_ = QUuid::createUuid().toString(QUuid::WithoutBraces);
     s.setValue(QStringLiteral("deviceId"), deviceId_);
   }
+  SecureSettingsFile(s);
   load();
 }
 
 void JellyfinClient::load() {
   QSettings s;
-  server_ = s.value(QStringLiteral("server")).toString();
+  server_ = NormalizeServerUrl(s.value(QStringLiteral("server")).toString());
   serverName_ = s.value(QStringLiteral("serverName")).toString();
   token_ = s.value(QStringLiteral("token")).toString();
   userId_ = s.value(QStringLiteral("userId")).toString();
   userName_ = s.value(QStringLiteral("userName")).toString();
+  SecureSettingsFile(s);
+  if (server_.startsWith(QLatin1String("http://"))) {
+    qWarning("[security] connessione HTTP non cifrata verso %s",
+             qPrintable(RedactSecrets(server_)));
+  }
 }
 
 void JellyfinClient::save() const {
@@ -70,6 +89,7 @@ void JellyfinClient::save() const {
   s.setValue(QStringLiteral("token"), token_);
   s.setValue(QStringLiteral("userId"), userId_);
   s.setValue(QStringLiteral("userName"), userName_);
+  SecureSettingsFile(s);
 }
 
 void JellyfinClient::logout() {
@@ -80,7 +100,11 @@ void JellyfinClient::logout() {
 }
 
 void JellyfinClient::setServer(const QString& baseUrl, bool store) {
-  server_ = normalizeServer(baseUrl);
+  server_ = NormalizeServerUrl(baseUrl);
+  if (server_.startsWith(QLatin1String("http://"))) {
+    qWarning("[security] connessione HTTP non cifrata verso %s",
+             qPrintable(RedactSecrets(server_)));
+  }
   if (store) save();
 }
 

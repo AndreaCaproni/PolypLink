@@ -22,8 +22,22 @@ else
   echo "    qmllint non trovato (imposta STEAMLINK_SDK); salto"
 fi
 
+echo "==> librerie FFmpeg"
+( cd "$ROOT/third_party/ffmpeg" && sha256sum -c SHA256SUMS )
+
 echo "==> test"
 python3 "$ROOT/tests/check_translations.py"
 sh "$ROOT/tests/test_settings_migration.sh"
+
+if command -v g++ >/dev/null 2>&1 && command -v pkg-config >/dev/null 2>&1 &&
+   pkg-config --exists Qt5Core Qt5Network; then
+  OUT="/tmp/test_serverurl.$$"
+  g++ -std=c++17 -fPIC "$ROOT/tests/test_serverurl.cpp" "$ROOT/src/serverurl.cpp" \
+      $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
+  "$OUT"
+  rm -f "$OUT"
+else
+  echo "    server URL: salto (Qt5 host non disponibile)"
+fi
 
 echo "fatto."

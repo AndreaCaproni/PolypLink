@@ -517,7 +517,7 @@ Window {
                 return
             }
             var si = serverIndex - off
-            if (si >= app.servers.length) openKeyboard("url", "http://")
+            if (si >= app.servers.length) openKeyboard("url", "")
             else app.selectServer(si)
             return
         }

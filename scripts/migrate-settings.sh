@@ -2,6 +2,7 @@
 # Copia le impostazioni della vecchia app JellyLink nella nuova PolypLink.
 # Uso: migrate-settings.sh [OLD_HOME] [NEW_HOME]
 set -eu
+umask 077
 
 OLD_HOME="${1:-/usr/local/jellyfin-link}"
 NEW_HOME="${2:-/usr/local/polyplink}"
@@ -14,5 +15,10 @@ if [ -f "$NEW_CONF" ] || [ ! -f "$OLD_CONF" ]; then
 fi
 
 mkdir -p "$(dirname "$NEW_CONF")"
+chmod 700 "$(dirname "$NEW_CONF")" 2>/dev/null || true
 cp "$OLD_CONF" "$NEW_CONF"
+# Entrambi i file contengono il token: non devono essere leggibili da altri
+# utenti. Il vecchio file resta per consentire un eventuale rollback.
+chmod 600 "$NEW_CONF" 2>/dev/null || true
+chmod 600 "$OLD_CONF" 2>/dev/null || true
 echo "impostazioni migrate: $OLD_CONF -> $NEW_CONF"

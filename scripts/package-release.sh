@@ -17,10 +17,13 @@ cp "$ROOT/dist/steamlink/apps/$APP.tgz" "$RELEASE/usb/steamlink/apps/"
 cp "$ROOT/dist/steamlink/apps/$APP.tgz" "$RELEASE/$APP-$VERSION.tgz"
 
 # Copie delle licenze anche fuori dal pacchetto, per chi apre lo zip USB.
+# NON copiare factory_test/ o config/: possono contenere chiavi SSH e URL
+# personali usati per lo sviluppo sul dispositivo.
 mkdir -p "$RELEASE/usb/licenses"
 cp "$ROOT/LICENSE" "$RELEASE/usb/licenses/LICENSE"
 cp "$ROOT/THIRD_PARTY.md" "$RELEASE/usb/licenses/THIRD_PARTY.md"
 cp "$ROOT/third_party/ffmpeg/LICENSE.LGPLv2.1" "$RELEASE/usb/licenses/FFMPEG-LGPL-2.1.txt"
+cp "$ROOT/packaging/licenses/FFMPEG-SOURCE-OFFER.md" "$RELEASE/usb/licenses/FFMPEG-SOURCE-OFFER.md"
 cp "$ROOT/packaging/licenses/README.txt" "$RELEASE/usb/licenses/README.txt"
 
 for doc in LEGGIMI.txt README.txt; do

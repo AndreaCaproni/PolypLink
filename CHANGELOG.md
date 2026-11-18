@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Security
+
+- Removed plaintext `user=`/`pass=` support from `jellyfin-server.txt`; old
+  directives are ignored. Use the login screen or Quick Connect.
+- The settings file and its directory are now owner-only (`0600`/`0700`), so
+  the Jellyfin token is not readable by other local users/processes.
+- All log messages, including QML warnings, are redacted centrally before they
+  are written to stderr or the USB log.
+- Manual server entry uses HTTPS by default for public hostnames; HTTP remains
+  for private/LAN hosts and is marked as insecure in the log.
+- Added the FFmpeg source offer and copyright notice for LGPL compliance.
+
 ### Changed
 
 - QML refactor: shared `Theme` singleton for colors/sizes, plus reusable

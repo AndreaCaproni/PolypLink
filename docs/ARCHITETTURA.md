@@ -117,7 +117,9 @@ perché il firmware non include ffmpeg.
 
 ## 6. Flusso utente
 
-1. **Primo avvio**: schermata server → indirizzo (es. `http://192.168.1.10:8096`).
+1. **Primo avvio**: schermata server → indirizzo (es.
+   `https://jellyfin.example.com`; `http://192.168.1.10:8096` solo su LAN
+   fidata).
 2. **Login senza digitare**: Quick Connect. L'app mostra un codice di 6 cifre;
    lo inserisci dal telefono/PC su Jellyfin e sei dentro. Nessuna password col
    telecomando: su una console è la differenza tra usabile e inusabile.

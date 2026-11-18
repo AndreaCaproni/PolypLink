@@ -10,7 +10,13 @@ packaging. The PolypLink rebrand and the player work from 0.3.0 are included.
 
 - `ApiKey`, `token`, `access_token` and `Authorization` values are redacted from
   logs and stream URLs.
-- Logs on the USB drive no longer expose the Jellyfin API key.
+- Logs on the USB drive no longer expose the Jellyfin API key. Redaction now
+  also covers Qt/QML warnings, including image-loading errors.
+- The settings file and directory are owner-only (`0600`/`0700`).
+- Plaintext `user=`/`pass=` support in `jellyfin-server.txt` was removed.
+- Manual server entry uses HTTPS for public hostnames; HTTP is for trusted LANs
+  only and is logged as insecure.
+- FFmpeg source offer and copyright notice are included for LGPL compliance.
 
 ## Reliability and packaging
 

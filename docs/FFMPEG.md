@@ -13,7 +13,11 @@ use this repository.
 
 ## Version
 
-FFmpeg 6.1.x (libavcodec 60, libavutil 58, libswresample 4).
+FFmpeg 6.1.2 (libavcodec 60, libavutil 58, libswresample 4).
+
+The exact source tarball and its SHA-256 are recorded in
+[`packaging/licenses/FFMPEG-SOURCE-OFFER.md`](../packaging/licenses/FFMPEG-SOURCE-OFFER.md),
+together with the LGPL written offer.
 
 ## Recipe used
 
@@ -24,18 +28,19 @@ pointing at the ARM rootfs:
 ./configure \
   --enable-cross-compile \
   --arch=arm \
+  --cpu=armv7-a \
   --target-os=linux \
   --cross-prefix=armv7a-cros-linux-gnueabi- \
   --sysroot="$MARVELL_ROOTFS" \
   --enable-shared --disable-static \
-  --disable-programs --disable-doc \
-  --disable-avdevice --disable-swscale --disable-avfilter \
-  --disable-network --disable-encoders --disable-muxers \
-  --disable-demuxers --disable-filters \
   --disable-everything \
-  --enable-decoder=aac,aac_latm \
+  --disable-programs --disable-doc \
+  --disable-avdevice --disable-avfilter --disable-network \
+  --disable-postproc --disable-swscale \
+  --disable-iconv --disable-zlib --disable-bzlib --disable-lzma \
+  --enable-decoder=aac \
   --enable-parser=aac \
-  --enable-small \
+  --enable-swresample \
   --extra-cflags="-mfloat-abi=hard -O2" \
   --extra-ldflags="-mfloat-abi=hard"
 

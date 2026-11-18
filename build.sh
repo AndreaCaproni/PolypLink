@@ -111,6 +111,7 @@ mkdir -p "$APP/licenses"
 cp "$ROOT/LICENSE" "$APP/licenses/LICENSE"
 cp "$ROOT/THIRD_PARTY.md" "$APP/licenses/THIRD_PARTY.md"
 cp "$ROOT/third_party/ffmpeg/LICENSE.LGPLv2.1" "$APP/licenses/FFMPEG-LGPL-2.1.txt"
+cp "$ROOT/packaging/licenses/FFMPEG-SOURCE-OFFER.md" "$APP/licenses/FFMPEG-SOURCE-OFFER.md"
 cp "$ROOT/packaging/licenses/README.txt" "$APP/licenses/README.txt"
 
 cat > "$APP/toc.txt" <<EOF
@@ -161,3 +162,9 @@ Oppure, direttamente:
 
 Log sul dispositivo: /home/apps/polyplink/polyplink-run.log
 EOF
+
+if [[ -f "$ROOT/deploy/factory_test/run.sh" ]]; then
+  echo
+  echo "ATTENZIONE: deploy/factory_test/run.sh può contenere la tua chiave SSH."
+  echo "Non condividere dist/steamlink/: usa solo lo zip creato da package-release.sh."
+fi

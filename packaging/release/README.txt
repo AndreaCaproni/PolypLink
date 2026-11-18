@@ -22,7 +22,9 @@ The drive is unmounted right after installation: it only carries the app.
 FIRST START
 1. Server: the app scans the local network (UDP + subnet scan).
    If nothing is found, choose "Enter server address" and type it with the
-   on-screen keyboard (e.g. http://jellyfin.local:8096).
+   on-screen keyboard (e.g. https://jellyfin.example.com). For a LAN server
+   without HTTPS, enter its HTTP address and port 8096; use HTTP only on a
+   trusted network.
    Alternatively create:
        steamlink/config/system/jellyfin-server.txt
    containing the server address.

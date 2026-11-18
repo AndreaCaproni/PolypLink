@@ -7,11 +7,11 @@ MIT License. Full text: LICENSE
 
 FFmpeg
 ------
-The app dynamically links a reduced FFmpeg build used only to decode AAC
+The app dynamically links a reduced FFmpeg 6.1.2 build used only to decode AAC
 audio. FFmpeg is licensed under the GNU Lesser General Public License,
 version 2.1 or later. Full text: FFMPEG-LGPL-2.1.txt
-Sources and build recipe: https://ffmpeg.org/ and docs/FFMPEG.md in the
-source repository.
+Source code and written offer: FFMPEG-SOURCE-OFFER.md.
+Build recipe: docs/FFMPEG.md in the source repository.
 
 Qt 5.14.1
 ---------

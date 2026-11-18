@@ -1,0 +1,55 @@
+#include "../src/serverurl.h"
+
+#include <QCoreApplication>
+#include <QDebug>
+#include <QString>
+
+static int failures = 0;
+
+static void check(const QString& input, const QString& expected) {
+  const QString actual = NormalizeServerUrl(input);
+  if (actual != expected) {
+    qCritical().noquote() << "FAIL:" << input << "->" << actual
+                          << "(expected" << expected << ")";
+    ++failures;
+  }
+}
+
+int main(int argc, char** argv) {
+  QCoreApplication app(argc, argv);
+
+  // LAN: HTTP e porta 8096 gestita dal chiamante.
+  check(QStringLiteral("192.168.1.199"), QStringLiteral("http://192.168.1.199"));
+  check(QStringLiteral("192.168.1.199:8096"),
+        QStringLiteral("http://192.168.1.199:8096"));
+  check(QStringLiteral("10.0.0.5"), QStringLiteral("http://10.0.0.5"));
+  check(QStringLiteral("172.16.0.1"), QStringLiteral("http://172.16.0.1"));
+  check(QStringLiteral("localhost:8096"), QStringLiteral("http://localhost:8096"));
+  check(QStringLiteral("jellyfin.local"), QStringLiteral("http://jellyfin.local"));
+  check(QStringLiteral("jellyfin"), QStringLiteral("http://jellyfin"));
+
+  // Host pubblici: HTTPS di default.
+  check(QStringLiteral("jellyfin.example.com"),
+        QStringLiteral("https://jellyfin.example.com"));
+  check(QStringLiteral("jellyfin.example.com:8443"),
+        QStringLiteral("https://jellyfin.example.com:8443"));
+  check(QStringLiteral("172.32.0.1"), QStringLiteral("https://172.32.0.1"));
+  check(QStringLiteral("8.8.8.8"), QStringLiteral("https://8.8.8.8"));
+  check(QStringLiteral("[2001:db8::1]"),
+        QStringLiteral("https://[2001:db8::1]"));
+  check(QStringLiteral("[fc00::1]"), QStringLiteral("http://[fc00::1]"));
+  check(QStringLiteral("[::1]"), QStringLiteral("http://[::1]"));
+
+  // Schema esplicito: non va cambiato.
+  check(QStringLiteral("https://jellyfin.example.com/"),
+        QStringLiteral("https://jellyfin.example.com"));
+  check(QStringLiteral("http://192.168.1.10:8096/"),
+        QStringLiteral("http://192.168.1.10:8096"));
+
+  check(QStringLiteral("  https://jellyfin.example.com  "),
+        QStringLiteral("https://jellyfin.example.com"));
+  check(QString(), QString());
+
+  if (failures == 0) qInfo("server URL tests: ok");
+  return failures == 0 ? 0 : 1;
+}
