@@ -90,4 +90,5 @@ App logs:
 | The app does not appear on the home screen | `steamlink/` is not at the drive root, or the `.tgz` does not have the app folder at its top level |
 | "loading…" forever | server unreachable, wrong IP/port, firewall |
 | Video starts after a few seconds | the server is preparing the transcode (normal, 1–3 s) |
+| A second launch does nothing | another Polyplink instance is already running; the single-instance guard exits instead of competing for input/display |
 | Unwanted subtitles | choose *Subtitles → Off* in the player (Y or the dedicated button) |

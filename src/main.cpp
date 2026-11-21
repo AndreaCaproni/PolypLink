@@ -6,6 +6,7 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QGuiApplication>
+#include <QLockFile>
 #include <QScreen>
 #include <QSurfaceFormat>
 #include <QQmlApplicationEngine>
@@ -13,6 +14,8 @@
 #include <QQuickWindow>
 #include <QTimer>
 #include <QDebug>
+
+#include <cstdio>
 
 #include "appcontroller.h"
 #include "buildstamp.h"
@@ -138,6 +141,15 @@ class FpsCounter : public QObject {
 };
 
 int main(int argc, char** argv) {
+  // Una sola istanza: due processi Polyplink leggerebbero lo stesso controller
+  // e si contenderebbero EGLFS, causando input duplicati/randomici.
+  QLockFile instanceLock(QStringLiteral("/tmp/polyplink.lock"));
+  instanceLock.setStaleLockTime(0);
+  if (!instanceLock.tryLock(0)) {
+    std::fprintf(stderr, "[avvio] Polyplink e' gia' in esecuzione; esco.\n");
+    return 0;
+  }
+
   SetupLogging();
 
   // Prima di tutto il resto: se nel log non c'e' questa riga, il binario non e'

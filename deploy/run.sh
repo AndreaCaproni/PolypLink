@@ -9,6 +9,16 @@
 APP_DIR=$(dirname "$0")
 cd "$APP_DIR" 2>/dev/null || exit 1
 
+# Una sola istanza: evita che due launcher tronchino lo stesso log e che due
+# processi leggano il controller nello stesso momento.
+if command -v flock >/dev/null 2>&1; then
+    exec 9>/tmp/polyplink-run.lock
+    if ! flock -n 9; then
+        echo "Polyplink e' gia' in esecuzione; non avvio una seconda istanza."
+        exit 0
+    fi
+fi
+
 # Il token Jellyfin e' salvato nel file di configurazione: creiamo file e
 # directory leggibili solo da root (l'app gira come root sul Link).
 umask 077

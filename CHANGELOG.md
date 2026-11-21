@@ -16,6 +16,9 @@
 
 ### Changed
 
+- Single-instance guard: a second Polyplink launch exits instead of competing
+  for EGLFS and the controller; `run.sh` also uses `flock` so it cannot truncate
+  the running instance's log.
 - QML refactor: shared `Theme` singleton for colors/sizes, plus reusable
   `Toast` and `EmptyState` components. Hardcoded colors removed from the main
   view and components.
