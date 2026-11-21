@@ -367,6 +367,14 @@
         <translation>Brak serwera</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Spróbuj ponownie</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Zamknij aplikację</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Strona główna</translation>
     </message>

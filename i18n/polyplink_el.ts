@@ -367,6 +367,14 @@
         <translation>Κανένας διακομιστής</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Δοκιμάστε ξανά</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Έξοδος από την εφαρμογή</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Αρχική</translation>
     </message>

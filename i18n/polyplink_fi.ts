@@ -367,6 +367,14 @@
         <translation>Ei palvelinta</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Yritä uudelleen</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Poistu sovelluksesta</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Koti</translation>
     </message>

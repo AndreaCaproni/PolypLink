@@ -367,6 +367,14 @@
         <translation>Nenhum servidor</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Tentar novamente</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Sair da aplicação</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Início</translation>
     </message>

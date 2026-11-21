@@ -367,6 +367,14 @@
         <translation>Geen server</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Opnieuw proberen</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>App afsluiten</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Start</translation>
     </message>

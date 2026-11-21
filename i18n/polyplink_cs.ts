@@ -367,6 +367,14 @@
         <translation>Žádný server</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Zkusit znovu</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Ukončit aplikaci</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Domů</translation>
     </message>

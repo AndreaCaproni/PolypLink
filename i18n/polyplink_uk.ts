@@ -367,6 +367,14 @@
         <translation>Немає сервера</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Повторити</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Вийти з програми</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Головна</translation>
     </message>

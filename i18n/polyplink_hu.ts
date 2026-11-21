@@ -367,6 +367,14 @@
         <translation>Nincs szerver</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Újrapróbálás</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Kilépés az alkalmazásból</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Kezdőlap</translation>
     </message>

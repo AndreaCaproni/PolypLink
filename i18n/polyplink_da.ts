@@ -367,6 +367,14 @@
         <translation>Ingen server</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Prøv igen</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Afslut app</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Hjem</translation>
     </message>

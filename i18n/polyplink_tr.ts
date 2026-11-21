@@ -367,6 +367,14 @@
         <translation>Sunucu yok</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Yeniden dene</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Uygulamadan çık</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Ana sayfa</translation>
     </message>

@@ -367,6 +367,14 @@
         <translation>Fără server</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Reîncearcă</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Ieși din aplicație</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Acasă</translation>
     </message>

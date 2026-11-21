@@ -806,6 +806,61 @@ Window {
                 wrapMode: Text.WordWrap
                 text: app.statusMessage
             }
+
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 36
+
+                Row {
+                    spacing: 9
+                    Rectangle {
+                        width: 28
+                        height: 28
+                        radius: 14
+                        color: Theme.transparent
+                        border.width: 2
+                        border.color: Theme.accentSoft
+                        Text {
+                            anchors.centerIn: parent
+                            color: Theme.accentSoft
+                            font.pixelSize: 15
+                            font.bold: true
+                            text: "A"
+                        }
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: Theme.text
+                        font.pixelSize: 17
+                        text: qsTr("Riprova")
+                    }
+                }
+
+                Row {
+                    spacing: 9
+                    Rectangle {
+                        width: 28
+                        height: 28
+                        radius: 14
+                        color: Theme.transparent
+                        border.width: 2
+                        border.color: Theme.accentSoft
+                        Text {
+                            anchors.centerIn: parent
+                            color: Theme.accentSoft
+                            font.pixelSize: 15
+                            font.bold: true
+                            text: "B"
+                        }
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: Theme.text
+                        font.pixelSize: 17
+                        text: qsTr("Esci dall'app")
+                    }
+                }
+            }
         }
     }
 

@@ -367,6 +367,14 @@
         <translation>Нет сервера</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Повторить</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Выйти из приложения</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Главная</translation>
     </message>

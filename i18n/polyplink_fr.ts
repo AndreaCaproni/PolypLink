@@ -367,6 +367,14 @@
         <translation>Pas de serveur</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Réessayer</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Quitter l'application</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Accueil</translation>
     </message>

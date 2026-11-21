@@ -21,6 +21,11 @@
   50 ms steps. The value is saved and applied at the next playback; negative
   values advance the audio, positive values delay it.
 
+### Fixed
+
+- The "server unreachable" screen now shows the controller hints
+  **A · Retry** and **B · Exit app**.
+
 ### Changed
 
 - Single-instance guard: a second Polyplink launch exits instead of competing

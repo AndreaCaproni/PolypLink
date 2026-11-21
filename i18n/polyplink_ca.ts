@@ -367,6 +367,14 @@
         <translation>Cap servidor</translation>
     </message>
     <message>
+        <source>Riprova</source>
+        <translation>Torna-ho a provar</translation>
+    </message>
+    <message>
+        <source>Esci dall'app</source>
+        <translation>Sortir de l'aplicació</translation>
+    </message>
+    <message>
         <source>Home</source>
         <translation>Inici</translation>
     </message>
