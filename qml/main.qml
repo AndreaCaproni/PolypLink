@@ -1321,203 +1321,46 @@ Window {
     }
 
     // ----------------------------------------------------------------- DETTAGLIO
-    Item {
+    DetailPage {
+        id: detailPage
         anchors.fill: parent
         visible: root.detailOpen
         z: 10
+        detail: app.detail
+        detailFocus: root.detailFocus
 
-        Image {
-            anchors.fill: parent
-            source: app.detail.backdrop !== undefined ? app.detail.backdrop : ""
-            fillMode: Image.PreserveAspectCrop
-            asynchronous: true
-            cache: true
-            visible: status === Image.Ready
-        }
+        isSeries: root.isSeries()
+        hasResume: root.hasResume()
+        hasSeriesLink: root.hasSeriesLink()
+        isEpisode: root.isEpisode()
+        hasOverview: root.hasOverview()
 
-        Rectangle {
-            anchors.fill: parent
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: Theme.overlayLight }
-                GradientStop { position: 0.55; color: Theme.overlayMenu }
-                GradientStop { position: 1.0; color: Theme.overlay }
-            }
-        }
+        playedIndex: root.playedIndex()
+        favoriteIndex: root.favoriteIndex()
+        seriesIndex: root.seriesIndex()
+        previousIndex: root.previousIndex()
+        readMoreIndex: root.readMoreIndex()
+        settingsStart: root.settingsStart()
 
-        Row {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.leftMargin: 48
-            anchors.rightMargin: 48
-            anchors.bottomMargin: 40
-            spacing: 28
+        qualityText: (app.qualityKbps / 1000) + " Mbps"
+        audioText: root.audioLabel()
+        subtitleText: root.subtitleLabel()
+        metaText: root.metaLine(app.detail)
 
-            PosterCard {
-                width: 150
-                height: 278
-                title: ""
-                subtitle: ""
-                image: app.detail.image !== undefined ? app.detail.image : ""
-                progress: app.detail.progress !== undefined ? app.detail.progress : 0
-                played: app.detail.played !== undefined ? app.detail.played : false
-                active: false
-            }
-
-            Column {
-                width: parent.width - 200
-                spacing: 10
-
-                Text {
-                    width: parent.width
-                    color: Theme.text
-                    font.pixelSize: 30
-                    font.bold: true
-                    elide: Text.ElideRight
-                    text: app.detail.name !== undefined ? app.detail.name : ""
-                }
-
-                Text {
-                    width: parent.width
-                    color: Theme.textMuted
-                    font.pixelSize: 15
-                    text: {
-                        var parts = []
-                        if (app.detail.subtitle !== undefined && app.detail.subtitle.length > 0)
-                            parts.push(app.detail.subtitle)
-                        if (app.detail.officialRating !== undefined && app.detail.officialRating.length > 0)
-                            parts.push(app.detail.officialRating)
-                        if (app.detail.communityRating !== undefined && app.detail.communityRating > 0)
-                            parts.push("★ " + app.detail.communityRating.toFixed(1))
-                        return parts.join("   ·   ")
-                    }
-                }
-
-                // azioni: solo icona, si allargano con il focus
-                Row {
-                    spacing: 10
-
-                    ActionButton {
-                        icon: "play"
-                        label: (root.hasResume() && !root.isSeries()) ? qsTr("Riprendi") : qsTr("Riproduci")
-                        active: root.detailFocus === 0
-                        primary: true
-                    }
-                    ActionButton {
-                        icon: "series"
-                        label: qsTr("Stagioni")
-                        visible: root.isSeries()
-                        active: root.detailFocus === 1
-                    }
-                    ActionButton {
-                        icon: "replay"
-                        label: qsTr("Riproduci dall'inizio")
-                        visible: root.hasResume() && !root.isSeries()
-                        active: root.detailFocus === 1
-                    }
-                    ActionButton {
-                        icon: (app.detail.played !== undefined && app.detail.played)
-                              ? "check-double" : "check"
-                        label: (app.detail.played !== undefined && app.detail.played)
-                               ? qsTr("Segna come non visto") : qsTr("Segna come visto")
-                        active: root.detailFocus === root.playedIndex()
-                    }
-                    ActionButton {
-                        icon: (app.detail.favorite !== undefined && app.detail.favorite)
-                              ? "heart-filled" : "heart-empty"
-                        customIconColor: (app.detail.favorite !== undefined && app.detail.favorite)
-                                         ? Theme.favorite : Theme.text
-                        label: (app.detail.favorite !== undefined && app.detail.favorite)
-                               ? qsTr("Togli preferito") : qsTr("Preferito")
-                        active: root.detailFocus === root.favoriteIndex()
-                    }
-                    ActionButton {
-                        icon: "series"
-                        label: qsTr("Vai alla serie completa")
-                        visible: root.hasSeriesLink()
-                        active: root.detailFocus === root.seriesIndex()
-                    }
-                    ActionButton {
-                        icon: "previous"
-                        label: qsTr("Episodio precedente")
-                        visible: root.isEpisode()
-                        active: root.detailFocus === root.previousIndex()
-                    }
-                    ActionButton {
-                        icon: "text"
-                        label: qsTr("Leggi tutto")
-                        visible: root.hasOverview()
-                        active: root.detailFocus === root.readMoreIndex()
-                    }
-                }
-
-                Text {
-                    width: parent.width
-                    height: 78
-                    color: Theme.textSoft
-                    font.pixelSize: 15
-                    wrapMode: Text.WordWrap
-                    elide: Text.ElideRight
-                    text: app.detail.overview !== undefined ? app.detail.overview : ""
-                }
-
-                // impostazioni di riproduzione
-                Column {
-                    spacing: 8
-                    visible: !root.isSeries()
-
-                    Rectangle {
-                        width: 520; height: 40; radius: 8
-                        color: root.detailFocus === root.settingsStart() ? Theme.selected : Theme.panelAlt
-                        border.width: 1
-                        border.color: root.detailFocus === root.settingsStart() ? Theme.accent : Theme.borderDark
-                        Text { anchors.left: parent.left; anchors.leftMargin: 14
-                               anchors.verticalCenter: parent.verticalCenter
-                               color: Theme.textMuted; font.pixelSize: 15; text: qsTr("Qualità") }
-                        Text { anchors.right: parent.right; anchors.rightMargin: 14
-                               anchors.verticalCenter: parent.verticalCenter
-                               color: Theme.text; font.pixelSize: 15
-                               text: (app.qualityKbps / 1000) + " Mbps" }
-                    }
-
-                    Rectangle {
-                        width: 520; height: 40; radius: 8
-                        color: root.detailFocus === root.settingsStart() + 1 ? Theme.selected : Theme.panelAlt
-                        border.width: 1
-                        border.color: root.detailFocus === root.settingsStart() + 1 ? Theme.accent : Theme.borderDark
-                        Text { anchors.left: parent.left; anchors.leftMargin: 14
-                               anchors.verticalCenter: parent.verticalCenter
-                               color: Theme.textMuted; font.pixelSize: 15; text: qsTr("Audio") }
-                        Text { anchors.right: parent.right; anchors.rightMargin: 14
-                               anchors.verticalCenter: parent.verticalCenter
-                               color: Theme.text; font.pixelSize: 15
-                               text: root.audioLabel() }
-                    }
-
-                    Rectangle {
-                        width: 520; height: 40; radius: 8
-                        color: root.detailFocus === root.settingsStart() + 2 ? Theme.selected : Theme.panelAlt
-                        border.width: 1
-                        border.color: root.detailFocus === root.settingsStart() + 2 ? Theme.accent : Theme.borderDark
-                        Text { anchors.left: parent.left; anchors.leftMargin: 14
-                               anchors.verticalCenter: parent.verticalCenter
-                               color: Theme.textMuted; font.pixelSize: 15; text: qsTr("Sottotitoli") }
-                        Text { anchors.right: parent.right; anchors.rightMargin: 14
-                               anchors.verticalCenter: parent.verticalCenter
-                               color: Theme.text; font.pixelSize: 15
-                               text: root.subtitleLabel() }
-                    }
-                }
-
-                Text {
-                    width: parent.width
-                    color: Theme.textDim
-                    font.pixelSize: 13
-                    elide: Text.ElideRight
-                    text: root.metaLine(app.detail)
-                }
-            }
-        }
+        playLabel: (root.hasResume() && !root.isSeries()) ? qsTr("Riprendi")
+                                                          : qsTr("Riproduci")
+        seasonsLabel: qsTr("Stagioni")
+        restartLabel: qsTr("Riproduci dall'inizio")
+        watchedLabel: qsTr("Segna come visto")
+        unwatchedLabel: qsTr("Segna come non visto")
+        favoriteLabel: qsTr("Preferito")
+        unfavoriteLabel: qsTr("Togli preferito")
+        seriesLabel: qsTr("Vai alla serie completa")
+        previousLabel: qsTr("Episodio precedente")
+        readMoreLabel: qsTr("Leggi tutto")
+        qualityLabel: qsTr("Qualità")
+        audioLabelText: qsTr("Audio")
+        subtitleLabelText: qsTr("Sottotitoli")
     }
 
     // ------------------------------------------------------------------ tastiera
