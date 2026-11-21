@@ -37,6 +37,8 @@
 - Header bar and login flow (server selection, credentials, Quick Connect)
   extracted from `main.qml` into `HeaderBar`, `ServerPage`, `AuthPage` and
   `QuickConnectPage`.
+- Home rows and the library/favorites grid extracted into `HomePage` and
+  `LibraryPage`.
 
 ## 0.3.1-beta — 2026-11-17
 

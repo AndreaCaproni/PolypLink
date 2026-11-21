@@ -173,14 +173,7 @@ Window {
     }
 
     function ensureRowVisible() {
-        var y = 0
-        if (rowIndex === 0) { rowResume.ensureVisible(); y = rowResume.y }
-        else if (rowIndex === 1) { rowNextUp.ensureVisible(); y = rowNextUp.y }
-        else if (rowIndex === 2) { rowLatest.ensureVisible(); y = rowLatest.y }
-        else { rowLibs.ensureVisible(); y = rowLibs.y }
-
-        var maxY = Math.max(0, homeColumn.height - homeFlick.height)
-        homeFlick.contentY = Math.max(0, Math.min(maxY, y - 70))
+        homePage.ensureRowVisible(rowIndex)
     }
 
     function openDetail(id) {
@@ -486,7 +479,7 @@ Window {
     function moveCol(delta) {
         if (page === "library" || page === "favorites") {
             gridIndex = clamp(gridIndex + delta, 0, Math.max(0, app.libraryItems.length - 1))
-            libraryGrid.positionViewAtIndex(gridIndex, GridView.Contain)
+            libraryPage.ensureVisible(gridIndex)
             return
         }
         var len = rowLength(rowIndex)
@@ -497,7 +490,7 @@ Window {
 
     function moveGridRow(delta) {
         // le colonne reali: quelle che il GridView sta disegnando
-        var cols = Math.max(1, Math.floor(libraryGrid.width / libraryGrid.cellWidth))
+        var cols = libraryPage.columns
         var count = app.libraryItems.length
         if (count === 0) return
 
@@ -510,7 +503,7 @@ Window {
         if (next >= count) return                  // non c'e' una riga sotto
 
         gridIndex = next
-        libraryGrid.positionViewAtIndex(gridIndex, GridView.Contain)
+        libraryPage.ensureVisible(gridIndex)
     }
 
     function openKeyboard(target, current) {
@@ -673,115 +666,22 @@ Window {
     }
 
     // -------------------------------------------------------------------- HOME
-    Flickable {
-        id: homeFlick
+    HomePage {
+        id: homePage
         anchors.fill: parent
         anchors.topMargin: header.height
         visible: app.state === "home" && page === "home"
-        contentWidth: width
-        contentHeight: homeColumn.height + 40
-        clip: true
-        boundsBehavior: Flickable.StopAtBounds
-
-        Column {
-            id: homeColumn
-            width: parent.width
-            spacing: 18
-            topPadding: 12
-
-            MediaRow {
-                id: rowResume
-                width: parent.width
-                title: qsTr("Continua a guardare")
-                items: app.resume
-                landscape: true
-                active: root.rowIndex === 0 && !root.navFocus
-                currentIndex: root.colIndex
-                visible: app.resume.length > 0
-            }
-
-            MediaRow {
-                id: rowNextUp
-                width: parent.width
-                title: qsTr("Prossimo episodio")
-                items: app.nextUp
-                landscape: true
-                active: root.rowIndex === 1 && !root.navFocus
-                currentIndex: root.colIndex
-                visible: app.nextUp.length > 0
-            }
-
-            MediaRow {
-                id: rowLatest
-                width: parent.width
-                title: qsTr("Aggiunti di recente")
-                items: app.latest
-                showLibrary: true
-                active: root.rowIndex === 2 && !root.navFocus
-                currentIndex: root.colIndex
-                visible: app.latest.length > 0
-            }
-
-            Item {
-                id: rowLibs
-                width: parent.width
-                height: 150
-                visible: app.views.length > 0
-
-                Text {
-                    id: libTitle
-                    anchors.left: parent.left
-                    anchors.leftMargin: 24
-                    anchors.top: parent.top
-                    color: root.rowIndex === 3 ? Theme.text : Theme.textMuted
-                    font.pixelSize: 24
-                    font.bold: true
-                    text: qsTr("Librerie")
-                }
-
-                ListView {
-                    id: libList
-                    anchors.top: libTitle.bottom
-                    anchors.topMargin: 10
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.leftMargin: 24
-                    anchors.rightMargin: 24
-                    height: 96
-                    orientation: ListView.Horizontal
-                    model: app.views
-                    spacing: 14
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    delegate: Rectangle {
-                        width: 190
-                        height: 90
-                        radius: 10
-                        color: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? Theme.selected : Theme.panel
-                        border.width: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? 2 : 1
-                        border.color: root.rowIndex === 3 && index === root.colIndex && !root.navFocus ? Theme.accent : Theme.border
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 14
-                            anchors.right: parent.right
-                            anchors.rightMargin: 14
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: Theme.text
-                            font.pixelSize: 19
-                            elide: Text.ElideRight
-                            text: modelData.name
-                        }
-                    }
-                }
-
-                function ensureVisible() {
-                    if (app.views.length === 0) return
-                    libList.positionViewAtIndex(root.colIndex, ListView.Contain)
-                }
-            }
-        }
+        rowIndex: root.rowIndex
+        colIndex: root.colIndex
+        navFocus: root.navFocus
+        resumeItems: app.resume
+        nextUpItems: app.nextUp
+        latestItems: app.latest
+        libraryViews: app.views
+        resumeTitle: qsTr("Continua a guardare")
+        nextUpTitle: qsTr("Prossimo episodio")
+        latestTitle: qsTr("Aggiunti di recente")
+        librariesTitle: qsTr("Librerie")
     }
 
     // ---------------------------------------------------- HOME VUOTA / OFFLINE
@@ -865,69 +765,19 @@ Window {
     }
 
     // ----------------------------------------------------------------- LIBRERIA
-    Item {
+    LibraryPage {
+        id: libraryPage
         anchors.fill: parent
         anchors.topMargin: header.height
         visible: app.state === "home" && (page === "library" || page === "favorites")
-
-        Text {
-            id: libHeader
-            x: 24
-            anchors.top: parent.top
-            anchors.topMargin: 10
-            color: Theme.text
-            font.pixelSize: 28
-            font.bold: true
-            text: app.libraryTitle
-        }
-
-        Text {
-            anchors.right: parent.right
-            anchors.rightMargin: 24
-            anchors.top: parent.top
-            anchors.topMargin: 16
-            color: Theme.textFaint
-            font.pixelSize: 15
-            text: root.countItems(app.libraryItems.length)
-        }
-
-        GridView {
-            id: libraryGrid
-            anchors.top: libHeader.bottom
-            anchors.topMargin: 12
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-            cellWidth: 152
-            cellHeight: 292
-            clip: true
-            model: app.libraryItems
-            boundsBehavior: Flickable.StopAtBounds
-
-            delegate: Item {
-                width: libraryGrid.cellWidth
-                height: libraryGrid.cellHeight
-
-                PosterCard {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: 150
-                    title: modelData.name !== undefined ? modelData.name : ""
-                    subtitle: modelData.subtitle !== undefined ? modelData.subtitle : ""
-                    image: modelData.image !== undefined ? modelData.image : ""
-                    progress: modelData.progress !== undefined ? modelData.progress : 0
-                    active: index === root.gridIndex && !root.navFocus
-                }
-            }
-        }
-    }
-
-    // ------------------------------------------------------- LIBRERIA VUOTA
-    EmptyState {
-        visible: app.state === "home" && (page === "library" || page === "favorites") &&
-                 app.libraryItems.length === 0 && !app.loading
-        label: page === "favorites" ? qsTr("Nessun preferito") : qsTr("Nessuna voce in questa libreria")
+        title: app.libraryTitle
+        items: app.libraryItems
+        gridIndex: root.gridIndex
+        navFocus: root.navFocus
+        countText: root.countItems(app.libraryItems.length)
+        emptyLabel: page === "favorites" ? qsTr("Nessun preferito")
+                                          : qsTr("Nessuna voce in questa libreria")
+        loading: app.loading
     }
 
     // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
@@ -2795,7 +2645,7 @@ Window {
                     } else handled = false
                 }
             } else if (page === "library" || page === "favorites") {
-                var cols = Math.max(1, Math.floor(libraryGrid.width / libraryGrid.cellWidth))
+                var cols = libraryPage.columns
                 if (event.key === Qt.Key_Left) { moveCol(-1) }
                 else if (event.key === Qt.Key_Right) { moveCol(1) }
                 else if (event.key === Qt.Key_Up) {

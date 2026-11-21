@@ -14,6 +14,8 @@
         <file>qml/Toast.qml</file>
         <file>qml/EmptyState.qml</file>
         <file>qml/HeaderBar.qml</file>
+        <file>qml/HomePage.qml</file>
+        <file>qml/LibraryPage.qml</file>
         <file>qml/ServerPage.qml</file>
         <file>qml/AuthPage.qml</file>
         <file>qml/QuickConnectPage.qml</file>
