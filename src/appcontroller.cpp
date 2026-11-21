@@ -62,6 +62,8 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   }
   osdSeconds_ = settings.value(QStringLiteral("osdSeconds"), 5).toInt();
   if (osdSeconds_ != 3 && osdSeconds_ != 5 && osdSeconds_ != 8) osdSeconds_ = 5;
+  audioDelayMs_ =
+      std::clamp(settings.value(QStringLiteral("audioDelayMs"), 0).toInt(), -2000, 2000);
 
   osdTimer_.setSingleShot(true);
   osdTimer_.setInterval(osdSeconds_ * 1000);
@@ -280,6 +282,22 @@ void AppController::openPlayerMenu(const QString& mode) {
   if (!playerActive_) return;
   playerMenuItems_.clear();
   playerMenuMode_ = mode;
+
+  // Il ritardo audio non e' una lista: e' un popup con due frecce e passi
+  // da 100 ms. Il valore si applica solo alla conferma.
+  if (mode == QLatin1String("avdelay")) {
+    audioDelayBeforeMenu_ = audioDelayMs_;
+    playerMenuOpen_ = true;
+    osdTimer_.stop();
+    if (!osdVisible_) {
+      osdVisible_ = true;
+      emit osdChanged();
+    }
+    emit playerMenuChanged();
+    emit playerUiChanged();
+    return;
+  }
+
   int selected = -1;
 
   auto addItem = [this, &selected](const QString& label, int value, bool isSelected) {
@@ -1456,6 +1474,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         cfg.startTicks = startTicks;
         cfg.durationTicks = static_cast<qint64>(playerDuration_ * 1e7);
         cfg.maxBitrateKbps = qualityKbps_;
+        cfg.audioDelayMs = audioDelayMs_;
 
         if (mediaSourceId_.isEmpty()) mediaSourceId_ = itemId;
         client_.reportPlaybackStart(itemId, playSessionId_, startTicks,
@@ -1593,6 +1612,13 @@ void AppController::toggleStats() {
 
 void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
   if (playerMenuOpen_) {
+    if (playerMenuMode_ == QLatin1String("avdelay")) {
+      if (dx != 0) {
+        audioDelayMs_ = std::clamp(audioDelayMs_ + dx * 50, -2000, 2000);
+        emit playerMenuChanged();
+      }
+      return;
+    }
     if (dy != 0) playerMenuMove(dy);
     else if (dx != 0) playerMenuClose();
     return;
@@ -1660,7 +1686,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
         seekPending_ = true;
       }
     } else {
-      playerFocus_ = qBound(1, playerFocus_ + dx, 7);
+      playerFocus_ = qBound(1, playerFocus_ + dx, 8);
     }
   }
 
@@ -1670,6 +1696,13 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
 
 void AppController::playerConfirm() {
   if (playerMenuOpen_) {
+    if (playerMenuMode_ == QLatin1String("avdelay")) {
+      const bool changed = audioDelayMs_ != audioDelayBeforeMenu_;
+      saveDefaults();
+      playerMenuClose();
+      if (changed) restartPlaybackAtPosition();
+      return;
+    }
     playerMenuConfirm();
     return;
   }
@@ -1716,6 +1749,9 @@ void AppController::playerConfirm() {
       openPlayerMenu(QStringLiteral("quality"));
       break;
     case 7:
+      openPlayerMenu(QStringLiteral("avdelay"));
+      break;
+    case 8:
       toggleStats();
       break;
     default:
@@ -1736,6 +1772,15 @@ void AppController::commitSeek() {
 
 void AppController::playerBack() {
   if (playerMenuOpen_) {
+    if (playerMenuMode_ == QLatin1String("avdelay")) {
+      // Anche B chiude confermando: il valore impostato non deve tornare a 0
+      // quando si riapre il popup.
+      const bool changed = audioDelayMs_ != audioDelayBeforeMenu_;
+      saveDefaults();
+      playerMenuClose();
+      if (changed) restartPlaybackAtPosition();
+      return;
+    }
     playerMenuClose();
     return;
   }
@@ -1770,6 +1815,7 @@ void AppController::saveDefaults() {
   QSettings s;
   s.setValue(QStringLiteral("defaultQualityKbps"), defaultQualityKbps_);
   s.setValue(QStringLiteral("osdSeconds"), osdSeconds_);
+  s.setValue(QStringLiteral("audioDelayMs"), audioDelayMs_);
 }
 
 void AppController::setDefaultQuality(int kbps) {
@@ -1792,6 +1838,16 @@ void AppController::setOsdSeconds(int seconds) {
   saveDefaults();
   emit tracksChanged();
   showNotice(tr("OSD: %1 secondi").arg(seconds));
+}
+
+void AppController::setAudioDelay(int ms) {
+  ms = std::clamp(ms, -2000, 2000);
+  if (audioDelayMs_ == ms) return;
+  audioDelayMs_ = ms;
+  saveDefaults();
+  emit playerMenuChanged();
+  emit tracksChanged();
+  qInfo("[player] ritardo audio predefinito: %d ms", ms);
 }
 
 void AppController::cycleDefaultQuality(int delta) {

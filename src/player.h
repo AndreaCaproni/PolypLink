@@ -43,6 +43,8 @@ class Player : public QThread {
     qint64 startTicks = 0;
     qint64 durationTicks = 0;
     int maxBitrateKbps = 12000;
+    // Offset manuale audio/video: positivo ritarda l'audio, negativo lo anticipa.
+    int audioDelayMs = 0;
   };
 
   explicit Player(QObject* parent = nullptr);

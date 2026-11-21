@@ -22,6 +22,7 @@ Window {
     property string settingsChoiceTitle: ""
     property var settingsChoiceItems: []
     property int settingsChoiceIndex: 0
+    property int settingsAudioDelay: 0
     // Dopo "segna come visto" il pulsante replay puo' sparire: il focus deve
     // seguire il pulsante Visto, non restare sull'indice numerico.
     property bool pendingPlayedFocus: false
@@ -41,6 +42,7 @@ Window {
     property var settingsMenu: [
         { title: qsTr("Server e connessione"), desc: qsTr("Indirizzo, porta, HTTPS e riconnessione automatica"), action: "test" },
         { title: qsTr("Bitrate massimo"), desc: qsTr("Bitrate predefinito: 4–100 Mbps"), action: "quality" },
+        { title: qsTr("Ritardo audio"), desc: qsTr("Offset audio/video predefinito in millisecondi"), action: "audiodelay" },
         { title: qsTr("Sottotitoli"), desc: qsTr("Lingua predefinita, attivazione e burn-in") },
         { title: qsTr("Dissolvenza OSD"), desc: qsTr("Quanto resta visibile l'OSD"), action: "osd" },
         { title: qsTr("Lingua dell'interfaccia"), desc: qsTr("Lingua dell'interfaccia; titoli e trame seguono il server"), action: "language" },
@@ -307,6 +309,8 @@ Window {
     function menuValue(e) {
         if (e.action === "quality") return (app.qualityDefaultKbps / 1000) + " Mbps"
         if (e.action === "osd") return qsTr("%1 secondi").arg(app.osdSeconds)
+        if (e.action === "audiodelay")
+            return (app.audioDelayMs > 0 ? "+" : "") + app.audioDelayMs + " ms"
         if (e.action === "test")
             return app.serverLabel.length > 0 ? app.serverLabel : qsTr("Nessun server")
         if (e.action === "language")
@@ -354,6 +358,9 @@ Window {
                 items.push({ label: qsTr("%1 secondi").arg(seconds[j]), value: seconds[j], selected: sel })
             }
             settingsChoiceTitle = qsTr("Dissolvenza OSD")
+        } else if (action === "audiodelay") {
+            root.settingsAudioDelay = app.audioDelayMs
+            settingsChoiceTitle = qsTr("Ritardo audio")
         }
         settingsChoiceItems = items
         settingsChoiceIndex = current
@@ -361,6 +368,11 @@ Window {
     }
 
     function confirmSettingsChoice() {
+        if (settingsChoiceAction === "audiodelay") {
+            app.setAudioDelay(settingsAudioDelay)
+            settingsChoiceOpen = false
+            return
+        }
         var item = settingsChoiceItems[settingsChoiceIndex]
         if (item === undefined) return
         if (settingsChoiceAction === "quality") app.setDefaultQuality(item.value)
@@ -1762,6 +1774,7 @@ Window {
             }
 
             Rectangle {
+                visible: root.settingsChoiceAction !== "audiodelay"
                 width: 520
                 height: Math.min(460, 54 + root.settingsChoiceItems.length * 42)
                 radius: 14
@@ -1814,6 +1827,45 @@ Window {
                             anchors.rightMargin: 14
                             anchors.verticalCenter: parent.verticalCenter
                         }
+                    }
+                }
+            }
+
+            Rectangle {
+                visible: root.settingsChoiceAction === "audiodelay"
+                width: 520
+                height: 110
+                radius: 14
+                color: Theme.overlayPanel
+                border.width: 2
+                border.color: Theme.accent
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 28
+
+                    Text {
+                        color: Theme.accentSoft
+                        font.pixelSize: 30
+                        font.bold: true
+                        text: "<"
+                    }
+
+                    Text {
+                        width: 160
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.text
+                        font.pixelSize: 28
+                        font.bold: true
+                        text: (root.settingsAudioDelay > 0 ? "+" : "") +
+                              root.settingsAudioDelay + " ms"
+                    }
+
+                    Text {
+                        color: Theme.accentSoft
+                        font.pixelSize: 30
+                        font.bold: true
+                        text: ">"
                     }
                 }
             }
@@ -2044,7 +2096,8 @@ Window {
                 PlayerButton { text: qsTr("Audio"); active: app.playerFocus === 4 }
                 PlayerButton { text: qsTr("Sottotitoli"); active: app.playerFocus === 5 }
                 PlayerButton { text: qsTr("Qualità"); active: app.playerFocus === 6 }
-                PlayerButton { text: qsTr("Statistiche"); active: app.playerFocus === 7 }
+                PlayerButton { text: qsTr("Ritardo audio"); active: app.playerFocus === 7 }
+                PlayerButton { text: qsTr("Statistiche"); active: app.playerFocus === 8 }
             }
 
         }
@@ -2052,7 +2105,7 @@ Window {
         // ---------------------------------------- MENU AUDIO/SOTTOTITOLI/QUALITA'
         Rectangle {
             id: playerMenu
-            visible: app.playerMenuOpen
+            visible: app.playerMenuOpen && app.playerMenuMode !== "avdelay"
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 96
@@ -2132,6 +2185,62 @@ Window {
                     if (app.playerMenuOpen)
                         playerMenuList.positionViewAtIndex(app.playerMenuIndex,
                                                          ListView.Contain)
+                }
+            }
+        }
+
+        // ------------------------------------------------ RITARDO AUDIO
+        Rectangle {
+            id: playerDelayPopup
+            visible: app.playerMenuOpen && app.playerMenuMode === "avdelay"
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 96
+            width: 420
+            height: 128
+            radius: 14
+            color: Theme.overlayPanel
+            border.width: 2
+            border.color: Theme.accent
+            z: 12
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 12
+                color: Theme.accentSoft
+                font.pixelSize: 16
+                font.bold: true
+                text: qsTr("Ritardo audio")
+            }
+
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 48
+                spacing: 24
+
+                Text {
+                    color: Theme.accentSoft
+                    font.pixelSize: 30
+                    font.bold: true
+                    text: "<"
+                }
+
+                Text {
+                    width: 150
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.text
+                    font.pixelSize: 26
+                    font.bold: true
+                    text: (app.audioDelayMs > 0 ? "+" : "") + app.audioDelayMs + " ms"
+                }
+
+                Text {
+                    color: Theme.accentSoft
+                    font.pixelSize: 30
+                    font.bold: true
+                    text: ">"
                 }
             }
         }
@@ -2454,6 +2563,19 @@ Window {
             }
 
             if (root.settingsChoiceOpen) {
+                if (root.settingsChoiceAction === "audiodelay") {
+                    if (event.key === Qt.Key_Left) {
+                        root.settingsAudioDelay = Math.max(-2000, root.settingsAudioDelay - 50)
+                    } else if (event.key === Qt.Key_Right) {
+                        root.settingsAudioDelay = Math.min(2000, root.settingsAudioDelay + 50)
+                    } else if (event.key === Qt.Key_Return ||
+                               event.key === Qt.Key_Escape ||
+                               event.key === Qt.Key_Backspace) {
+                        root.confirmSettingsChoice()
+                    }
+                    event.accepted = true
+                    return
+                }
                 if (event.key === Qt.Key_Up) {
                     root.settingsChoiceIndex = Math.max(0, root.settingsChoiceIndex - 1)
                     settingsChoiceList.positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
@@ -2651,7 +2773,7 @@ Window {
                     var action = entry.action
                     if (action === "logout" || action === "switchserver") {
                         app.logout()
-                    } else if (action === "quality" || action === "osd") {
+                    } else if (action === "quality" || action === "osd" || action === "audiodelay") {
                         root.openSettingsChoice(action)
                     } else if (action === "test") {
                         app.testConnection()

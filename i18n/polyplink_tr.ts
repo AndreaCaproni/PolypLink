@@ -543,6 +543,14 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
         <translation>Tümünü oku</translation>
     </message>
     <message>
+        <source>Ritardo audio</source>
+        <translation>Ses gecikmesi</translation>
+    </message>
+    <message>
+        <source>Offset audio/video predefinito in millisecondi</source>
+        <translation>Milisaniye cinsinden varsayılan ses/görüntü kayması</translation>
+    </message>
+    <message>
         <source>Qualità</source>
         <translation>Kalite</translation>
     </message>

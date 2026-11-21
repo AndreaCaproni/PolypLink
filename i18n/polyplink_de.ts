@@ -543,6 +543,14 @@ steamlink/config/system/jellyfin-server.txt auf dem USB-Laufwerk eingeben</trans
         <translation>Alles lesen</translation>
     </message>
     <message>
+        <source>Ritardo audio</source>
+        <translation>Audioverzögerung</translation>
+    </message>
+    <message>
+        <source>Offset audio/video predefinito in millisecondi</source>
+        <translation>Standard-Audio/Video-Versatz in Millisekunden</translation>
+    </message>
+    <message>
         <source>Qualità</source>
         <translation>Qualität</translation>
     </message>

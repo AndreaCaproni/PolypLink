@@ -543,6 +543,14 @@ steamlink/config/system/jellyfin-server.txt</translation>
         <translation>Lue kaikki</translation>
     </message>
     <message>
+        <source>Ritardo audio</source>
+        <translation>Äänen viive</translation>
+    </message>
+    <message>
+        <source>Offset audio/video predefinito in millisecondi</source>
+        <translation>Äänen/kuvan oletuspoikkeama millisekunteina</translation>
+    </message>
+    <message>
         <source>Qualità</source>
         <translation>Laatu</translation>
     </message>

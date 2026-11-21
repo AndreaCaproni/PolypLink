@@ -98,7 +98,13 @@ visible while the seek bar has focus.
 | **down** | back to the seek bar |
 
 Buttons: **-10 s**, **play/pause**, **+30 s**, **Audio**, **Subtitles**,
-**Quality**, **Stats**.
+**Quality**, **Audio delay**, **Stats**.
+
+**Audio delay** opens a popup with the current offset. Left/right change it in
+50 ms steps from `-2000` to `+2000` ms; **A** or **B** close the popup, save the
+value and apply it by restarting the stream. The same value is the default in
+**Settings → Audio delay**; negative values advance the audio, positive values
+delay it.
 
 ### Other keys
 

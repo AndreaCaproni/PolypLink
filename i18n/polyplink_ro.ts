@@ -543,6 +543,14 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
         <translation>Citește tot</translation>
     </message>
     <message>
+        <source>Ritardo audio</source>
+        <translation>Întârziere audio</translation>
+    </message>
+    <message>
+        <source>Offset audio/video predefinito in millisecondi</source>
+        <translation>Decalaj implicit audio/video în milisecunde</translation>
+    </message>
+    <message>
         <source>Qualità</source>
         <translation>Calitate</translation>
     </message>

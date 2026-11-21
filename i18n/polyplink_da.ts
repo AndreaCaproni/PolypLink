@@ -543,6 +543,14 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
         <translation>Læs alt</translation>
     </message>
     <message>
+        <source>Ritardo audio</source>
+        <translation>Lydforsinkelse</translation>
+    </message>
+    <message>
+        <source>Offset audio/video predefinito in millisecondi</source>
+        <translation>Standard lyd/billede-forskydning i millisekunder</translation>
+    </message>
+    <message>
         <source>Qualità</source>
         <translation>Kvalitet</translation>
     </message>

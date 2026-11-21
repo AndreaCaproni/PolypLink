@@ -14,6 +14,13 @@
   for private/LAN hosts and is marked as insecure in the log.
 - Added the FFmpeg source offer and copyright notice for LGPL compliance.
 
+### Added
+
+- Player: **Ritardo audio** popup after Quality and a corresponding default in
+  **Settings → Ritardo audio**, with offsets from `-2000` to `+2000` ms in
+  50 ms steps. The value is saved and applied at the next playback; negative
+  values advance the audio, positive values delay it.
+
 ### Changed
 
 - Single-instance guard: a second Polyplink launch exits instead of competing

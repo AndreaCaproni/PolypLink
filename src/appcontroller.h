@@ -55,10 +55,12 @@ class AppController : public QObject {
   Q_PROPERTY(QString playerMenuMode READ playerMenuMode NOTIFY playerMenuChanged)
   Q_PROPERTY(QVariantList playerMenuItems READ playerMenuItems NOTIFY playerMenuChanged)
   Q_PROPERTY(int playerMenuIndex READ playerMenuIndex NOTIFY playerMenuChanged)
+  Q_PROPERTY(int audioDelayMs READ audioDelayMs NOTIFY playerMenuChanged)
   // OSD del player: visibile per 5 s dopo l'ultimo comando, poi sfuma.
   Q_PROPERTY(bool osdVisible READ osdVisible NOTIFY osdChanged)
   // Navigazione dell'OSD: 0 = barra di seek, 1 = -10 s, 2 = play/pausa,
-  // 3 = +30 s, 4 = audio, 5 = sottotitoli, 6 = qualita', 7 = statistiche.
+  // 3 = +30 s, 4 = audio, 5 = sottotitoli, 6 = qualita',
+  // 7 = ritardo audio, 8 = statistiche.
   Q_PROPERTY(int playerFocus READ playerFocus NOTIFY playerUiChanged)
   Q_PROPERTY(double seekPreview READ seekPreview NOTIFY playerUiChanged)
   Q_PROPERTY(bool seekPending READ seekPending NOTIFY playerUiChanged)
@@ -121,6 +123,7 @@ class AppController : public QObject {
   QString playerMenuMode() const { return playerMenuMode_; }
   QVariantList playerMenuItems() const { return playerMenuItems_; }
   int playerMenuIndex() const { return playerMenuIndex_; }
+  int audioDelayMs() const { return audioDelayMs_; }
   QVariantList audioTracks() const { return audioTracks_; }
   QVariantList subtitleTracks() const { return subtitleTracks_; }
   int audioIndex() const { return audioIndex_; }
@@ -156,6 +159,7 @@ class AppController : public QObject {
   Q_INVOKABLE void cycleOsdSeconds(int delta);
   Q_INVOKABLE void setDefaultQuality(int kbps);
   Q_INVOKABLE void setOsdSeconds(int seconds);
+  Q_INVOKABLE void setAudioDelay(int ms);
   Q_INVOKABLE void testConnection();
   Q_INVOKABLE void resetSettings();
   Q_INVOKABLE void refreshUserStats();
@@ -316,6 +320,8 @@ class AppController : public QObject {
   int qualityKbps_ = 12000;
   int defaultQualityKbps_ = 12000;
   int osdSeconds_ = 5;
+  int audioDelayMs_ = 0;
+  int audioDelayBeforeMenu_ = 0;
   QString playingItemId_;
   qint64 lastReportMs_ = 0;
 

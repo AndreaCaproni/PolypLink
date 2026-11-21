@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cstdarg>
+#include <cstdlib>
 #include <ctime>
 #include <cstdio>
 #include <cstring>
@@ -811,6 +812,17 @@ void Player::run() {
     qInfo("[player] allineamento: %.3f s di silenzio in testa all'audio", audioDelay);
   } else {
     qInfo("[player] allineamento: audio e video partono insieme");
+  }
+
+  if (cfg_.audioDelayMs != 0) {
+    const int frames = std::abs(cfg_.audioDelayMs) * kAudioRate / 1000;
+    const size_t interleaved = static_cast<size_t>(frames) * kAudioChannels;
+    if (cfg_.audioDelayMs > 0) {
+      pcm_.insert(pcm_.begin(), interleaved, 0);
+    } else {
+      pcmRead_ = std::min(interleaved, pcm_.size());
+    }
+    qInfo("[player] ritardo audio utente: %d ms", cfg_.audioDelayMs);
   }
 
   playClock_ = 0.0;

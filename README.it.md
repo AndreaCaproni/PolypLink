@@ -48,8 +48,8 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
   col server.
 - **Player** con OSD navigabile: barra di seek con cursore e anteprima del
   tempo, passo accelerato fino a 3 minuti, pausa, -10/+30 secondi, traccia
-  audio, sottotitoli, qualità con menu dedicati, statistiche, cartello
-  connessione persa e scheda prossimo episodio.
+  audio, sottotitoli, qualità con menu dedicati, offset del ritardo audio,
+  statistiche, cartello connessione persa e scheda prossimo episodio.
 - **Accesso**: ricerca automatica del server (UDP Jellyfin + scansione della
   LAN), indirizzo manuale, utente/password con tastiera a schermo, Quick
   Connect.

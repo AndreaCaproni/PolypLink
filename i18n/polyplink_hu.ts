@@ -543,6 +543,14 @@ steamlink/config/system/jellyfin-server.txt helyére is elhelyezheti a USB megha
         <translation>Teljes olvasás</translation>
     </message>
     <message>
+        <source>Ritardo audio</source>
+        <translation>Hangkésleltetés</translation>
+    </message>
+    <message>
+        <source>Offset audio/video predefinito in millisecondi</source>
+        <translation>Alapértelmezett hang/kép eltolás ezredmásodpercben</translation>
+    </message>
+    <message>
         <source>Qualità</source>
         <translation>Minőség</translation>
     </message>
