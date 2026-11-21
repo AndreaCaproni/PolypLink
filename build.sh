@@ -5,6 +5,7 @@
 #   ./build.sh
 #   ./build.sh --sdk ~/steamlink-sdk
 #   ./build.sh --install /media/tuo_utente/USB
+#   ./build.sh --dev-ssh          (include the personal SSH hook)
 #   ./build.sh --clean
 #
 set -euo pipefail
@@ -16,11 +17,13 @@ DIST="$ROOT/dist"
 SDK="${STEAMLINK_SDK:-$ROOT/../steamlink-sdk}"
 INSTALL_TO=""
 CLEAN=0
+DEV_SSH=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --sdk)     SDK="$2"; shift 2 ;;
     --install) INSTALL_TO="$2"; shift 2 ;;
+    --dev-ssh) DEV_SSH=1; shift ;;
     --clean)   CLEAN=1; shift ;;
     -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
     *) echo "Opzione sconosciuta: $1" >&2; exit 2 ;;
@@ -124,20 +127,21 @@ EOF
 # con la cartella dell'app alla radice. E' il formato che l'installer del Link
 # gestisce di sicuro (una cartella nuda non viene installata).
 rm -rf "$DIST"
-mkdir -p "$DIST/steamlink/apps" "$DIST/steamlink/config/system" \
-         "$DIST/steamlink/factory_test"
+mkdir -p "$DIST/steamlink/apps"
 ( cd "$STAGE" && tar -czf "$DIST/steamlink/apps/$APPNAME.tgz" "$APPNAME" )
-echo 1 > "$DIST/steamlink/config/system/enable_ssh.txt"
 
-# Hook eseguito dal firmware a ogni avvio, con la chiavetta ancora montata:
-# abilita SSH e copia i log dell'esecuzione precedente sulla chiavetta.
-# L'hook puo' contenere dati personali (chiave SSH): in git c'e' solo
-# l'esempio. Se run.sh esiste, ha la precedenza.
-HOOK="$ROOT/deploy/factory_test/run.sh"
-[[ -f "$HOOK" ]] || HOOK="$ROOT/deploy/factory_test/run.sh.example"
-[[ -f "$HOOK" ]] || die "manca deploy/factory_test/run.sh(.example)"
-cp "$HOOK" "$DIST/steamlink/factory_test/run.sh"
-chmod +x "$DIST/steamlink/factory_test/run.sh"
+# SSH e hook personale NON sono parte del kit di default: il build normale
+# deve poter essere copiato/condiviso senza chiavi o password. Servono solo
+# per lo sviluppo sul dispositivo, quindi richiedono --dev-ssh.
+if [[ $DEV_SSH -eq 1 ]]; then
+  mkdir -p "$DIST/steamlink/config/system" "$DIST/steamlink/factory_test"
+  echo 1 > "$DIST/steamlink/config/system/enable_ssh.txt"
+  HOOK="$ROOT/deploy/factory_test/run.sh"
+  [[ -f "$HOOK" ]] || HOOK="$ROOT/deploy/factory_test/run.sh.example"
+  [[ -f "$HOOK" ]] || die "manca deploy/factory_test/run.sh(.example)"
+  cp "$HOOK" "$DIST/steamlink/factory_test/run.sh"
+  chmod +x "$DIST/steamlink/factory_test/run.sh"
+fi
 
 echo
 echo "==> fatto"
@@ -150,21 +154,21 @@ if [[ -n "$INSTALL_TO" ]]; then
   echo "    installato in $INSTALL_TO/steamlink/"
 fi
 
-cat <<EOF
+echo
+echo "Sulla chiavetta:"
+echo "  steamlink/apps/$APPNAME.tgz"
+if [[ $DEV_SSH -eq 1 ]]; then
+  echo "  steamlink/config/system/enable_ssh.txt"
+  echo "  steamlink/factory_test/run.sh     (hook SSH personale)"
+fi
+echo
+echo "Oppure, direttamente:"
+echo "  ./build.sh --install /media/tuo_utente/USB"
+echo
+echo "Log sul dispositivo: /home/apps/polyplink/polyplink-run.log"
 
-Sulla chiavetta:
-  steamlink/apps/$APPNAME.tgz
-  steamlink/config/system/enable_ssh.txt
-  steamlink/factory_test/run.sh     (abilita SSH e copia i log al boot)
-
-Oppure, direttamente:
-  ./build.sh --install /media/tuo_utente/USB
-
-Log sul dispositivo: /home/apps/polyplink/polyplink-run.log
-EOF
-
-if [[ -f "$ROOT/deploy/factory_test/run.sh" ]]; then
+if [[ $DEV_SSH -eq 1 && -f "$ROOT/deploy/factory_test/run.sh" ]]; then
   echo
-  echo "ATTENZIONE: deploy/factory_test/run.sh può contenere la tua chiave SSH."
-  echo "Non condividere dist/steamlink/: usa solo lo zip creato da package-release.sh."
+  echo "ATTENZIONE: il kit --dev-ssh contiene la tua chiave SSH e la password root."
+  echo "Non condividerlo."
 fi

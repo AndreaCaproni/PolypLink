@@ -13,6 +13,15 @@
 - Manual server entry uses HTTPS by default for public hostnames; HTTP remains
   for private/LAN hosts and is marked as insecure in the log.
 - Added the FFmpeg source offer and copyright notice for LGPL compliance.
+- Quick Connect secrets are now redacted from error/timeout logs.
+- Authenticated API/player requests no longer follow redirects, so the
+  `Authorization` token cannot be forwarded to another host. Image requests
+  use the header through the QML network manager; `api_key` was removed from
+  image and HLS URLs.
+- Logout now revokes the Jellyfin session server-side; changing server clears
+  the old token before reuse.
+- `./build.sh` no longer includes the personal SSH hook or enables SSH by
+  default; use `--dev-ssh` for that kit.
 
 ### Added
 

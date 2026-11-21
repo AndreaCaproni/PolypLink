@@ -93,6 +93,10 @@ void JellyfinClient::save() const {
 }
 
 void JellyfinClient::logout() {
+  // Revoca la sessione lato server prima di cancellare il token locale.
+  if (!token_.isEmpty()) {
+    sendPost(QStringLiteral("/Sessions/Logout"), QJsonObject(), true, nullptr);
+  }
   token_.clear();
   userId_.clear();
   userName_.clear();
@@ -100,7 +104,13 @@ void JellyfinClient::logout() {
 }
 
 void JellyfinClient::setServer(const QString& baseUrl, bool store) {
-  server_ = NormalizeServerUrl(baseUrl);
+  const QString next = NormalizeServerUrl(baseUrl);
+  if (!server_.isEmpty() && !next.isEmpty() && next != server_ &&
+      !token_.isEmpty()) {
+    // Un token vale solo per il server che lo ha emesso.
+    logout();
+  }
+  server_ = next;
   if (server_.startsWith(QLatin1String("http://"))) {
     qWarning("[security] connessione HTTP non cifrata verso %s",
              qPrintable(RedactSecrets(server_)));
@@ -140,7 +150,10 @@ QNetworkRequest JellyfinClient::makeRequestUrl(const QUrl& url, bool withToken) 
             : (lang + QStringLiteral(",en;q=0.8")).toUtf8();
     req.setRawHeader("Accept-Language", acceptLanguage);
   }
-  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+  // I redirect sono accettati solo per le chiamate senza token. Su una
+  // richiesta autenticata Qt copierebbe l'header Authorization anche verso
+  // un altro host.
+  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, !withToken);
   return req;
 }
 
@@ -592,7 +605,6 @@ QString JellyfinClient::userImageUrl() const {
   QUrlQuery q;
   q.addQueryItem(QStringLiteral("maxWidth"), QStringLiteral("160"));
   q.addQueryItem(QStringLiteral("quality"), QStringLiteral("90"));
-  if (!token_.isEmpty()) q.addQueryItem(QStringLiteral("api_key"), token_);
   return QStringLiteral("%1/Users/%2/Images/Primary?%3")
       .arg(server_, userId_, q.toString(QUrl::FullyEncoded));
 }
@@ -618,7 +630,6 @@ QString JellyfinClient::imageUrl(const QString& itemId, const QString& type,
   q.addQueryItem(QStringLiteral("maxWidth"), QString::number(maxWidth));
   q.addQueryItem(QStringLiteral("quality"), QStringLiteral("88"));
   if (!tag.isEmpty()) q.addQueryItem(QStringLiteral("tag"), tag);
-  if (!token_.isEmpty()) q.addQueryItem(QStringLiteral("api_key"), token_);
   return QStringLiteral("%1/Items/%2/Images/%3?%4")
       .arg(server_, itemId, type, q.toString(QUrl::FullyEncoded));
 }
@@ -654,7 +665,6 @@ QString JellyfinClient::buildHlsUrl(const QString& itemId, const QString& playSe
   }
   q.addQueryItem(QStringLiteral("DeviceId"), deviceId_);
   if (startTicks > 0) q.addQueryItem(QStringLiteral("StartTimeTicks"), QString::number(startTicks));
-  q.addQueryItem(QStringLiteral("api_key"), token_);
   return QStringLiteral("%1/Videos/%2/master.m3u8?%3")
       .arg(server_, itemId, q.toString(QUrl::FullyEncoded));
 }

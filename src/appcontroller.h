@@ -90,6 +90,8 @@ class AppController : public QObject {
   QString serverLabel() const;
   QString userName() const { return client_.userName(); }
   QString userImage() const;
+  QString authHeader() const { return client_.authHeader(); }
+  QString serverUrl() const { return client_.server(); }
   QVariantMap userStats() const { return userStats_; }
 
   QVariantList servers() const;

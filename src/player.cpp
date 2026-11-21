@@ -51,6 +51,19 @@ constexpr int kAudioChannels = 2;
 constexpr int kAudioBlockFrames = 960;  // 20 ms
 constexpr size_t kAudioBlockBytes = kAudioBlockFrames * kAudioChannels * sizeof(int16_t);
 
+QString StripTokenQuery(QString url) {
+  QUrl u(url);
+  QUrlQuery q(u);
+  if (q.hasQueryItem(QStringLiteral("api_key")) ||
+      q.hasQueryItem(QStringLiteral("ApiKey"))) {
+    q.removeAllQueryItems(QStringLiteral("api_key"));
+    q.removeAllQueryItems(QStringLiteral("ApiKey"));
+    u.setQuery(q);
+    return u.toString(QUrl::FullyEncoded);
+  }
+  return url;
+}
+
 QString firstUriAfterStreamInf(const QString& text, const QUrl& base) {
   const QStringList lines = text.split(QLatin1Char('\n'));
   bool wantUri = false;
@@ -122,8 +135,11 @@ void Player::setPaused(bool paused) {
 }
 
 bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* out) {
-  QNetworkRequest req{QUrl(url)};
-  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+  const QString requestUrl = StripTokenQuery(url);
+  QNetworkRequest req{QUrl(requestUrl)};
+  // Nessun redirect: l'header Authorization non deve seguire un Location
+  // verso un altro host.
+  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, false);
   if (!cfg_.authHeader.isEmpty()) {
     req.setRawHeader("Authorization", cfg_.authHeader.toUtf8());
   }
@@ -160,7 +176,7 @@ bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* o
     error_ = QStringLiteral("HTTP %1: %2").arg(status).arg(reply->errorString());
   }
 
-  QString shortUrl = RedactSecrets(url);
+  QString shortUrl = RedactSecrets(requestUrl);
   if (shortUrl.size() > 110) shortUrl = shortUrl.left(110) + "...";
   qInfo("[player] GET %d %d byte %s", status, static_cast<int>(out->size()),
         qPrintable(shortUrl));

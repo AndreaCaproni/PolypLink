@@ -113,6 +113,7 @@ Build the package with:
 ```bash
 ./build.sh                        # build and prepare dist/steamlink/
 ./build.sh --install /media/USB   # build and copy straight to the USB drive
+./build.sh --dev-ssh              # include the personal SSH hook (do not share)
 ```
 
 Release assets (USB zip, tgz and `SHA256SUMS`):

@@ -114,6 +114,7 @@ Il pacchetto si crea con:
 ```bash
 ./build.sh                        # compila e prepara dist/steamlink/
 ./build.sh --install /media/USB   # compila e copia direttamente sulla chiavetta
+./build.sh --dev-ssh              # include l'hook SSH personale (non condividerlo)
 ```
 
 Asset di release (zip USB, tgz e `SHA256SUMS`):

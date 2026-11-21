@@ -22,7 +22,7 @@ QString RedactSecrets(QString text) {
 
   // Query string: api_key=..., ApiKey=..., token=..., access_token=...
   static const QRegularExpression query(
-      QStringLiteral("(?i)(api[_-]?key|access[_-]?token|token)=([^&\\s\"':]+)"));
+      QStringLiteral("(?i)(api[_-]?key|access[_-]?token|token|secret)=([^&\\s\"':]+)"));
   text.replace(query, QStringLiteral("\\1=***"));
 
   // Authorization header, if it ever ends up in a log line.

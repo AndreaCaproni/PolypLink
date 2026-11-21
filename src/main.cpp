@@ -18,6 +18,7 @@
 #include <cstdio>
 
 #include "appcontroller.h"
+#include "authnetwork.h"
 #include "buildstamp.h"
 #include "inputpump.h"
 #include "language.h"
@@ -191,9 +192,11 @@ int main(int argc, char** argv) {
 
   FpsCounter counter;
 
+  AppController controller;
+  AuthNetworkAccessManagerFactory namFactory(&controller);
   QQmlApplicationEngine engine;
   Language language(&engine);
-  AppController controller;
+  engine.setNetworkAccessManagerFactory(&namFactory);
 
   QObject::connect(
       &engine, &QQmlApplicationEngine::warnings, &app,

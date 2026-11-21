@@ -1345,10 +1345,10 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
               q.addQueryItem(QStringLiteral("EnableAutoStreamCopy"), QStringLiteral("false"));
               q.addQueryItem(QStringLiteral("AllowVideoStreamCopy"), QStringLiteral("false"));
               q.addQueryItem(QStringLiteral("AllowAudioStreamCopy"), QStringLiteral("false"));
-              if (!q.hasQueryItem(QStringLiteral("api_key")) &&
-                  !q.hasQueryItem(QStringLiteral("ApiKey"))) {
-                q.addQueryItem(QStringLiteral("api_key"), client_.token());
-              }
+              // Il token viaggia nell'header Authorization del player, non
+              // nella query string (che finisce nei log del server/proxy).
+              q.removeAllQueryItems(QStringLiteral("api_key"));
+              q.removeAllQueryItems(QStringLiteral("ApiKey"));
               u.setQuery(q);
               url = u.toString(QUrl::FullyEncoded);
             }

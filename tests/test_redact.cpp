@@ -32,6 +32,8 @@ int main(int argc, char** argv) {
         QStringLiteral("MediaBrowser Client=\"PolypLink\", Token=\"***\""));
   check(QStringLiteral("X-Emby-Token: abc123"),
         QStringLiteral("X-Emby-Token: ***"));
+  check(QStringLiteral("http://server/QuickConnect/Connect?secret=abc123"),
+        QStringLiteral("http://server/QuickConnect/Connect?secret=***"));
   check(QStringLiteral("QML Image: Error decoding: http://server/Items/x/Images/"
                        "Primary?api_key=secret123: Connection refused"),
         QStringLiteral("QML Image: Error decoding: http://server/Items/x/Images/"

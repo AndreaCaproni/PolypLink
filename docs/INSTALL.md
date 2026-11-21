@@ -66,10 +66,12 @@ steamlink/
 
 ## SSH and debugging (optional)
 
-`deploy/factory_test/run.sh` runs as root at every boot, with the USB drive
-mounted. The repository only ships an **example** (`run.sh.example`): copy it
-to `run.sh` and add your own public key. `run.sh` is ignored by git because it
-contains personal data.
+The normal `./build.sh` does **not** include SSH or the personal boot hook.
+For development use `./build.sh --dev-ssh`: it includes `factory_test/run.sh`
+and enables SSH. The repository only ships an **example**
+(`run.sh.example`): copy it to `run.sh` and add your own public key. `run.sh`
+is ignored by git because it contains personal data, and a `--dev-ssh` kit must
+not be shared.
 
 App logs:
 
