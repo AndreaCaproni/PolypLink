@@ -16,6 +16,8 @@
         <file>qml/HeaderBar.qml</file>
         <file>qml/HomePage.qml</file>
         <file>qml/DetailPage.qml</file>
+        <file>qml/EpisodesPage.qml</file>
+        <file>qml/SeasonsPage.qml</file>
         <file>qml/LibraryPage.qml</file>
         <file>qml/ServerPage.qml</file>
         <file>qml/AuthPage.qml</file>

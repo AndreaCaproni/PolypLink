@@ -440,6 +440,10 @@ Window {
         }
     }
 
+    function navAccountIndex() { return 2 + app.views.length }
+    function navSettingsIndex() { return 3 + app.views.length }
+    function navLibraryIndex() { return 2 + Math.max(0, app.libraryIndex) }
+
     function activateNav() {
         if (navIndex === 0) {
             page = "home"
@@ -450,7 +454,12 @@ Window {
             page = "favorites"
             gridIndex = 0
             navFocus = false
-        } else if (navIndex === 2) {
+        } else if (navIndex < 2 + app.views.length) {
+            app.openView(navIndex - 2)
+            page = "library"
+            gridIndex = 0
+            navFocus = false
+        } else if (navIndex === navAccountIndex()) {
             page = "account"
             navFocus = false
             menuIndex = 0
@@ -497,7 +506,7 @@ Window {
         var next = gridIndex + delta * cols
         if (next < 0) {                            // sopra la prima riga: barra
             navFocus = true
-            navIndex = (page === "favorites") ? 1 : 0
+            navIndex = (page === "favorites") ? 1 : navLibraryIndex()
             return
         }
         if (next >= count) return                  // non c'e' una riga sotto
@@ -587,7 +596,7 @@ Window {
         }
         if (page === "library" || page === "favorites") { page = "home"; return }
         if (page === "settings" || page === "account") {
-            var back = (page === "settings") ? 3 : 2
+            var back = (page === "settings") ? navSettingsIndex() : navAccountIndex()
             page = "home"
             navFocus = true
             navIndex = back
@@ -631,6 +640,8 @@ Window {
         appState: app.state
         serverLabel: app.serverLabel
         userName: app.userName
+        libraries: app.views
+        libraryIndex: app.libraryIndex
     }
 
     // ------------------------------------------------------------------- SERVER
@@ -1053,271 +1064,44 @@ Window {
     }
 
     // ------------------------------------------------------------------ STAGIONE
-    Item {
+    EpisodesPage {
+        id: episodesPage
         anchors.fill: parent
         anchors.topMargin: header.height
         visible: app.state === "home" && root.page === "episodes" && !root.detailOpen
-
-        Row {
-            id: seasonDetailHeader
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-            spacing: 20
-
-            RoundedImage {
-                width: 110
-                height: 190
-                radius: 8
-                source: (app.seasonInfo.image !== undefined && app.seasonInfo.image.length > 0)
-                        ? app.seasonInfo.image : app.seriesPoster
-                sourceSizeWidth: 300
-            }
-
-            Column {
-                width: parent.width - 130
-                spacing: 8
-
-                Text {
-                    width: parent.width
-                    color: Theme.text
-                    font.pixelSize: 26
-                    font.bold: true
-                    elide: Text.ElideRight
-                    text: app.seasonTitle
-                }
-
-                Text {
-                    width: parent.width
-                    color: Theme.textDim
-                    font.pixelSize: 15
-                    elide: Text.ElideRight
-                    text: app.seriesTitle + "   ·   " + root.countEpisodes(app.episodes.length)
-                }
-
-                Row {
-                    spacing: 10
-
-                    ActionButton {
-                        icon: "replay"
-                        label: qsTr("Guarda dall'inizio")
-                        primary: true
-                        active: root.seasonActionsFocus && root.seasonAction === 0
-                    }
-                    ActionButton {
-                        icon: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
-                              ? "check-double" : "check"
-                        label: (app.seasonInfo.played !== undefined && app.seasonInfo.played)
-                               ? qsTr("Segna come non visto") : qsTr("Segna come visto")
-                        active: root.seasonActionsFocus && root.seasonAction === 1
-                    }
-                    ActionButton {
-                        icon: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                              ? "heart-filled" : "heart-empty"
-                        customIconColor: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                                         ? Theme.favorite : Theme.text
-                        label: (app.seasonInfo.favorite !== undefined && app.seasonInfo.favorite)
-                               ? qsTr("Togli preferito") : qsTr("Preferito")
-                        active: root.seasonActionsFocus && root.seasonAction === 2
-                    }
-                }
-
-                Text {
-                    width: parent.width
-                    height: 40
-                    color: Theme.textSubtle
-                    font.pixelSize: 14
-                    wrapMode: Text.WordWrap
-                    maximumLineCount: 2
-                    elide: Text.ElideRight
-                    text: app.seasonInfo.overview !== undefined ? app.seasonInfo.overview : ""
-                }
-            }
-        }
-
-        ListView {
-            id: episodeList
-            anchors.top: seasonDetailHeader.bottom
-            anchors.topMargin: 10
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-            clip: true
-            model: app.episodes
-            spacing: 8
-            boundsBehavior: Flickable.StopAtBounds
-
-            delegate: Item {
-                width: episodeList.width
-                height: 112
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 8
-                    color: index === root.epIndex && !root.seasonActionsFocus ? Theme.selected : Theme.panelAlt
-                    border.width: index === root.epIndex && !root.seasonActionsFocus ? 2 : 1
-                    border.color: index === root.epIndex && !root.seasonActionsFocus ? Theme.accent : Theme.borderDark
-                }
-
-                RoundedImage {
-                    x: 10
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 150
-                    height: 84
-                    radius: 7
-                    source: modelData.image !== undefined ? modelData.image : ""
-                    sourceSizeWidth: 300
-                }
-
-                Text {
-                    id: epRowTitle
-                    anchors.left: parent.left
-                    anchors.leftMargin: 174
-                    anchors.right: parent.right
-                    anchors.rightMargin: 110
-                    anchors.top: parent.top
-                    anchors.topMargin: 12
-                    color: Theme.text
-                    font.pixelSize: 19
-                    font.bold: index === root.epIndex && !root.seasonActionsFocus
-                    elide: Text.ElideRight
-                    text: {
-                        var n = modelData.indexNumber !== undefined ? modelData.indexNumber : 0
-                        var sn = modelData.parentIndexNumber !== undefined ? modelData.parentIndexNumber : 0
-                        var label = (sn > 0 || n > 0) ? ("S" + sn + " E" + n + "  ·  ") : ""
-                        return label + (modelData.name !== undefined ? modelData.name : "")
-                    }
-                }
-
-                Text {
-                    anchors.left: parent.left
-                    anchors.leftMargin: 174
-                    anchors.right: parent.right
-                    anchors.rightMargin: 110
-                    anchors.top: epRowTitle.bottom
-                    anchors.topMargin: 3
-                    color: Theme.textSubtle
-                    font.pixelSize: 14
-                    wrapMode: Text.WordWrap
-                    maximumLineCount: 2
-                    elide: Text.ElideRight
-                    text: modelData.overview !== undefined ? modelData.overview : ""
-                }
-
-                Rectangle {
-                    anchors.right: parent.right
-                    anchors.rightMargin: 14
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 78
-                    height: 22
-                    radius: 4
-                    color: Theme.bg
-                    border.width: 1
-                    border.color: Theme.borderAccent
-                    visible: modelData.played !== undefined && modelData.played
-                    Text { anchors.centerIn: parent; color: Theme.accentSoft; font.pixelSize: 12; text: qsTr("VISTO") }
-                }
-
-                Rectangle {
-                    anchors.left: parent.left
-                    anchors.leftMargin: 174
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 8
-                    width: 220
-                    height: 4
-                    radius: 2
-                    color: Theme.borderDark
-                    visible: modelData.progress !== undefined && modelData.progress > 0
-
-                    Rectangle {
-                        height: parent.height
-                        radius: 2
-                        width: parent.width * Math.min(1, (modelData.progress !== undefined ? modelData.progress : 0) / 100.0)
-                        color: Theme.accent
-                    }
-                }
-            }
-        }
-    }
-
-    // -------------------------------------------------------- STAGIONE VUOTA
-    EmptyState {
-        visible: app.state === "home" && page === "episodes" && !root.detailOpen &&
-                 app.episodes.length === 0 && !app.loading
-        label: qsTr("Nessun episodio in questa stagione")
+        seasonInfo: app.seasonInfo
+        seasonTitle: app.seasonTitle
+        seriesTitle: app.seriesTitle
+        subtitleText: app.seriesTitle + "   ·   " + root.countEpisodes(app.episodes.length)
+        episodes: app.episodes
+        seriesPoster: app.seriesPoster
+        seasonActionsFocus: root.seasonActionsFocus
+        seasonAction: root.seasonAction
+        epIndex: root.epIndex
+        loading: app.loading
+        watchFromStartLabel: qsTr("Guarda dall'inizio")
+        watchedLabel: qsTr("Segna come visto")
+        unwatchedLabel: qsTr("Segna come non visto")
+        favoriteLabel: qsTr("Preferito")
+        unfavoriteLabel: qsTr("Togli preferito")
+        seenLabel: qsTr("VISTO")
+        emptyLabel: qsTr("Nessun episodio in questa stagione")
     }
 
     // ----------------------------------------------------------------- STAGIONI
-    Item {
+    SeasonsPage {
+        id: seasonsPage
         anchors.fill: parent
         anchors.topMargin: header.height
         visible: app.state === "home" && root.page === "seasons"
-
-        Text {
-            id: seasonHeader
-            x: 24
-            anchors.top: parent.top
-            anchors.topMargin: 10
-            color: Theme.text
-            font.pixelSize: 26
-            font.bold: true
-            text: app.seriesTitle
-        }
-
-        Text {
-            anchors.left: parent.left
-            anchors.leftMargin: 24
-            anchors.top: seasonHeader.bottom
-            anchors.topMargin: 2
-            color: Theme.textDim
-            font.pixelSize: 15
-            text: root.countSeasons(app.seasons.length)
-        }
-
-        GridView {
-            id: seasonGrid
-            anchors.top: seasonHeader.bottom
-            anchors.topMargin: 34
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.leftMargin: 24
-            anchors.rightMargin: 24
-            clip: true
-            // stessa griglia dei film: locandina verticale anche per le stagioni
-            cellWidth: 152
-            cellHeight: 292
-            boundsBehavior: Flickable.StopAtBounds
-            model: app.seasons
-
-            delegate: Item {
-                width: seasonGrid.cellWidth
-                height: seasonGrid.cellHeight
-
-                PosterCard {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: 150
-                    title: modelData.name !== undefined ? modelData.name : ""
-                    subtitle: root.countEpisodes(modelData.childCount !== undefined ? modelData.childCount : 0)
-                    image: (modelData.image !== undefined && modelData.image.length > 0)
-                           ? modelData.image : app.seriesPoster
-                    played: modelData.played !== undefined ? modelData.played : false
-                    active: index === root.seasonIndex
-                }
-            }
-        }
-    }
-
-    // --------------------------------------------------------- STAGIONI VUOTE
-    EmptyState {
-        visible: app.state === "home" && page === "seasons" &&
-                 app.seasons.length === 0 && !app.loading
-        label: qsTr("Nessuna stagione")
+        seriesTitle: app.seriesTitle
+        seasons: app.seasons
+        seriesPoster: app.seriesPoster
+        seasonIndex: root.seasonIndex
+        countText: root.countSeasons(app.seasons.length)
+        emptyLabel: qsTr("Nessuna stagione")
+        episodeCountText: function(n) { return root.countEpisodes(n) }
+        loading: app.loading
     }
 
     // ----------------------------------------------------------------- DETTAGLIO
@@ -2297,7 +2081,7 @@ Window {
             // barra superiore: sinistra/destra scelgono, A apre, giu' torna al contenuto
             if (app.state === "home" && root.navFocus) {
                 if (event.key === Qt.Key_Left) { root.navIndex = Math.max(0, root.navIndex - 1); event.accepted = true; return }
-                if (event.key === Qt.Key_Right) { root.navIndex = Math.min(3, root.navIndex + 1); event.accepted = true; return }
+                if (event.key === Qt.Key_Right) { root.navIndex = Math.min(navSettingsIndex(), root.navIndex + 1); event.accepted = true; return }
                 if (event.key === Qt.Key_Down) {
                     root.navFocus = false
                     if (page === "home") focusContent()
@@ -2435,22 +2219,22 @@ Window {
                 } else if (event.key === Qt.Key_Escape) { goBack() }
                 else handled = false
             } else if (page === "seasons") {
-                var scols = Math.max(1, Math.floor(seasonGrid.width / seasonGrid.cellWidth))
+                var scols = seasonsPage.columns
                 if (event.key === Qt.Key_Left) {
                     seasonIndex = Math.max(0, seasonIndex - 1)
-                    seasonGrid.positionViewAtIndex(seasonIndex, GridView.Contain)
+                    seasonsPage.ensureVisible(seasonIndex)
                 } else if (event.key === Qt.Key_Right) {
                     seasonIndex = Math.min(app.seasons.length - 1, seasonIndex + 1)
-                    seasonGrid.positionViewAtIndex(seasonIndex, GridView.Contain)
+                    seasonsPage.ensureVisible(seasonIndex)
                 } else if (event.key === Qt.Key_Up) {
                     if (seasonIndex - scols >= 0) {
                         seasonIndex -= scols
-                        seasonGrid.positionViewAtIndex(seasonIndex, GridView.Contain)
+                        seasonsPage.ensureVisible(seasonIndex)
                     }
                 } else if (event.key === Qt.Key_Down) {
                     if (seasonIndex + scols < app.seasons.length) {
                         seasonIndex += scols
-                        seasonGrid.positionViewAtIndex(seasonIndex, GridView.Contain)
+                        seasonsPage.ensureVisible(seasonIndex)
                     }
                 } else if (event.key === Qt.Key_Y) {
                     if (app.seasons.length > 0 && seasonIndex >= 0 && seasonIndex < app.seasons.length)
@@ -2474,12 +2258,12 @@ Window {
                             seasonActionsFocus = true
                         } else {
                             epIndex = Math.max(0, epIndex - 1)
-                            episodeList.positionViewAtIndex(epIndex, ListView.Contain)
+                            episodesPage.ensureVisible(epIndex)
                         }
                     } else if (event.key === Qt.Key_Down) {
                         if (app.episodes.length > 0) {
                             epIndex = Math.min(app.episodes.length - 1, epIndex + 1)
-                            episodeList.positionViewAtIndex(epIndex, ListView.Contain)
+                            episodesPage.ensureVisible(epIndex)
                         }
                     } else if (event.key === Qt.Key_Return) {
                         if (app.episodes.length > 0) openDetail(app.episodes[epIndex].id)
@@ -2494,7 +2278,7 @@ Window {
                 else if (event.key === Qt.Key_Up) {
                     if (gridIndex < cols) {
                         navFocus = true
-                        navIndex = (page === "favorites") ? 1 : 0
+                        navIndex = (page === "favorites") ? 1 : navLibraryIndex()
                     } else moveGridRow(-1)
                 }
                 else if (event.key === Qt.Key_Down) { moveGridRow(1) }
@@ -2505,7 +2289,7 @@ Window {
                 var entries = (page === "settings") ? settingsMenu : accountMenu
                 if (event.key === Qt.Key_Up) {
                     if (menuIndex === 0) {
-                        var back = (page === "settings") ? 3 : 2
+                        var back = (page === "settings") ? navSettingsIndex() : navAccountIndex()
                         page = "home"
                         navFocus = true
                         navIndex = back
@@ -2540,7 +2324,7 @@ Window {
                         menuHintTimer.restart()
                     }
                 } else if (event.key === Qt.Key_Escape || event.key === Qt.Key_Left) {
-                    var back = (page === "settings") ? 3 : 2
+                    var back = (page === "settings") ? navSettingsIndex() : navAccountIndex()
                     page = "home"
                     navFocus = true
                     navIndex = back

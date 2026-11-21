@@ -11,6 +11,11 @@ Rectangle {
     property string appState: ""
     property string serverLabel: ""
     property string userName: ""
+    property var libraries: []
+    property int libraryIndex: -1
+
+    readonly property int accountIndex: 2 + libraries.length
+    readonly property int settingsIndex: 3 + libraries.length
 
     width: parent.width
     height: 56
@@ -66,44 +71,72 @@ Rectangle {
         }
     }
 
-    // schede
-    Rectangle {
-        id: homeTab
+    // schede: Home, Preferiti e librerie Jellyfin nello stesso ordine
+    Row {
+        id: navTabs
         x: 220
+        width: Math.max(0, accountBtn.x - x - 12)
         anchors.verticalCenter: parent.verticalCenter
-        width: 96
-        height: 36
-        radius: 18
+        spacing: 6
+        clip: true
         visible: appState === "home"
-        color: navFocus && navIndex === 0 ? Theme.selected : "transparent"
-        border.width: navFocus && navIndex === 0 ? 2 : 0
-        border.color: Theme.accent
-        Text {
-            anchors.centerIn: parent
-            text: qsTr("Home")
-            font.pixelSize: 17
-            font.bold: page === "home"
-            color: page === "home" ? Theme.text : Theme.textMuted
-        }
-    }
 
-    Rectangle {
-        id: favTab
-        x: 324
-        anchors.verticalCenter: parent.verticalCenter
-        width: 128
-        height: 36
-        radius: 18
-        visible: appState === "home"
-        color: navFocus && navIndex === 1 ? Theme.selected : "transparent"
-        border.width: navFocus && navIndex === 1 ? 2 : 0
-        border.color: Theme.accent
-        Text {
-            anchors.centerIn: parent
-            text: qsTr("Preferiti")
-            font.pixelSize: 17
-            font.bold: page === "favorites"
-            color: page === "favorites" ? Theme.text : Theme.textMuted
+        Rectangle {
+            width: 96
+            height: 36
+            radius: 18
+            color: navFocus && navIndex === 0 ? Theme.selected : "transparent"
+            border.width: navFocus && navIndex === 0 ? 2 : 0
+            border.color: Theme.accent
+            Text {
+                anchors.centerIn: parent
+                text: qsTr("Home")
+                font.pixelSize: 17
+                font.bold: page === "home"
+                color: page === "home" ? Theme.text : Theme.textMuted
+            }
+        }
+
+        Rectangle {
+            width: 128
+            height: 36
+            radius: 18
+            color: navFocus && navIndex === 1 ? Theme.selected : "transparent"
+            border.width: navFocus && navIndex === 1 ? 2 : 0
+            border.color: Theme.accent
+            Text {
+                anchors.centerIn: parent
+                text: qsTr("Preferiti")
+                font.pixelSize: 17
+                font.bold: page === "favorites"
+                color: page === "favorites" ? Theme.text : Theme.textMuted
+            }
+        }
+
+        Repeater {
+            model: libraries
+
+            delegate: Rectangle {
+                width: Math.max(110, Math.min(190, label.implicitWidth + 36))
+                height: 36
+                radius: 18
+                color: navFocus && navIndex === 2 + index ? Theme.selected : "transparent"
+                border.width: navFocus && navIndex === 2 + index ? 2 : 0
+                border.color: Theme.accent
+
+                Text {
+                    id: label
+                    anchors.centerIn: parent
+                    width: parent.width - 24
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    text: modelData.name !== undefined ? modelData.name : ""
+                    font.pixelSize: 17
+                    font.bold: page === "library" && libraryIndex === index
+                    color: page === "library" && libraryIndex === index
+                           ? Theme.text : Theme.textMuted
+                }
+            }
         }
     }
 
@@ -127,9 +160,9 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: settingsBtn.left
         anchors.rightMargin: 10
-        color: navFocus && navIndex === 2 ? Theme.selected : Theme.chip
-        border.width: navFocus && navIndex === 2 ? 2 : 1
-        border.color: navFocus && navIndex === 2 ? Theme.accent : Theme.borderStrong
+        color: navFocus && navIndex === accountIndex ? Theme.selected : Theme.chip
+        border.width: navFocus && navIndex === accountIndex ? 2 : 1
+        border.color: navFocus && navIndex === accountIndex ? Theme.accent : Theme.borderStrong
 
         Row {
             id: avatarRow
@@ -176,16 +209,16 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: 24
-        color: navFocus && navIndex === 3 ? Theme.selected : Theme.chip
-        border.width: navFocus && navIndex === 3 ? 2 : 1
-        border.color: navFocus && navIndex === 3 ? Theme.accent : Theme.borderStrong
+        color: navFocus && navIndex === settingsIndex ? Theme.selected : Theme.chip
+        border.width: navFocus && navIndex === settingsIndex ? 2 : 1
+        border.color: navFocus && navIndex === settingsIndex ? Theme.accent : Theme.borderStrong
 
         Canvas {
             id: gearIcon
             anchors.centerIn: parent
             width: 24
             height: 24
-            property color tint: navFocus && navIndex === 3 ? Theme.text : Theme.textSoft
+            property color tint: navFocus && navIndex === settingsIndex ? Theme.text : Theme.textSoft
             onTintChanged: requestPaint()
             onPaint: {
                 var ctx = getContext("2d")
