@@ -20,6 +20,7 @@
         <file>qml/SeasonsPage.qml</file>
         <file>qml/LibraryPage.qml</file>
         <file>qml/MenuPage.qml</file>
+        <file>qml/PlayerPage.qml</file>
         <file>qml/ServerPage.qml</file>
         <file>qml/AuthPage.qml</file>
         <file>qml/QuickConnectPage.qml</file>
