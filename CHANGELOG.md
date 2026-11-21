@@ -43,6 +43,8 @@
 - Top bar: library tabs after Favorites, in the same order as Jellyfin; Account
   and Settings follow the libraries.
 - Settings and Account layouts extracted into a shared `MenuPage` component.
+- Player OSD and the main overlays extracted into `PlayerPage`,
+  `OverviewOverlay`, `SettingsChoiceOverlay` and `LanguageOverlay`.
 
 ## 0.3.1-beta — 2026-11-17
 

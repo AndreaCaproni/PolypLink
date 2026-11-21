@@ -21,6 +21,9 @@
         <file>qml/LibraryPage.qml</file>
         <file>qml/MenuPage.qml</file>
         <file>qml/PlayerPage.qml</file>
+        <file>qml/OverviewOverlay.qml</file>
+        <file>qml/SettingsChoiceOverlay.qml</file>
+        <file>qml/LanguageOverlay.qml</file>
         <file>qml/ServerPage.qml</file>
         <file>qml/AuthPage.qml</file>
         <file>qml/QuickConnectPage.qml</file>

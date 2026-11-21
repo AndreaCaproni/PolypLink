@@ -993,233 +993,37 @@ Window {
     }
 
     // ---------------------------------------------------------- TRAMA COMPLETA
-    Item {
+    OverviewOverlay {
+        id: overviewOverlay
         anchors.fill: parent
         visible: root.overviewOpen && root.detailOpen
         z: 50
-
-        Rectangle {
-            anchors.fill: parent
-            color: Theme.overlay
-        }
-
-        Column {
-            anchors.fill: parent
-            anchors.margins: 60
-            spacing: 16
-
-            Text {
-                width: parent.width
-                color: Theme.text
-                font.pixelSize: 28
-                font.bold: true
-                elide: Text.ElideRight
-                text: app.detail.name !== undefined ? app.detail.name : ""
-            }
-
-            Flickable {
-                id: overviewFlick
-                width: parent.width
-                height: parent.height - 40
-                contentWidth: width
-                contentHeight: overviewFullText.height
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-
-                Text {
-                    id: overviewFullText
-                    width: overviewFlick.width
-                    color: Theme.textSoft
-                    font.pixelSize: 18
-                    lineHeight: 1.25
-                    wrapMode: Text.WordWrap
-                    text: app.detail.overview !== undefined ? app.detail.overview : ""
-                }
-            }
-        }
+        detail: app.detail
     }
 
     }
-
     // ------------------------------------------- SELEZIONE IMPOSTAZIONI
-    Item {
+    SettingsChoiceOverlay {
+        id: settingsChoiceOverlay
         anchors.fill: parent
         visible: root.settingsChoiceOpen
         z: 60
-
-        Rectangle {
-            anchors.fill: parent
-            color: Theme.overlay
-        }
-
-        Column {
-            anchors.centerIn: parent
-            spacing: 14
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                color: Theme.text
-                font.pixelSize: 28
-                font.bold: true
-                text: root.settingsChoiceTitle
-            }
-
-            Rectangle {
-                visible: root.settingsChoiceAction !== "audiodelay"
-                width: 520
-                height: Math.min(460, 54 + root.settingsChoiceItems.length * 42)
-                radius: 14
-                color: Theme.overlayPanel
-                border.width: 2
-                border.color: Theme.accent
-
-                ListView {
-                    id: settingsChoiceList
-                    anchors.fill: parent
-                    anchors.margins: 10
-                    clip: true
-                    spacing: 2
-                    model: root.settingsChoiceItems
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    onVisibleChanged: {
-                        if (visible)
-                            positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
-                    }
-
-                    delegate: Rectangle {
-                        width: settingsChoiceList.width
-                        height: 40
-                        radius: 8
-                        color: index === root.settingsChoiceIndex ? Theme.selected : "transparent"
-                        border.width: index === root.settingsChoiceIndex ? 2 : 0
-                        border.color: Theme.accent
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 14
-                            anchors.right: parent.right
-                            anchors.rightMargin: 28
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: index === root.settingsChoiceIndex ? Theme.text : Theme.textSoft
-                            font.pixelSize: 16
-                            font.bold: index === root.settingsChoiceIndex
-                            elide: Text.ElideRight
-                            text: modelData.label
-                        }
-
-                        Rectangle {
-                            visible: modelData.selected
-                            width: 8
-                            height: 8
-                            radius: 4
-                            color: Theme.accentSoft
-                            anchors.right: parent.right
-                            anchors.rightMargin: 14
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                    }
-                }
-            }
-
-            Rectangle {
-                visible: root.settingsChoiceAction === "audiodelay"
-                width: 520
-                height: 110
-                radius: 14
-                color: Theme.overlayPanel
-                border.width: 2
-                border.color: Theme.accent
-
-                Row {
-                    anchors.centerIn: parent
-                    spacing: 28
-
-                    Text {
-                        color: Theme.accentSoft
-                        font.pixelSize: 30
-                        font.bold: true
-                        text: "<"
-                    }
-
-                    Text {
-                        width: 160
-                        horizontalAlignment: Text.AlignHCenter
-                        color: Theme.text
-                        font.pixelSize: 28
-                        font.bold: true
-                        text: (root.settingsAudioDelay > 0 ? "+" : "") +
-                              root.settingsAudioDelay + " ms"
-                    }
-
-                    Text {
-                        color: Theme.accentSoft
-                        font.pixelSize: 30
-                        font.bold: true
-                        text: ">"
-                    }
-                }
-            }
-        }
+        title: root.settingsChoiceTitle
+        action: root.settingsChoiceAction
+        items: root.settingsChoiceItems
+        index: root.settingsChoiceIndex
+        audioDelay: root.settingsAudioDelay
     }
 
     // ------------------------------------------------------- LINGUA INTERFACCIA
-    Item {
+    LanguageOverlay {
+        id: languageOverlay
         anchors.fill: parent
         visible: root.languageOpen
         z: 60
-
-        Rectangle {
-            anchors.fill: parent
-            color: Theme.overlay
-        }
-
-        Column {
-            anchors.centerIn: parent
-            spacing: 18
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                color: Theme.text
-                font.pixelSize: 28
-                font.bold: true
-                text: qsTr("Lingua dell'interfaccia")
-            }
-
-            GridView {
-                id: languageGrid
-                width: 1110
-                height: 454
-                cellWidth: 370
-                cellHeight: 62
-                interactive: false
-                clip: true
-                model: language.available
-
-                delegate: Item {
-                    width: languageGrid.cellWidth
-                    height: languageGrid.cellHeight
-
-                    Rectangle {
-                        width: 350
-                        height: 54
-                        anchors.centerIn: parent
-                        radius: 27
-                        color: index === root.languageIndex ? Theme.selected : Theme.panel
-                        border.width: index === root.languageIndex ? 2 : 1
-                        border.color: index === root.languageIndex ? Theme.accent : Theme.border
-
-                        Text {
-                            anchors.centerIn: parent
-                            color: index === root.languageIndex ? Theme.text : Theme.textSoft
-                            font.pixelSize: 19
-                            font.bold: index === root.languageIndex
-                            text: modelData.name
-                        }
-                    }
-                }
-            }
-        }
+        title: qsTr("Lingua dell'interfaccia")
+        languages: language.available
+        currentIndex: root.languageIndex
     }
 
     // ------------------------------------------------------------------ PLAYER
@@ -1315,11 +1119,11 @@ Window {
                 }
                 if (event.key === Qt.Key_Up) {
                     root.settingsChoiceIndex = Math.max(0, root.settingsChoiceIndex - 1)
-                    settingsChoiceList.positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
+                    settingsChoiceOverlay.ensureVisible(root.settingsChoiceIndex)
                 } else if (event.key === Qt.Key_Down) {
                     root.settingsChoiceIndex = Math.min(root.settingsChoiceItems.length - 1,
                                                        root.settingsChoiceIndex + 1)
-                    settingsChoiceList.positionViewAtIndex(root.settingsChoiceIndex, ListView.Contain)
+                    settingsChoiceOverlay.ensureVisible(root.settingsChoiceIndex)
                 } else if (event.key === Qt.Key_Return) {
                     root.confirmSettingsChoice()
                 } else if (event.key === Qt.Key_Escape ||
@@ -1363,11 +1167,9 @@ Window {
                     event.key === Qt.Key_Left || event.key === Qt.Key_Backspace) {
                     root.overviewOpen = false
                 } else if (event.key === Qt.Key_Down) {
-                    overviewFlick.contentY = Math.min(
-                        Math.max(0, overviewFlick.contentHeight - overviewFlick.height),
-                        overviewFlick.contentY + 120)
+                    overviewOverlay.scrollBy(120)
                 } else if (event.key === Qt.Key_Up) {
-                    overviewFlick.contentY = Math.max(0, overviewFlick.contentY - 120)
+                    overviewOverlay.scrollBy(-120)
                 }
                 event.accepted = true
                 return
