@@ -797,7 +797,14 @@ void Player::run() {
   // farebbe saltare i frame video (il video "partiva in ritardo").
   const double audioDelay =
       (firstAudioPts_ >= 0) ? (firstAudioPts_ - basePts_) / 90000.0 : 0.0;
+  const double videoLead =
+      (firstAudioPts_ >= 0 && firstVideoPts_ >= 0)
+          ? (firstVideoPts_ - firstAudioPts_) / 90000.0
+          : 0.0;
   audioOffsetSec_ = 0.0;
+  qInfo("[player] allineamento PTS: video=%lld audio=%lld (video-audio=%.3f s)",
+        static_cast<long long>(firstVideoPts_),
+        static_cast<long long>(firstAudioPts_), videoLead);
   if (audioDelay > 0.05) {
     const size_t silence = static_cast<size_t>(audioDelay * kAudioRate) * kAudioChannels;
     pcm_.insert(pcm_.begin(), silence, 0);
@@ -917,9 +924,13 @@ void Player::run() {
 
     // audio
     if (queuedAudioFrames() < 4800 && pcmFrames >= static_cast<size_t>(kAudioBlockFrames)) {
+      const bool firstAudioBlock = audioFramesSubmitted_ == 0;
       if (!pushAudioBlock()) {
         failedNow = true;
         break;
+      }
+      if (firstAudioBlock && audioFramesSubmitted_ > 0) {
+        qInfo("[player] primo blocco audio a t=%.2f s", nowWall);
       }
     }
 
@@ -944,7 +955,11 @@ void Player::run() {
 
       const double interval = 1.0 / (videoFps_ > 1.0 ? videoFps_ : 25.0);
       if (nowMono >= nextVideoTime_) {
+        const bool firstVideoFrame = submittedFrames_ == 0;
         pushVideoFrame();
+        if (firstVideoFrame && submittedFrames_ > 0) {
+          qInfo("[player] primo frame video a t=%.2f s", nowWall);
+        }
         nextVideoTime_ += interval;
         // se siamo in ritardo di oltre mezzo secondo, riallinea senza accumulare
         if (nextVideoTime_ < nowMono - 0.5) nextVideoTime_ = nowMono;
