@@ -792,275 +792,34 @@ Window {
     }
 
     // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
-    Item {
+    MenuPage {
         id: menuPage
         anchors.fill: parent
         anchors.topMargin: header.height
         visible: app.state === "home" && (page === "settings" || page === "account")
-
-        onVisibleChanged: {
-            if (visible) menuList.positionViewAtIndex(0, ListView.Beginning)
-        }
-
-        // --- colonna sinistra: elenco
-        Text {
-            x: 40
-            y: 12
-            color: Theme.text
-            font.pixelSize: 30
-            font.bold: true
-            text: page === "settings" ? qsTr("Impostazioni") : qsTr("Account")
-        }
-        Text {
-            x: 40
-            y: 52
-            width: 540
-            color: Theme.textDim
-            font.pixelSize: 14
-            elide: Text.ElideRight
-            text: page === "settings"
+        title: page === "settings" ? qsTr("Impostazioni") : qsTr("Account")
+        subtitle: page === "settings"
                   ? qsTr("Percorso verso la versione stabile")
                   : (app.userName + "   ·   " + app.serverLabel)
-        }
-
-        ListView {
-            id: menuList
-            x: 40
-            y: 90
-            width: 540
-            height: parent.height - 126
-            clip: true
-            model: page === "settings" ? root.settingsMenu : root.accountMenu
-            spacing: 4
-            boundsBehavior: Flickable.StopAtBounds
-
-            delegate: Rectangle {
-                width: menuList.width
-                height: 48
-                radius: 8
-                color: index === root.menuIndex
-                       ? Theme.selected
-                       : (index % 2 === 0 ? Theme.panelAlternate : Theme.bgAlt)
-                border.width: index === root.menuIndex ? 2 : 0
-                border.color: Theme.accent
-
-                Text {
-                    anchors.left: parent.left
-                    anchors.leftMargin: 14
-                    anchors.right: parent.right
-                    anchors.rightMargin: root.menuValue(modelData).length > 0 ? 150 : 14
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: index === root.menuIndex ? Theme.text : Theme.textSoft
-                    font.pixelSize: 16
-                    font.bold: index === root.menuIndex
-                    elide: Text.ElideRight
-                    text: modelData.title
-                }
-
-                Text {
-                    anchors.right: parent.right
-                    anchors.rightMargin: 14
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: Theme.accentSoft
-                    font.pixelSize: 14
-                    visible: root.menuValue(modelData).length > 0
-                    text: root.menuValue(modelData)
-                }
-            }
-        }
-
-        // --- colonna destra: dettaglio della voce selezionata
-        Rectangle {
-            x: 620
-            y: 16
-            width: 620
-            height: parent.height - 32
-            radius: 16
-            color: Theme.panelDeep
-            border.width: 1
-            border.color: Theme.borderSoft
-
-            Rectangle {
-                x: 28
-                y: 34
-                width: 4
-                height: 54
-                radius: 2
-                color: Theme.accent
-                visible: page === "settings"
-            }
-
-            // profilo utente
-            Row {
-                x: 28
-                y: 24
-                spacing: 18
-                visible: root.isProfileView()
-
-                Item {
-                    width: 84
-                    height: 84
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 42
-                        color: Theme.chip
-                        border.width: 1
-                        border.color: Theme.borderStrong
-                    }
-                    Text {
-                        anchors.centerIn: parent
-                        color: Theme.textSoft
-                        font.pixelSize: 34
-                        font.bold: true
-                        text: app.userName.length > 0 ? app.userName.charAt(0).toUpperCase() : "?"
-                    }
-                    RoundedImage {
-                        anchors.fill: parent
-                        radius: 42
-                        source: app.userImage
-                        sourceSizeWidth: 168
-                    }
-                }
-
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 4
-                    Text {
-                        color: Theme.text
-                        font.pixelSize: 24
-                        font.bold: true
-                        text: app.userName
-                    }
-                    Text {
-                        color: Theme.textDim
-                        font.pixelSize: 14
-                        text: app.serverLabel
-                    }
-                }
-            }
-
-            // statistiche
-            Row {
-                x: 28
-                y: 124
-                spacing: 10
-                visible: root.isProfileView()
-
-                Rectangle {
-                    width: 130; height: 64; radius: 10
-                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
-                               text: app.userStats.movies !== undefined ? app.userStats.movies : "–" }
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Film") }
-                    }
-                }
-                Rectangle {
-                    width: 130; height: 64; radius: 10
-                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
-                               text: app.userStats.series !== undefined ? app.userStats.series : "–" }
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Serie") }
-                    }
-                }
-                Rectangle {
-                    width: 130; height: 64; radius: 10
-                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
-                               text: app.userStats.episodes !== undefined ? app.userStats.episodes : "–" }
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Episodi") }
-                    }
-                }
-                Rectangle {
-                    width: 130; height: 64; radius: 10
-                    color: Theme.panelAlternate; border.width: 1; border.color: Theme.borderSoft
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.accentSoft; font.pixelSize: 20; font.bold: true
-                               text: app.userStats.favorites !== undefined ? app.userStats.favorites : "–" }
-                        Text { anchors.horizontalCenter: parent.horizontalCenter
-                               color: Theme.textDim; font.pixelSize: 12; text: qsTr("Preferiti") }
-                    }
-                }
-            }
-
-            Rectangle {
-                x: 28
-                y: 202
-                width: parent.width - 56
-                height: 1
-                color: Theme.borderSoft
-                visible: root.isProfileView()
-            }
-
-            Column {
-                x: 48
-                y: 28
-                width: parent.width - 88
-                spacing: 10
-                visible: !root.isProfileView()
-
-                Text {
-                    width: parent.width
-                    color: Theme.text
-                    font.pixelSize: 28
-                    font.bold: true
-                    wrapMode: Text.WordWrap
-                    text: root.currentMenuEntry().title
-                }
-                Text {
-                    width: parent.width
-                    color: Theme.accentSoft
-                    font.pixelSize: 22
-                    font.bold: true
-                    visible: root.menuValue(root.currentMenuEntry()).length > 0
-                    text: root.menuValue(root.currentMenuEntry())
-                }
-                Text {
-                    width: parent.width
-                    color: Theme.textSubtle
-                    font.pixelSize: 15
-                    lineHeight: 1.2
-                    wrapMode: Text.WordWrap
-                    text: root.currentMenuEntry().desc
-                }
-                Text {
-                    width: parent.width
-                    color: Theme.accentSoft
-                    font.pixelSize: 14
-                    font.bold: true
-                    visible: root.isComingSoon()
-                    text: qsTr("Funzionalità in arrivo")
-                }
-            }
-
-            Text {
-                anchors.left: parent.left
-                anchors.leftMargin: 28
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 22
-                color: Theme.textFaint
-                font.pixelSize: 13
-                text: "PolypLink " + appVersion
-            }
-        }
+        entries: page === "settings" ? root.settingsMenu : root.accountMenu
+        menuIndex: root.menuIndex
+        accountMode: page === "account"
+        profileView: root.isProfileView()
+        profileName: app.userName
+        profileImage: app.userImage
+        serverLabel: app.serverLabel
+        userStats: app.userStats
+        currentTitle: root.currentMenuEntry().title
+        currentValue: root.menuValue(root.currentMenuEntry())
+        currentDesc: root.currentMenuEntry().desc
+        comingSoon: root.isComingSoon()
+        versionText: "PolypLink " + appVersion
+        valueFor: function(entry) { return root.menuValue(entry) }
+        moviesLabel: qsTr("Film")
+        seriesLabel: qsTr("Serie")
+        episodesLabel: qsTr("Episodi")
+        favoritesLabel: qsTr("Preferiti")
+        comingSoonLabel: qsTr("Funzionalità in arrivo")
     }
 
     // ------------------------------------------------------------------ STAGIONE
@@ -2295,11 +2054,11 @@ Window {
                         navIndex = back
                     } else {
                         menuIndex = menuIndex - 1
-                        menuList.positionViewAtIndex(menuIndex, ListView.Contain)
+                        menuPage.ensureVisible(menuIndex)
                     }
                 } else if (event.key === Qt.Key_Down) {
                     menuIndex = Math.min(entries.length - 1, menuIndex + 1)
-                    menuList.positionViewAtIndex(menuIndex, ListView.Contain)
+                    menuPage.ensureVisible(menuIndex)
                 } else if (event.key === Qt.Key_Return) {
                     var entry = entries[menuIndex]
                     var action = entry.action

@@ -42,6 +42,7 @@
 - Season and episode pages extracted into `SeasonsPage` and `EpisodesPage`.
 - Top bar: library tabs after Favorites, in the same order as Jellyfin; Account
   and Settings follow the libraries.
+- Settings and Account layouts extracted into a shared `MenuPage` component.
 
 ## 0.3.1-beta — 2026-11-17
 
