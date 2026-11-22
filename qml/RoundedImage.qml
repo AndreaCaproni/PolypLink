@@ -11,6 +11,7 @@ Item {
     property real radius: 8
     property int sourceSizeWidth: 340
     property int fillMode: Image.PreserveAspectCrop
+    readonly property bool ready: img.status === Image.Ready
 
     Image {
         id: img

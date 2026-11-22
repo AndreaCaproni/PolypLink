@@ -150,12 +150,14 @@ Item {
                 }
                 Text {
                     anchors.centerIn: parent
+                    visible: !profileAvatar.ready
                     color: Theme.textSoft
                     font.pixelSize: 34
                     font.bold: true
                     text: profileName.length > 0 ? profileName.charAt(0).toUpperCase() : "?"
                 }
                 RoundedImage {
+                    id: profileAvatar
                     anchors.fill: parent
                     radius: 42
                     source: profileImage

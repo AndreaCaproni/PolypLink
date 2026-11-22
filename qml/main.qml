@@ -812,7 +812,7 @@ Window {
         anchors.fill: parent
         anchors.topMargin: header.height
         visible: app.state === "home" && (page === "library" || page === "favorites")
-        title: app.libraryTitle
+        title: page === "favorites" ? qsTr("Preferiti") : app.libraryTitle
         items: app.libraryItems
         gridIndex: root.gridIndex
         navFocus: root.navFocus
