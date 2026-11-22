@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.4.0-beta — 2026-11-22
+
+### Changed
+
+- Split `AppController` (1,923 -> 977 lines) into `AuthController`,
+  `LibraryController`, `PlaybackController` and `SettingsController`.
+- Player OSD focus and season actions now use named action IDs instead of magic
+  numbers. Source comments are English, with centralized translation, quality
+  and OSD constants.
+- Reproducible release builds: buildstamp, tar ownership/mtime and zip
+  timestamps come from `SOURCE_DATE_EPOCH`; CI and scripts use unpredictable
+  temporary paths.
+
+### Security
+
+- Player redirects are followed manually only for the same host (HTTP -> HTTPS
+  upgrade allowed); cross-host redirects and playlist URLs are rejected, so the
+  Authorization token cannot leak and the player cannot be used for SSRF.
+- Token stripping covers all case variants of `api_key`/`apikey`/`api-key`,
+  `access_token`, `token`, `secret`, `pw` and `password` without rewriting the
+  rest of the query string.
+- Hard limits for playlist/segment downloads, segment queue, PES/access units,
+  video frames and PCM; PTS-derived silence is bounded; FFmpeg allocations and
+  integer sizes are checked; non-finite framerates are rejected.
+- Shared player state is protected by a mutex/atomics; a QThread is deleted
+  only after a successful join; the 20 s stop timeout prevents a second player
+  from starting while the old one is alive.
+- The QML password is cleared after login, keyboard close and cancel; discovery
+  and library lists have hard caps.
+- The release gate checks more secrets and inspects the app `.tgz`; CI checks
+  git history for private keys and sensitive paths; log documentation now
+  matches the default kit.
+
+### Fixed
+
+- Video queue overflow no longer drops the oldest frames (and therefore
+  keyframes): fixes black/corrupted video and accelerated-looking playback.
+- Includes the 0.3.3 clean-room video-plane refresh/exit cleanup and all 0.3.2
+  security fixes.
+
 ## 0.3.3-beta — 2026-11-22
 
 ### Changed

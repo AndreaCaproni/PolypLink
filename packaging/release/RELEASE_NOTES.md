@@ -3,15 +3,34 @@ PolypLink @VERSION@ — a native Jellyfin client for the Valve Steam Link (2015)
 No Chromium: Qt Quick/C++ with hardware H.264 decoding (SLVideo) and AAC audio
 (SLAudio). The server transcodes to H.264/AAC over HLS.
 
-This is **0.3.3**: it replaces the last Moonlight-derived display workaround
-with an independent clean-room implementation, translates source comments to
-English, and fixes video-plane cleanup between plays and on exit. It includes
-all 0.3.2 security fixes: TS demuxer out-of-bounds read, spoofed server
-discovery, wider log redaction and a clearer warning for unencrypted HTTP. The
-PolypLink rebrand and the player work from 0.3.0 are included.
+This is **0.4.0**: a major internal refactor plus a playback security and
+reliability hardening pass. The controller split, named action IDs and the
+reviewer fixes (redirect/token safety, memory limits, thread lifetime, QML
+password cleanup) are included. It also carries all 0.3.3 licensing/display
+fixes and the 0.3.2 security fixes (TS demuxer, discovery, redaction, HTTP
+warning). The PolypLink rebrand and the player work from 0.3.0 are included.
+
+## Refactor
+
+- `AppController` is now a facade over `AuthController`, `LibraryController`,
+  `PlaybackController` and `SettingsController`.
+- Player OSD and season actions use named action IDs.
+- Source comments are English; shared translation/quality/OSD constants.
 
 ## Security
 
+- The player follows redirects manually only within the same host (HTTP ->
+  HTTPS upgrade allowed), rejects cross-host playlist/segment URLs, and strips
+  every common token query key before logging or requesting.
+- Playlist/segment/PES/frame/PCM buffers have hard limits; PTS-derived silence
+  is bounded; FFmpeg allocations and integer sizes are checked.
+- Player state shared with the network thread is synchronized; a QThread is
+  deleted only after join, and a stuck player blocks new playback instead of
+  overlapping a second decoder on the global audio context.
+- The QML password is cleared after login, keyboard close and cancel;
+  discovery has a 64-server cap and home libraries a 32-library cap.
+- Release assets are reproducible and pass an expanded secret/IP/token gate;
+  CI checks git history for private keys and sensitive paths.
 - The TS demuxer validates the PES header before parsing PTS/DTS; truncated or
   malformed packets are rejected instead of reading past the buffer.
 - Jellyfin UDP discovery no longer trusts the advertised host: the app uses the
@@ -34,6 +53,8 @@ PolypLink rebrand and the player work from 0.3.0 are included.
 
 ## Reliability and packaging
 
+- Video queue overflow drops new frames instead of the oldest (keyframe) ones:
+  black/corrupted/accelerated-looking playback is fixed.
 - GitHub Actions checks: QML lint, translation completeness, settings migration
   and log-redaction tests.
 - Settings migration from JellyLink to PolypLink is covered by an automated

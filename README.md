@@ -11,7 +11,7 @@
 No Chromium, no Electron, no browser: a Qt Quick/C++ app that talks directly to
 the Link's hardware decoder.
 
-> **Status: beta 0.3.3** — already usable for movies and TV shows, still being
+> **Status: beta 0.4.0** — already usable for movies and TV shows, still being
 > polished. Independent project, not affiliated with the Jellyfin project.
 
 ## Screenshots
