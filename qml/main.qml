@@ -661,6 +661,7 @@ Window {
         anchors.topMargin: header.height
         visible: app.state === "auth"
         serverLabel: app.serverLabel
+        insecureHttp: app.insecureHttp
         authStep: root.authStep
         authIndex: root.authIndex
         credUser: root.credUser

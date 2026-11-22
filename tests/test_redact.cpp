@@ -34,6 +34,18 @@ int main(int argc, char** argv) {
         QStringLiteral("X-Emby-Token: ***"));
   check(QStringLiteral("http://server/QuickConnect/Connect?secret=abc123"),
         QStringLiteral("http://server/QuickConnect/Connect?secret=***"));
+  check(QStringLiteral("http://server/a?Pw=abc123&x=1"),
+        QStringLiteral("http://server/a?Pw=***&x=1"));
+  check(QStringLiteral("http://server/a?password=abc123&x=1"),
+        QStringLiteral("http://server/a?password=***&x=1"));
+  check(QStringLiteral("{\"AccessToken\": \"abc123\", \"Id\": \"x\"}"),
+        QStringLiteral("{\"AccessToken\": \"***\", \"Id\": \"x\"}"));
+  check(QStringLiteral("{\"Password\":\"p@ss\",\"User\":\"andrea\"}"),
+        QStringLiteral("{\"Password\":\"***\",\"User\":\"andrea\"}"));
+  check(QStringLiteral("{\"api_key\": \"abc123\"}"),
+        QStringLiteral("{\"api_key\": \"***\"}"));
+  check(QStringLiteral("{\"MediaSourceId\":\"x\",\"Name\":\"Film\"}"),
+        QStringLiteral("{\"MediaSourceId\":\"x\",\"Name\":\"Film\"}"));
   check(QStringLiteral("QML Image: Error decoding: http://server/Items/x/Images/"
                        "Primary?api_key=secret123: Connection refused"),
         QStringLiteral("QML Image: Error decoding: http://server/Items/x/Images/"

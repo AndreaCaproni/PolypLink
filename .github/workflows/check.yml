@@ -55,3 +55,15 @@ jobs:
           g++ -std=c++17 -fPIC tests/test_serverurl.cpp src/serverurl.cpp \
             $(pkg-config --cflags --libs Qt5Core Qt5Network) -o /tmp/test_serverurl
           /tmp/test_serverurl
+
+      - name: TS demux safety
+        run: |
+          g++ -std=c++17 -fPIC -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Isrc tests/test_tsdemux.cpp src/tsdemux.cpp -o /tmp/test_tsdemux
+          /tmp/test_tsdemux
+
+      - name: Discovery address validation
+        run: |
+          g++ -std=c++17 -fPIC -Isrc tests/test_discovery_address.cpp \
+            $(pkg-config --cflags --libs Qt5Core Qt5Network) -o /tmp/test_discovery_address
+          /tmp/test_discovery_address

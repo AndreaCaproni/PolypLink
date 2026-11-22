@@ -40,6 +40,7 @@ HEADERS += src/inputpump.h \
            src/serverurl.h \
            src/redact.h \
            src/discovery.h \
+           src/discoveryaddress.h \
            src/language.h \
            src/appcontroller.h \
            src/tsdemux.h \

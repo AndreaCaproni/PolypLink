@@ -638,5 +638,9 @@ steamlink/config/system/jellyfin-server.txt</translation>
         <source>Funzionalità in arrivo</source>
         <translation>Ominaisuus tulossa pian</translation>
     </message>
+    <message>
+        <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
+        <translation>Varoitus: salaamaton yhteys. Salasana ja token siirtyvät selkokielisenä.</translation>
+    </message>
 </context>
 </TS>

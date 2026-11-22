@@ -19,6 +19,7 @@ class AppController : public QObject {
   Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusChanged)
   Q_PROPERTY(QString notice READ notice NOTIFY noticeChanged)
   Q_PROPERTY(QString serverLabel READ serverLabel NOTIFY stateChanged)
+  Q_PROPERTY(bool insecureHttp READ insecureHttp NOTIFY stateChanged)
   Q_PROPERTY(QString userName READ userName NOTIFY stateChanged)
   Q_PROPERTY(QString userImage READ userImage NOTIFY stateChanged)
   Q_PROPERTY(QVariantMap userStats READ userStats NOTIFY userStatsChanged)
@@ -88,6 +89,7 @@ class AppController : public QObject {
   QString statusMessage() const { return status_; }
   QString notice() const { return notice_; }
   QString serverLabel() const;
+  bool insecureHttp() const;
   QString userName() const { return client_.userName(); }
   QString userImage() const;
   QString authHeader() const { return client_.authHeader(); }

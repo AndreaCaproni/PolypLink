@@ -22,6 +22,20 @@
   the old token before reuse.
 - `./build.sh` no longer includes the personal SSH hook or enables SSH by
   default; use `--dev-ssh` for that kit.
+- TS demuxer: a truncated PES with the PTS flag set no longer reads past the
+  buffer; PTS/DTS header sizes are validated before parsing.
+- Discovery: the host advertised in Jellyfin UDP replies is ignored and
+  replaced with the datagram's source IP, so a spoofed reply cannot point the
+  app at an arbitrary host. Non-HTTP(S) schemes, userinfo and query/fragment
+  are rejected.
+- Log redaction now covers `Pw=`, `password=`, JSON fields such as
+  `"AccessToken": "..."` / `"Password": "..."` and playback errors returned by
+  the server.
+- The sign-in screen shows a warning when the server uses plain HTTP to a
+  non-loopback host.
+- Documentation now states explicitly that `--dev-ssh` sets the root password
+  to `steamlink123` and installs the personal SSH key, and that the private key
+  must stay outside the repository and release archives.
 
 ### Added
 

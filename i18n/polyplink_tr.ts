@@ -638,5 +638,9 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
         <source>Funzionalità in arrivo</source>
         <translation>Özellik yakında</translation>
     </message>
+    <message>
+        <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
+        <translation>Uyarı: şifrelenmemiş bağlantı. Parola ve belirteç açık metin olarak gönderilir.</translation>
+    </message>
 </context>
 </TS>

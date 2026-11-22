@@ -4,6 +4,7 @@ import "."
 // Accesso: scelta del metodo (credenziali o Quick Connect) e campi credenziali.
 Item {
     property string serverLabel: ""
+    property bool insecureHttp: false
     property string authStep: "menu"
     property int authIndex: 0
     property string credUser: ""
@@ -35,6 +36,16 @@ Item {
             color: Theme.textDim
             font.pixelSize: 17
             text: serverLabel.length > 0 ? "" : serverLabel
+        }
+
+        Text {
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
+            color: Theme.dangerSoft
+            font.pixelSize: 15
+            wrapMode: Text.WordWrap
+            visible: insecureHttp
+            text: qsTr("Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.")
         }
 
         // --- menu scelta metodo ---

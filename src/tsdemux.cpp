@@ -124,6 +124,12 @@ void TsDemux::emitPes(int pid) {
   const size_t headerLength = 9 + pes[8];
   if (headerLength > pes.size()) return;
 
+  // Il flag PTS promette 5 byte a partire da pes[9]: senza questo controllo
+  // un PES troncato (header_data_length piccolo ma flag alzato) farebbe
+  // leggere oltre il buffer. Con PTS+DTS l'header minimo e' 19 byte.
+  if ((flags & 0x80) && headerLength < 14) return;
+  if ((flags & 0x40) && headerLength < 19) return;
+
   int64_t pts = -1;
   if (flags & 0x80) pts = parsePts(&pes[9]);
 

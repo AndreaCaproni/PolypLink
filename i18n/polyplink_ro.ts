@@ -638,5 +638,9 @@ steamlink/config/system/jellyfin-server.txt pe unitatea USB</translation>
         <source>Funzionalità in arrivo</source>
         <translation>Funcție în curând</translation>
     </message>
+    <message>
+        <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
+        <translation>Atenție: conexiune necriptată. Parola și tokenul sunt trimise în text clar.</translation>
+    </message>
 </context>
 </TS>

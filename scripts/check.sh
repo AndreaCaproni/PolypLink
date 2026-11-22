@@ -36,8 +36,24 @@ if command -v g++ >/dev/null 2>&1 && command -v pkg-config >/dev/null 2>&1 &&
       $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
   "$OUT"
   rm -f "$OUT"
+
+  OUT="/tmp/test_discovery_address.$$"
+  g++ -std=c++17 -fPIC -I"$ROOT/src" "$ROOT/tests/test_discovery_address.cpp" \
+      $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
+  "$OUT"
+  rm -f "$OUT"
 else
   echo "    server URL: salto (Qt5 host non disponibile)"
+fi
+
+if command -v g++ >/dev/null 2>&1; then
+  OUT="/tmp/test_tsdemux.$$"
+  g++ -std=c++17 -fPIC -fsanitize=address,undefined -fno-omit-frame-pointer \
+      -I"$ROOT/src" "$ROOT/tests/test_tsdemux.cpp" "$ROOT/src/tsdemux.cpp" -o "$OUT"
+  "$OUT"
+  rm -f "$OUT"
+else
+  echo "    tsdemux: salto (g++ non disponibile)"
 fi
 
 echo "fatto."

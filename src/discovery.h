@@ -49,6 +49,7 @@ class Discovery : public QObject {
   QTimer retry_;
   QVariantList servers_;
   bool searching_ = false;
+  bool warnedAddress_ = false;
 
   QNetworkAccessManager nam_;
   QStringList lanHosts_;

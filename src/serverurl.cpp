@@ -2,6 +2,7 @@
 
 #include <QHostAddress>
 #include <QStringList>
+#include <QUrl>
 
 namespace {
 
@@ -74,4 +75,21 @@ QString NormalizeServerUrl(QString url) {
   const QString scheme =
       IsPrivateHost(HostPart(url)) ? QStringLiteral("http") : QStringLiteral("https");
   return scheme + QStringLiteral("://") + url;
+}
+
+bool IsInsecureHttpUrl(const QString& url) {
+  const QUrl parsed(url);
+  if (parsed.scheme().compare(QLatin1String("http"), Qt::CaseInsensitive) != 0) {
+    return false;
+  }
+
+  const QString host = parsed.host();
+  if (host.isEmpty()) return false;
+  if (host.compare(QLatin1String("localhost"), Qt::CaseInsensitive) == 0) {
+    return false;
+  }
+
+  QHostAddress addr;
+  if (addr.setAddress(host) && addr.isLoopback()) return false;
+  return true;
 }

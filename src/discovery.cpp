@@ -1,5 +1,7 @@
 #include "discovery.h"
 
+#include "discoveryaddress.h"
+
 #include <QHostAddress>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -32,6 +34,7 @@ void Discovery::start() {
   emit serversChanged();
 
   udpDone_ = false;
+  warnedAddress_ = false;
   searching_ = true;
   emit searchingChanged();
 
@@ -158,9 +161,21 @@ void Discovery::onReadyRead() {
     if (payload.isEmpty()) continue;
 
     const QJsonObject o = QJsonDocument::fromJson(payload).object();
-    QString address = o.value(QStringLiteral("Address")).toString();
-    if (address.isEmpty()) continue;
-    while (address.endsWith(QLatin1Char('/'))) address.chop(1);
+    const QString advertised = o.value(QStringLiteral("Address")).toString();
+    if (advertised.isEmpty()) continue;
+
+    // L'UDP non e' autenticato: l'host pubblicizzato non e' attendibile.
+    // Usiamo l'IP del mittente e teniamo solo schema, porta e path.
+    const QString address =
+        NormalizeDiscoveredAddress(advertised, datagram.senderAddress());
+    if (address.isEmpty()) {
+      if (!warnedAddress_) {
+        warnedAddress_ = true;
+        qWarning("[discovery] risposta UDP da %s ignorata: indirizzo non valido",
+                 qPrintable(datagram.senderAddress().toString()));
+      }
+      continue;
+    }
 
     const QString id = o.value(QStringLiteral("Id")).toString();
     const QString name = o.value(QStringLiteral("Name")).toString();

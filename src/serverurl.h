@@ -11,4 +11,8 @@
 // usare HTTPS per non spedire credenziali e token in chiaro.
 QString NormalizeServerUrl(QString url);
 
+// Vero se l'URL usa HTTP verso un host che non e' il loopback: in quel caso
+// password e token viaggiano in chiaro sulla rete e la UI deve avvisare.
+bool IsInsecureHttpUrl(const QString& url);
+
 #endif  // SERVERURL_H

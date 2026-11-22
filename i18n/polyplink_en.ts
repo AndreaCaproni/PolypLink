@@ -638,5 +638,9 @@ steamlink/config/system/jellyfin-server.txt on the USB drive</translation>
         <source>Funzionalità in arrivo</source>
         <translation>Feature coming soon</translation>
     </message>
+    <message>
+        <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
+        <translation>Warning: unencrypted connection. Password and token travel in clear text.</translation>
+    </message>
 </context>
 </TS>

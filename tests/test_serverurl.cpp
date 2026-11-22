@@ -15,6 +15,15 @@ static void check(const QString& input, const QString& expected) {
   }
 }
 
+static void checkInsecure(const QString& input, bool expected) {
+  const bool actual = IsInsecureHttpUrl(input);
+  if (actual != expected) {
+    qCritical().noquote() << "FAIL insecure:" << input << "->" << actual
+                          << "(expected" << expected << ")";
+    ++failures;
+  }
+}
+
 int main(int argc, char** argv) {
   QCoreApplication app(argc, argv);
 
@@ -49,6 +58,16 @@ int main(int argc, char** argv) {
   check(QStringLiteral("  https://jellyfin.example.com  "),
         QStringLiteral("https://jellyfin.example.com"));
   check(QString(), QString());
+
+  // Avviso HTTP in chiaro: solo per host raggiungibili in rete, non loopback.
+  checkInsecure(QStringLiteral("http://192.168.1.10:8096"), true);
+  checkInsecure(QStringLiteral("http://jellyfin.example.com"), true);
+  checkInsecure(QStringLiteral("http://jellyfin.local:8096"), true);
+  checkInsecure(QStringLiteral("http://localhost:8096"), false);
+  checkInsecure(QStringLiteral("http://127.0.0.1:8096"), false);
+  checkInsecure(QStringLiteral("http://[::1]:8096"), false);
+  checkInsecure(QStringLiteral("https://192.168.1.10:8920"), false);
+  checkInsecure(QString(), false);
 
   if (failures == 0) qInfo("server URL tests: ok");
   return failures == 0 ? 0 : 1;

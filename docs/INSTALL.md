@@ -61,8 +61,15 @@ steamlink/
   use a certificate from a trusted CA or a reverse proxy.
 - The token is stored in the app configuration with owner-only permissions
   (`0600`). Logs are redacted, including QML image-loading warnings.
-- Do not share the generated `dist/steamlink/` folder: it may include your
-  personal `factory_test/run.sh` with an SSH public key.
+- The sign-in screen warns when the server uses plain HTTP to a non-loopback
+  host: in that case the password and token are not encrypted.
+- Server discovery is unauthenticated. The app replaces the advertised host
+  with the IP that sent the UDP reply and shows the full address, but any LAN
+  device can announce itself: only sign in to servers you recognise.
+- Never share a `--dev-ssh` kit. Its `factory_test/run.sh` authorises the
+  personal SSH key for `root` and `steam` and resets the root password to
+  `steamlink123`. Keep `keys/steamlink_key` outside the repository and outside
+  any archive you distribute.
 
 ## SSH and debugging (optional)
 

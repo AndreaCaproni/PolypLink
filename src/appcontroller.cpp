@@ -210,6 +210,10 @@ QString AppController::serverLabel() const {
   return client_.server();
 }
 
+bool AppController::insecureHttp() const {
+  return IsInsecureHttpUrl(client_.server());
+}
+
 QString AppController::userImage() const { return client_.userImageUrl(); }
 
 bool AppController::nextEpisodeVisible() const {
@@ -1367,7 +1371,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         }
         if (url.isEmpty()) {
           // Niente player "alla cieca": schermo nero per 8 s e poi chiusura.
-          qWarning("[player] avvio annullato: %s", qPrintable(err));
+          qWarning("[player] avvio annullato: %s",
+                   qPrintable(RedactSecrets(err)));
           playerActive_ = false;
           playerPaused_ = false;
                   playerStalled_ = false;
@@ -1375,7 +1380,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           nextEpisode_.clear();
           nextEpisodeDismissed_ = false;
           setStatus(err.isEmpty() ? tr("Impossibile avviare la riproduzione")
-                                  : err);
+                                  : RedactSecrets(err));
           emit nextEpisodeChanged();
           emit playerChanged();
           emit osdChanged();

@@ -20,9 +20,18 @@ QString RedactSecrets(QString text) {
       QStringLiteral("(?i)(x-(?:emby|mediabrowser)-token\\s*:\\s*)([^\\r\\n]+)"));
   text.replace(embyToken, QStringLiteral("\\1***"));
 
-  // Query string: api_key=..., ApiKey=..., token=..., access_token=...
+  // Campi JSON: "AccessToken": "abc", "Password": "..." (anche con spazio
+  // dopo i due punti, come nelle risposte di alcuni server/proxy).
+  static const QRegularExpression jsonField(
+      QStringLiteral("(?i)(\"(?:access[_-]?token|token|api[_-]?key|secret|"
+                     "password|pw)\"\\s*:\\s*\")([^\"]*)(\")"));
+  text.replace(jsonField, QStringLiteral("\\1***\\3"));
+
+  // Query string: api_key=..., ApiKey=..., token=..., access_token=...,
+  // secret=..., password=..., Pw=...
   static const QRegularExpression query(
-      QStringLiteral("(?i)(api[_-]?key|access[_-]?token|token|secret)=([^&\\s\"':]+)"));
+      QStringLiteral("(?i)(api[_-]?key|access[_-]?token|token|secret|password|pw)="
+                     "([^&\\s\"':]+)"));
   text.replace(query, QStringLiteral("\\1=***"));
 
   // Authorization header, if it ever ends up in a log line.

@@ -91,14 +91,28 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
 - **HTTPS è raccomandato.** Il client verifica i certificati TLS e rifiuta
   quelli self-signed; usa un certificato valido o un reverse proxy. HTTP
   funziona ancora in una LAN fidata, ma credenziali e token di riproduzione
-  viaggiano senza cifratura.
+  viaggiano senza cifratura. Se il server usa HTTP verso un host che non è il
+  loopback, la schermata di accesso mostra un avviso esplicito.
 - Gli indirizzi inseriti a mano usano **HTTPS di default** per gli host
   pubblici e HTTP solo per host privati/LAN.
+- **La scoperta non è autenticata.** Qualsiasi dispositivo sulla LAN può
+  falsificare una risposta UDP di Jellyfin. L'app ignora l'host annunciato e
+  usa l'IP del mittente, e mostra sempre l'indirizzo completo; resta comunque
+  necessario accedere solo a server riconosciuti. La scansione parallela prova
+  la porta 8096 sulla `/24` locale (serve per Docker/bridge).
 - Il token Jellyfin è salvato nella configurazione con permessi solo-proprietario
   (`0600`); i log, inclusi i warning QML, vengono redatti prima di essere
   scritti su stderr o sulla chiavetta.
+- Il logout chiede a Jellyfin di revocare la sessione lato server, ma è
+  best-effort: se il server non è raggiungibile o l'app viene chiusa subito, la
+  sessione può restare attiva finché non viene revocata dalla dashboard di
+  Jellyfin.
 - Le vecchie direttive `user=`/`pass=` in `jellyfin-server.txt` non sono più
   supportate. L'accesso si fa dall'app o con Quick Connect.
+- Un kit creato con `--dev-ssh` è un artefatto di sviluppo: include
+  `factory_test/run.sh`, che autorizza la chiave SSH personale per `root` e
+  `steam` e reimposta la password root a `steamlink123`. Non condividerlo mai;
+  tieni le chiavi private fuori dal repository e dagli archivi di release.
 
 ---
 
@@ -215,6 +229,10 @@ build.sh        build + pacchetto USB
   aprendone la scheda.
 - La ricerca automatica del server copre la **/24 locale**; server su altre
   VLAN si inseriscono a mano.
+- **Le richieste API e del player autenticate non seguono i redirect.** Un
+  reverse proxy deve servire direttamente l'URL finale: un redirect HTTP→HTTPS
+  sulle richieste API o di riproduzione non viene seguito, così il token non
+  può essere inoltrato a un altro host.
 - **Interfaccia in 21 lingue**: italiano, inglese, spagnolo, francese, tedesco,
   portoghese (Brasile e Portogallo), russo, olandese, polacco, svedese, danese,
   norvegese bokmål, ceco, ucraino, catalano, turco, rumeno, greco, ungherese e
@@ -232,6 +250,11 @@ build.sh        build + pacchetto USB
 Costruito con un forte supporto AI, poi testato e curato su hardware Steam Link
 reale. È una beta: aspettati qualche spigolo e allega log e dettagli hardware
 nelle segnalazioni.
+
+Nota tecnica: le richieste delle immagini QML ricevono l'header `Authorization`
+di Jellyfin solo se l'URL coincide con schema, host e porta del server. Oggi
+tutti gli URL delle immagini sono generati dall'app; una CDN o un host esterno
+avrebbe bisogno di un proprio percorso di autenticazione.
 
 ## Contribuire
 

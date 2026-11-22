@@ -638,5 +638,9 @@ steamlink/config/system/jellyfin-server.txt στη μονάδα USB</translation
         <source>Funzionalità in arrivo</source>
         <translation>Λειτουργία προσεχώς</translation>
     </message>
+    <message>
+        <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
+        <translation>Προσοχή: μη κρυπτογραφημένη σύνδεση. Ο κωδικός και το token μεταδίδονται σε απλό κείμενο.</translation>
+    </message>
 </context>
 </TS>

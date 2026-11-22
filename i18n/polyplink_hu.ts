@@ -638,5 +638,9 @@ steamlink/config/system/jellyfin-server.txt helyére is elhelyezheti a USB megha
         <source>Funzionalità in arrivo</source>
         <translation>Funkció hamarosan</translation>
     </message>
+    <message>
+        <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
+        <translation>Figyelem: titkosítatlan kapcsolat. A jelszó és a token nyílt szövegként utazik.</translation>
+    </message>
 </context>
 </TS>
