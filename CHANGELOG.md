@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.2-beta — 2026-11-22
+
+### Fixed
+
+- QML components (`HeaderBar`, `AuthPage`, `ServerPage`, `QuickConnectPage`,
+  `Keyboard`, `PosterCard`) now use their own translation contexts. The top
+  bar's **Favorites** tab and the other component strings follow the selected
+  language instead of staying in Italian.
+- The favorites page title is translated when the page opens, rather than
+  being fixed at startup.
+- The profile initial is hidden as soon as the avatar image finishes loading.
+
+### Documentation
+
+- Eight real screenshots taken on the Steam Link against the public Jellyfin
+  demo: four in the README and the full set in `docs/SCREENSHOTS.md`.
+
 ## 0.4.1-beta — 2026-11-22
 
 ### Fixed

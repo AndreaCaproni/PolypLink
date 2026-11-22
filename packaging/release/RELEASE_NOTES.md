@@ -3,11 +3,13 @@ PolypLink @VERSION@ — a native Jellyfin client for the Valve Steam Link (2015)
 No Chromium: Qt Quick/C++ with hardware H.264 decoding (SLVideo) and AAC audio
 (SLAudio). The server transcodes to H.264/AAC over HLS.
 
-This is **0.4.1**: it adds a translated way back to the server list from the
-sign-in screen (B) and bundles a current Mozilla CA store so modern HTTPS
-servers, including `demo.jellyfin.org`, verify correctly on the old Steam Link
-firmware. It includes the 0.4.0 refactor and playback hardening (redirect/token
-safety, memory limits, thread lifetime, QML password cleanup), the 0.3.3
+This is **0.4.2**: it fixes the QML translation contexts so the top bar,
+sign-in, server, Quick Connect, keyboard and poster components follow the
+selected language (including the **Favorites** tab), translates the favorites
+title when the page opens, and hides the profile initial once the avatar has
+loaded. The README now shows real screenshots from the public Jellyfin demo,
+with the full set in `docs/SCREENSHOTS.md`. It includes the 0.4.1 CA bundle and
+back-to-server-list fix, the 0.4.0 refactor and playback hardening, the 0.3.3
 licensing/display fixes, and the 0.3.2 security fixes. The PolypLink rebrand
 and the player work from 0.3.0 are included.
 
@@ -54,6 +56,11 @@ and the player work from 0.3.0 are included.
 
 ## Reliability and packaging
 
+- QML components have correct per-component translation contexts, so the top
+  bar **Favorites** tab and the sign-in, server, Quick Connect, keyboard and
+  poster strings follow the selected language.
+- The favorites page title is translated when the page opens; the profile
+  initial is hidden when the avatar image is ready.
 - The sign-in screen returns to server discovery with **B**; a translated hint
   is shown.
 - A current Mozilla CA bundle is loaded in addition to the firmware roots, so
@@ -84,6 +91,12 @@ and the player work from 0.3.0 are included.
 - Seek confirmed only with A; acceleration only while holding the stick, up to
   3 minutes.
 - The 21-language interface is included.
+
+## Documentation
+
+- The README shows four real screenshots taken on a Steam Link against the
+  public Jellyfin demo. The full eight-image gallery is in
+  `docs/SCREENSHOTS.md`.
 
 ## Install
 
