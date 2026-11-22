@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/polyplink-logo.svg" width="120" alt="PolypLink logo">
+</p>
+
 # PolypLink
 
 > Italiano: [README.it.md](README.it.md)
