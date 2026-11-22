@@ -642,5 +642,9 @@ steamlink/config/system/jellyfin-server.txt en el disco USB</translation>
         <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
         <translation>Atención: conexión no cifrada. La contraseña y el token viajan sin cifrar.</translation>
     </message>
+    <message>
+        <source>B: cambia server</source>
+        <translation>B: cambiar servidor</translation>
+    </message>
 </context>
 </TS>

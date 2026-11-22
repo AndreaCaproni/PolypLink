@@ -120,6 +120,14 @@ void AuthController::useSavedServer() {
   emit stateRequested(QStringLiteral("auth"));
 }
 
+void AuthController::showServers() {
+  qcTimer_.stop();
+  qcSecret_.clear();
+  qcCode_.clear();
+  emit stateRequested(QStringLiteral("login"));
+  discover();
+}
+
 // The firmware copies steamlink/config/* to /mnt/config/ on every boot: that
 // path is persistent and readable by the app. It is needed because UDP discovery
 // does not cross Docker (bridge network) or networks with isolated broadcast.

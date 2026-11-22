@@ -441,6 +441,8 @@ void AppController::refreshHome() { afterLogin(); }
 
 void AppController::useSavedServer() { auth_->useSavedServer(); }
 
+void AppController::backToServerList() { auth_->showServers(); }
+
 void AppController::afterLogin() {
   setState(QStringLiteral("home"));
   setStatus(QString());

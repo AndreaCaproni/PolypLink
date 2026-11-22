@@ -642,5 +642,9 @@ steamlink/config/system/jellyfin-server.txt</translation>
         <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
         <translation>Varoitus: salaamaton yhteys. Salasana ja token siirtyvät selkokielisenä.</translation>
     </message>
+    <message>
+        <source>B: cambia server</source>
+        <translation>B: vaihda palvelin</translation>
+    </message>
 </context>
 </TS>

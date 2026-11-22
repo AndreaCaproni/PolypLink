@@ -642,5 +642,9 @@ steamlink/config/system/jellyfin-server.txt auf dem USB-Laufwerk eingeben</trans
         <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
         <translation>Achtung: unverschlüsselte Verbindung. Passwort und Token werden im Klartext übertragen.</translation>
     </message>
+    <message>
+        <source>B: cambia server</source>
+        <translation>B: Server wechseln</translation>
+    </message>
 </context>
 </TS>

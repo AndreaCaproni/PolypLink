@@ -642,5 +642,9 @@ steamlink/config/system/jellyfin-server.txt på USB-drevet</translation>
         <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
         <translation>Advarsel: ukrypteret forbindelse. Adgangskode og token sendes i klartekst.</translation>
     </message>
+    <message>
+        <source>B: cambia server</source>
+        <translation>B: skift server</translation>
+    </message>
 </context>
 </TS>

@@ -31,6 +31,7 @@ class AuthController : public QObject {
   void cancelQuickConnect();
   void logout();
   void useSavedServer();
+  void showServers();
   void applyConfigFile();
 
  signals:

@@ -176,6 +176,7 @@ class AppController : public QObject {
   Q_INVOKABLE void cancelQuickConnect();
   Q_INVOKABLE void logout();
   Q_INVOKABLE void useSavedServer();
+  Q_INVOKABLE void backToServerList();
   Q_INVOKABLE void refreshHome();
 
   Q_INVOKABLE void openView(int index);

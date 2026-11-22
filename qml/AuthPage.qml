@@ -166,5 +166,13 @@ Item {
             }
 
         }
+
+        Text {
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
+            color: Theme.textFaint
+            font.pixelSize: 15
+            text: qsTr("B: cambia server")
+        }
     }
 }

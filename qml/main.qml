@@ -628,7 +628,11 @@ Window {
             navIndex = back
             return
         }
-        if (app.state === "auth" && authStep === "credentials") { authStep = "menu"; return }
+        if (app.state === "auth") {
+            if (authStep === "credentials") { authStep = "menu"; return }
+            app.backToServerList()
+            return
+        }
         if (app.state === "quickconnect") { app.cancelQuickConnect(); return }
         Qt.quit()
     }

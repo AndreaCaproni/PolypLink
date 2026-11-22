@@ -46,6 +46,13 @@ PolypLink is an independent project, not affiliated with the Jellyfin project.
 It uses Jellyfin's public HTTP API only; no Jellyfin source code is included.
 See [PROVENANCE.md](PROVENANCE.md).
 
+## Mozilla CA bundle
+
+`certs/cacert.pem` is a Mozilla CA certificate bundle obtained from
+<https://curl.se/ca/cacert.pem> (data: 2026-11-05), licensed under the Mozilla
+Public License 2.0. It is loaded in addition to the firmware CA store so
+modern HTTPS roots (including Let's Encrypt) can be verified on the Steam Link.
+
 ## Fonts
 
 The UI uses the firmware's system fonts (Noto Sans). No fonts are

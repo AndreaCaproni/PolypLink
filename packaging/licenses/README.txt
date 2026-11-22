@@ -28,4 +28,10 @@ Jellyfin
 Jellyfin: https://jellyfin.org
 PolypLink is an independent project, not affiliated with the Jellyfin project.
 
+Mozilla CA bundle
+-----------------
+certs/cacert.pem from https://curl.se/ca/cacert.pem (Mozilla CA store,
+2026-11-05) is licensed under the Mozilla Public License 2.0. It is loaded in
+addition to the firmware CA store to verify modern HTTPS servers.
+
 Full third-party notes: THIRD_PARTY.md

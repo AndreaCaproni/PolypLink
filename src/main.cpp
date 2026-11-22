@@ -8,6 +8,7 @@
 #include <QGuiApplication>
 #include <QLockFile>
 #include <QScreen>
+#include <QSslSocket>
 #include <QSurfaceFormat>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -174,6 +175,12 @@ int main(int argc, char** argv) {
   QGuiApplication::setQuitOnLastWindowClosed(false);
   app.setApplicationName(QStringLiteral("PolypLink"));
   app.setOrganizationName(QStringLiteral("polyplink"));
+
+  // The firmware CA store is from 2015. Add a current Mozilla bundle so
+  // modern public roots (Let's Encrypt ISRG X1/YR, etc.) verify correctly.
+  const int caCount = QSslSocket::addDefaultCaCertificates(
+      QStringLiteral(":/certs/cacert.pem"));
+  qInfo("[tls] CA bundle aggiunto: %d certificati", caCount);
 
   QGuiApplication::setOverrideCursor(Qt::BlankCursor);
   qInfo("[avvio] piattaforma Qt: %s", qPrintable(QGuiApplication::platformName()));

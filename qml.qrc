@@ -28,6 +28,7 @@
         <file>qml/AuthPage.qml</file>
         <file>qml/QuickConnectPage.qml</file>
 
+        <file>certs/cacert.pem</file>
         <file>i18n/polyplink_ca.qm</file>
         <file>i18n/polyplink_cs.qm</file>
         <file>i18n/polyplink_da.qm</file>

@@ -120,6 +120,7 @@ cp "$ROOT/THIRD_PARTY.md" "$APP/licenses/THIRD_PARTY.md"
 cp "$ROOT/third_party/ffmpeg/LICENSE.LGPLv2.1" "$APP/licenses/FFMPEG-LGPL-2.1.txt"
 cp "$ROOT/packaging/licenses/FFMPEG-SOURCE-OFFER.md" "$APP/licenses/FFMPEG-SOURCE-OFFER.md"
 cp "$ROOT/packaging/licenses/README.txt" "$APP/licenses/README.txt"
+cp "$ROOT/certs/README.txt" "$APP/licenses/CA-BUNDLE.txt"
 
 cat > "$APP/toc.txt" <<EOF
 name=PolypLink

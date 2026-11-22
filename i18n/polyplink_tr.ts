@@ -642,5 +642,9 @@ steamlink/config/system/jellyfin-server.txt'a da koyabilirsiniz</translation>
         <source>Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.</source>
         <translation>Uyarı: şifrelenmemiş bağlantı. Parola ve belirteç açık metin olarak gönderilir.</translation>
     </message>
+    <message>
+        <source>B: cambia server</source>
+        <translation>B: sunucuyu değiştir</translation>
+    </message>
 </context>
 </TS>
