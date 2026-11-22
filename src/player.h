@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QElapsedTimer>
 #include <QString>
+#include <QUrl>
 #include <QStringList>
 #include <QVariantMap>
 #include <QThread>
@@ -50,11 +51,14 @@ class Player : public QThread {
   explicit Player(QObject* parent = nullptr);
   ~Player() override;
 
+  // Longer than the network timeout: a stop must not leave two players alive.
+  static constexpr int kStopTimeoutMs = 20000;
+
   void begin(const Config& config);
   void requestStop();
   // Release the process-wide audio context. Call only after the player thread
   // has stopped; the video context is released per playback by closeStreams().
-  static void releaseDisplay();
+  static void releaseAudioContext();
   void setPaused(bool paused);
   bool paused() const { return paused_.load(); }
   double positionSeconds() const { return position_.load(); }
@@ -73,7 +77,8 @@ class Player : public QThread {
   void run() override;
 
  private:
-  bool fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* out);
+  bool fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* out,
+             qint64 maxBytes, QString* finalUrl = nullptr);
   bool openStreams();
   void closeStreams();
   bool loadPlaylist(QNetworkAccessManager& nam);
@@ -90,11 +95,18 @@ class Player : public QThread {
   uint32_t queuedAudioFrames() const;
   bool pushAudioBlock();
   bool pushVideoFrame();
+  void setError(const QString& text);
+  QString errorText() const;
+  void setProducerError(const QString& text);
+  bool hasProducerError() const;
+  QString producerErrorText() const;
 
   Config cfg_;
+  QUrl allowedOrigin_;
   std::atomic<bool> stop_{false};
   std::atomic<bool> paused_{false};
   std::atomic<double> position_{0.0};
+  mutable std::mutex stateMutex_;
   QString error_;
 
   QNetworkAccessManager* namRef_ = nullptr;
@@ -102,10 +114,14 @@ class Player : public QThread {
   // HLS
   QString playlistUrl_;
   QStringList segmentUrls_;
+  QString lastSegmentUrl_;
+  std::atomic<int> segmentCount_{0};
+  std::atomic<int> lastSegmentIndex_{-1};
 
   // queue of segments downloaded by a separate thread: the network must never
   // block frame presentation
   std::deque<QByteArray> segmentQueue_;
+  size_t segmentQueueBytes_ = 0;
   std::mutex queueMutex_;
   std::condition_variable queueCv_;
   class ProducerThread;

@@ -28,9 +28,9 @@ int main(int argc, char** argv) {
   QCoreApplication app(argc, argv);
 
   // LAN: HTTP and port 8096 handled by the caller.
-  check(QStringLiteral("192.168.1.199"), QStringLiteral("http://192.168.1.199"));
-  check(QStringLiteral("192.168.1.199:8096"),
-        QStringLiteral("http://192.168.1.199:8096"));
+  check(QStringLiteral("192.168.1.50"), QStringLiteral("http://192.168.1.50"));
+  check(QStringLiteral("192.168.1.50:8096"),
+        QStringLiteral("http://192.168.1.50:8096"));
   check(QStringLiteral("10.0.0.5"), QStringLiteral("http://10.0.0.5"));
   check(QStringLiteral("172.16.0.1"), QStringLiteral("http://172.16.0.1"));
   check(QStringLiteral("localhost:8096"), QStringLiteral("http://localhost:8096"));

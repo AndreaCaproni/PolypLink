@@ -1,23 +1,15 @@
 #include "appcontroller.h"
 
 #include "redact.h"
+#include "quality.h"
 #include "serverurl.h"
+#include "translation.h"
 
-#include <QCoreApplication>
 #include <algorithm>
 #include <memory>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QVariantMap>
-#include <QtMath>
-
-namespace {
-
-QString uiText(const char* text) {
-  return QCoreApplication::translate("main", text);
-}
-
-}  // namespace
 
 AppController::AppController(QObject* parent) : QObject(parent) {
   auth_ = std::make_unique<AuthController>(&client_);
@@ -256,7 +248,7 @@ void AppController::openPlayerMenu(const QString& mode) {
               index == audioIndex_);
     }
   } else if (mode == QLatin1String("subtitles")) {
-    addItem(uiText("Spenti"), -1, subtitleIndex_ < 0);
+    addItem(TranslateMain("Spenti"), -1, subtitleIndex_ < 0);
     for (const QVariant& v : subtitleTracks_) {
       const QVariantMap track = v.toMap();
       const int index = track.value(QStringLiteral("index")).toInt();
@@ -264,8 +256,7 @@ void AppController::openPlayerMenu(const QString& mode) {
               index == subtitleIndex_);
     }
   } else if (mode == QLatin1String("quality")) {
-    static const int qualities[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
-    for (int q : qualities) {
+    for (int q : kQualityKbps) {
       addItem(QString::number(q / 1000) + QStringLiteral(" Mbps"), q,
               q == qualityKbps_);
     }
@@ -649,7 +640,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
 
 void AppController::shutdown() {
   if (playback_->shutdown()) {
-    Player::releaseDisplay();
+    Player::releaseAudioContext();
   } else {
     qWarning("[shutdown] player thread still running: display release skipped");
   }
@@ -699,11 +690,7 @@ void AppController::cycleSubtitle(int delta) {
 }
 
 void AppController::cycleQuality(int delta) {
-  static const int qualities[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
-  int pos = 2;
-  for (int i = 0; i < 10; ++i) if (qualities[i] == qualityKbps_) pos = i;
-  pos = (pos + delta + 10) % 10;
-  qualityKbps_ = qualities[pos];
+  qualityKbps_ = ShiftQuality(qualityKbps_, delta);
   emit tracksChanged();
 }
 

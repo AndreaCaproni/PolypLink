@@ -80,10 +80,12 @@ and enables SSH. The repository only ships an **example**
 is ignored by git because it contains personal data, and a `--dev-ssh` kit must
 not be shared.
 
-App logs:
+App log:
 
 - on the device: `/home/apps/polyplink/polyplink-run.log`
-- on the USB drive, at the next boot: log files in the drive root.
+
+The default kit does not copy logs to the USB drive. Only a development kit
+built with `--dev-ssh` may include a boot hook that does so.
 
 ## Updating or uninstalling
 

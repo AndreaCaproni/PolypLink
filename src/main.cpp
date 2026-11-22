@@ -14,6 +14,7 @@
 #include <QQuickWindow>
 #include <QTimer>
 #include <QDebug>
+#include <memory>
 
 #include <cstdio>
 
@@ -196,8 +197,11 @@ int main(int argc, char** argv) {
   QObject::connect(&app, &QCoreApplication::aboutToQuit, &controller,
                    &AppController::shutdown);
   AuthNetworkAccessManagerFactory namFactory(&controller);
+  // Declared before the engine so it is destroyed after it: QML must not
+  // see a dangling "language" context property during engine teardown.
+  std::unique_ptr<Language> language;
   QQmlApplicationEngine engine;
-  Language language(&engine);
+  language = std::make_unique<Language>(&engine);
   engine.setNetworkAccessManagerFactory(&namFactory);
 
   QObject::connect(
@@ -208,7 +212,7 @@ int main(int argc, char** argv) {
       Qt::DirectConnection);
 
   engine.rootContext()->setContextProperty(QStringLiteral("fpsCounter"), &counter);
-  engine.rootContext()->setContextProperty(QStringLiteral("language"), &language);
+  engine.rootContext()->setContextProperty(QStringLiteral("language"), language.get());
   engine.rootContext()->setContextProperty(QStringLiteral("app"), &controller);
   engine.rootContext()->setContextProperty(QStringLiteral("appVersion"),
                                            QStringLiteral(APP_VERSION));

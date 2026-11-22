@@ -2,6 +2,7 @@
 
 #include "jellyfinclient.h"
 
+#include "translation.h"
 #include <QCoreApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -11,11 +12,6 @@
 #include <memory>
 
 namespace {
-
-// Keep the original translation context so existing .qm files keep working.
-QString trApp(const char* text) {
-  return QCoreApplication::translate("AppController", text);
-}
 
 QString formatDuration(qint64 ticks) {
   if (ticks <= 0) return QString();
@@ -85,6 +81,8 @@ void LibraryController::loadHome() {
       if (type == QLatin1String("music") || type == QLatin1String("playlists")) {
         continue;
       }
+      constexpr int kMaxLibraries = 32;
+      if (views_.size() >= kMaxLibraries) break;
       QVariantMap item;
       item.insert(QStringLiteral("id"), o.value(QStringLiteral("Id")).toString());
       item.insert(QStringLiteral("name"), o.value(QStringLiteral("Name")).toString());
@@ -207,7 +205,7 @@ void LibraryController::openView(int index) {
 
 void LibraryController::openFavorites() {
   libraryParentId_.clear();
-  libraryTitle_ = QStringLiteral("Preferiti");
+  libraryTitle_ = TranslateMain("Preferiti");
   const quint64 gen = ++libraryGen_;
   libraryItems_.clear();
   emit libraryChanged();
@@ -241,7 +239,7 @@ void LibraryController::openItem(const QString& itemId) {
     setLoading(false);
     if (!error.isEmpty()) {
       emit statusRequested(error);
-      detail_.insert(QStringLiteral("name"), trApp("Impossibile caricare"));
+      detail_.insert(QStringLiteral("name"), TranslateApp("Impossibile caricare"));
       detail_.insert(QStringLiteral("overview"), error);
       emit detailChanged();
       return;
@@ -370,8 +368,8 @@ void LibraryController::togglePlayed() {
         // "Continue watching" and "Next up" must be recalculated by the
         // server: a series can advance to the next episode.
         QTimer::singleShot(400, this, [this]() { emit homeRefreshRequested(); });
-        emit noticeRequested(!played ? trApp("Segnato come visto")
-                                     : trApp("Segnato come non visto"));
+        emit noticeRequested(!played ? TranslateApp("Segnato come visto")
+                                     : TranslateApp("Segnato come non visto"));
       });
 }
 
@@ -388,8 +386,8 @@ void LibraryController::toggleFavorite() {
         detail_.insert(QStringLiteral("favorite"), !favorite);
         emit detailChanged();
         patchLists(id, QStringLiteral("favorite"), !favorite);
-        emit noticeRequested(!favorite ? trApp("Aggiunto ai preferiti")
-                                       : trApp("Rimosso dai preferiti"));
+        emit noticeRequested(!favorite ? TranslateApp("Aggiunto ai preferiti")
+                                       : TranslateApp("Rimosso dai preferiti"));
       });
 }
 
@@ -425,8 +423,8 @@ void LibraryController::toggleSeasonPlayed(const QString& seasonId) {
         }
         emit seasonsChanged();
         emit episodesChanged();
-        emit noticeRequested(!played ? trApp("Stagione segnata come vista")
-                                     : trApp("Stagione segnata come non vista"));
+        emit noticeRequested(!played ? TranslateApp("Stagione segnata come vista")
+                                     : TranslateApp("Stagione segnata come non vista"));
         QTimer::singleShot(400, this, [this]() { emit homeRefreshRequested(); });
       });
 }
@@ -454,8 +452,8 @@ void LibraryController::toggleSeasonFavorite(const QString& seasonId) {
         }
         emit seasonsChanged();
         emit episodesChanged();
-        emit noticeRequested(!favorite ? trApp("Stagione aggiunta ai preferiti")
-                                       : trApp("Stagione rimossa dai preferiti"));
+        emit noticeRequested(!favorite ? TranslateApp("Stagione aggiunta ai preferiti")
+                                       : TranslateApp("Stagione rimossa dai preferiti"));
       });
 }
 

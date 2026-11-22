@@ -4,6 +4,9 @@
 
 namespace {
 
+// A malformed stream must not grow one PES past a sane bound on a 256 MB box.
+constexpr size_t kMaxPesBytes = 16 * 1024 * 1024;
+
 int64_t parsePts(const uint8_t* p) {
   return (static_cast<int64_t>(p[0] & 0x0E) << 29) | (static_cast<int64_t>(p[1]) << 22) |
          (static_cast<int64_t>(p[2] & 0xFE) << 14) | (static_cast<int64_t>(p[3]) << 7) |
@@ -38,7 +41,7 @@ void TsDemux::feed(const uint8_t* data, size_t size) {
 
     if (pid == 0) {
       if (pusi && payloadSize > 1) {
-        const uint8_t pointer = payload[0];
+        const size_t pointer = payload[0];
         if (pointer + 1 < payloadSize) parsePat(payload + 1 + pointer, payloadSize - 1 - pointer);
       }
       continue;
@@ -46,7 +49,7 @@ void TsDemux::feed(const uint8_t* data, size_t size) {
 
     if (pid == pmtPid_) {
       if (pusi && payloadSize > 1) {
-        const uint8_t pointer = payload[0];
+        const size_t pointer = payload[0];
         if (pointer + 1 < payloadSize) parsePmt(payload + 1 + pointer, payloadSize - 1 - pointer);
       }
       continue;
@@ -62,6 +65,11 @@ void TsDemux::feed(const uint8_t* data, size_t size) {
         open = true;
       }
       if (!open) continue;
+      if (pes.size() + payloadSize > kMaxPesBytes) {
+        pes.clear();
+        open = false;
+        continue;
+      }
       pes.insert(pes.end(), payload, payload + payloadSize);
     }
   }

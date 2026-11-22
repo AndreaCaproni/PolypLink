@@ -1,7 +1,9 @@
 #include "settingscontroller.h"
 
 #include "jellyfinclient.h"
+#include "quality.h"
 
+#include "translation.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QJsonArray>
@@ -13,13 +15,27 @@
 
 namespace {
 
-// Keep the original translation context so existing .qm files keep working.
-QString trApp(const char* text) {
-  return QCoreApplication::translate("AppController", text);
-}
-
 constexpr int kDefaultQuality = 12000;
 constexpr int kDefaultOsdSeconds = 5;
+constexpr int kOsdSeconds[] = {3, 5, 8};
+constexpr int kOsdCount =
+    static_cast<int>(sizeof(kOsdSeconds) / sizeof(kOsdSeconds[0]));
+
+bool IsValidOsdSeconds(int seconds) {
+  for (int value : kOsdSeconds) {
+    if (value == seconds) return true;
+  }
+  return false;
+}
+
+int ShiftOsdSeconds(int current, int delta) {
+  int index = 1;
+  for (int i = 0; i < kOsdCount; ++i) {
+    if (kOsdSeconds[i] == current) index = i;
+  }
+  index = (index + delta + kOsdCount) % kOsdCount;
+  return kOsdSeconds[index];
+}
 
 }  // namespace
 
@@ -28,20 +44,12 @@ SettingsController::SettingsController(JellyfinClient* client, QObject* parent)
   QSettings settings;
   defaultQualityKbps_ =
       settings.value(QStringLiteral("defaultQualityKbps"), kDefaultQuality).toInt();
-  {
-    static const int valid[] = {4000, 8000, 12000, 20000, 30000,
-                                40000, 50000, 60000, 80000, 100000};
-    bool ok = false;
-    for (int quality : valid) {
-      if (quality == defaultQualityKbps_) ok = true;
-    }
-    if (!ok) defaultQualityKbps_ = kDefaultQuality;
+  if (!IsValidQuality(defaultQualityKbps_)) {
+    defaultQualityKbps_ = kDefaultQuality;
   }
 
   osdSeconds_ = settings.value(QStringLiteral("osdSeconds"), kDefaultOsdSeconds).toInt();
-  if (osdSeconds_ != 3 && osdSeconds_ != 5 && osdSeconds_ != 8) {
-    osdSeconds_ = kDefaultOsdSeconds;
-  }
+  if (!IsValidOsdSeconds(osdSeconds_)) osdSeconds_ = kDefaultOsdSeconds;
 
   audioDelayMs_ =
       std::clamp(settings.value(QStringLiteral("audioDelayMs"), 0).toInt(), -2000, 2000);
@@ -55,57 +63,38 @@ void SettingsController::save() {
 }
 
 void SettingsController::setDefaultQuality(int kbps) {
-  static const int valid[] = {4000, 8000, 12000, 20000, 30000,
-                              40000, 50000, 60000, 80000, 100000};
-  bool ok = false;
-  for (int quality : valid) {
-    if (quality == kbps) ok = true;
-  }
-  if (!ok || defaultQualityKbps_ == kbps) return;
+  if (!IsValidQuality(kbps) || defaultQualityKbps_ == kbps) return;
   defaultQualityKbps_ = kbps;
   save();
   emit settingsChanged();
   emit noticeRequested(
-      trApp("Qualità predefinita: %1 Mbps").arg(kbps / 1000));
+      TranslateApp("Qualità predefinita: %1 Mbps").arg(kbps / 1000));
 }
 
 void SettingsController::cycleDefaultQuality(int delta) {
-  static const int values[] = {4000, 8000, 12000, 20000, 30000,
-                               40000, 50000, 60000, 80000, 100000};
-  int pos = 2;
-  for (int i = 0; i < 10; ++i) {
-    if (values[i] == defaultQualityKbps_) pos = i;
-  }
-  pos = (pos + delta + 10) % 10;
-  defaultQualityKbps_ = values[pos];
+  defaultQualityKbps_ = ShiftQuality(defaultQualityKbps_, delta);
   save();
   emit settingsChanged();
   emit noticeRequested(
-      trApp("Qualità predefinita: %1 Mbps").arg(defaultQualityKbps_ / 1000));
+      TranslateApp("Qualità predefinita: %1 Mbps").arg(defaultQualityKbps_ / 1000));
 }
 
 void SettingsController::setOsdSeconds(int seconds) {
-  if (seconds != 3 && seconds != 5 && seconds != 8) return;
+  if (!IsValidOsdSeconds(seconds)) return;
   if (osdSeconds_ == seconds) return;
   osdSeconds_ = seconds;
   save();
   emit osdSecondsChanged();
   emit settingsChanged();
-  emit noticeRequested(trApp("OSD: %1 secondi").arg(seconds));
+  emit noticeRequested(TranslateApp("OSD: %1 secondi").arg(seconds));
 }
 
 void SettingsController::cycleOsdSeconds(int delta) {
-  static const int values[] = {3, 5, 8};
-  int pos = 1;
-  for (int i = 0; i < 3; ++i) {
-    if (values[i] == osdSeconds_) pos = i;
-  }
-  pos = (pos + delta + 3) % 3;
-  osdSeconds_ = values[pos];
+  osdSeconds_ = ShiftOsdSeconds(osdSeconds_, delta);
   save();
   emit osdSecondsChanged();
   emit settingsChanged();
-  emit noticeRequested(trApp("OSD: %1 secondi").arg(osdSeconds_));
+  emit noticeRequested(TranslateApp("OSD: %1 secondi").arg(osdSeconds_));
 }
 
 void SettingsController::setAudioDelay(int ms) {
@@ -133,15 +122,15 @@ void SettingsController::resetSettings() {
   save();
   emit osdSecondsChanged();
   emit settingsChanged();
-  emit noticeRequested(trApp("Impostazioni ripristinate"));
+  emit noticeRequested(TranslateApp("Impostazioni ripristinate"));
 }
 
 void SettingsController::testConnection() {
   if (client_->server().isEmpty()) {
-    emit noticeRequested(trApp("Nessun server configurato"));
+    emit noticeRequested(TranslateApp("Nessun server configurato"));
     return;
   }
-  emit noticeRequested(trApp("Verifico la connessione…"));
+  emit noticeRequested(TranslateApp("Verifico la connessione…"));
   client_->fetchViews([this](const QJsonDocument& doc, const QString& error) {
     if (!error.isEmpty()) {
       emit statusRequested(error);
@@ -149,6 +138,6 @@ void SettingsController::testConnection() {
     }
     const int count =
         doc.object().value(QStringLiteral("Items")).toArray().size();
-    emit noticeRequested(trApp("Connessione OK · %1 librerie").arg(count));
+    emit noticeRequested(TranslateApp("Connessione OK · %1 librerie").arg(count));
   });
 }

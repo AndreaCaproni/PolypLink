@@ -4,6 +4,7 @@
 #include "redact.h"
 #include "serverurl.h"
 
+#include "translation.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
@@ -11,15 +12,6 @@
 #include <QJsonObject>
 #include <QStringList>
 #include <QVariantMap>
-
-namespace {
-
-// Keep the original translation context so existing .qm files keep working.
-QString trApp(const char* text) {
-  return QCoreApplication::translate("AppController", text);
-}
-
-}  // namespace
 
 AuthController::AuthController(JellyfinClient* client, QObject* parent)
     : QObject(parent), client_(client) {
@@ -35,7 +27,7 @@ AuthController::AuthController(JellyfinClient* client, QObject* parent)
 }
 
 void AuthController::discover() {
-  emit statusRequested(trApp("Cerco il server Jellyfin sulla rete…"));
+  emit statusRequested(TranslateApp("Cerco il server Jellyfin sulla rete…"));
   discovery_.start();
 }
 
@@ -59,15 +51,15 @@ void AuthController::setManualServer(const QString& url) {
 
 void AuthController::loginWithPassword(const QString& user, const QString& pass) {
   if (user.trimmed().isEmpty()) {
-    emit statusRequested(trApp("Inserisci il nome utente"));
+    emit statusRequested(TranslateApp("Inserisci il nome utente"));
     return;
   }
-  emit statusRequested(trApp("Accesso in corso…"));
+  emit statusRequested(TranslateApp("Accesso in corso…"));
   client_->authenticate(
       user.trimmed(), pass,
       [this](const QJsonDocument&, const QString& error) {
         if (!error.isEmpty()) {
-          emit statusRequested(trApp("Accesso fallito: %1").arg(error));
+          emit statusRequested(TranslateApp("Accesso fallito: %1").arg(error));
           return;
         }
         emit authenticated();
@@ -85,7 +77,7 @@ void AuthController::selectServer(int index) {
 
 void AuthController::beginQuickConnect() {
   qcCode_.clear();
-  qcStatus_ = trApp("Preparo il codice…");
+  qcStatus_ = TranslateApp("Preparo il codice…");
   emit quickConnectChanged();
   emit stateRequested(QStringLiteral("quickconnect"));
 
@@ -100,7 +92,7 @@ void AuthController::beginQuickConnect() {
         qcCode_ = o.value(QStringLiteral("Code")).toString();
         qcSecret_ = o.value(QStringLiteral("Secret")).toString();
         qcAttempts_ = 0;
-        qcStatus_ = trApp(
+        qcStatus_ = TranslateApp(
             "Apri Jellyfin sul telefono o sul PC: Impostazioni → Quick Connect, "
             "e inserisci questo codice.");
         emit quickConnectChanged();
@@ -191,7 +183,7 @@ void AuthController::pollQuickConnect() {
   if (qcSecret_.isEmpty()) return;
   if (++qcAttempts_ > 90) {
     qcTimer_.stop();
-    qcStatus_ = trApp("Tempo scaduto. Riprova.");
+    qcStatus_ = TranslateApp("Tempo scaduto. Riprova.");
     emit quickConnectChanged();
     return;
   }
@@ -202,7 +194,7 @@ void AuthController::pollQuickConnect() {
         const QJsonObject o = doc.object();
         if (!o.value(QStringLiteral("Authenticated")).toBool()) return;
         qcTimer_.stop();
-        qcStatus_ = trApp("Autorizzato, accesso in corso…");
+        qcStatus_ = TranslateApp("Autorizzato, accesso in corso…");
         emit quickConnectChanged();
         client_->quickConnectAuthenticate(
             qcSecret_, [this](const QJsonDocument&, const QString& authError) {

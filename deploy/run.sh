@@ -3,8 +3,8 @@
 #
 # Writes a detailed log in the app folder (which is on /home/apps, a persistent
 # disk image). The USB stick is NOT mounted while the app runs: the firmware
-# unmounts it after installation. The logs are copied to the USB stick on the
-# next boot by the factory_test/run.sh script.
+# unmounts it after installation. By default the log stays on the device; only
+# an optional development hook (--dev-ssh) may copy it to the stick.
 
 APP_DIR=$(dirname "$0")
 cd "$APP_DIR" 2>/dev/null || exit 1

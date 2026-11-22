@@ -16,6 +16,8 @@
 #include <cstdarg>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
+#include <limits>
 #include <cstdio>
 #include <cstring>
 
@@ -51,17 +53,66 @@ constexpr int kAudioChannels = 2;
 constexpr int kAudioBlockFrames = 960;  // 20 ms
 constexpr size_t kAudioBlockBytes = kAudioBlockFrames * kAudioChannels * sizeof(int16_t);
 
-QString StripTokenQuery(QString url) {
-  QUrl u(url);
-  QUrlQuery q(u);
-  if (q.hasQueryItem(QStringLiteral("api_key")) ||
-      q.hasQueryItem(QStringLiteral("ApiKey"))) {
-    q.removeAllQueryItems(QStringLiteral("api_key"));
-    q.removeAllQueryItems(QStringLiteral("ApiKey"));
-    u.setQuery(q);
-    return u.toString(QUrl::FullyEncoded);
+// Hard limits for network data and decoded buffers on a 256 MB device.
+constexpr qint64 kMaxPlaylistBytes = 4 * 1024 * 1024;
+constexpr qint64 kMaxSegmentBytes = 64 * 1024 * 1024;
+constexpr size_t kMaxSegmentQueueBytes = 96 * 1024 * 1024;
+constexpr size_t kMaxAccessUnitBytes = 16 * 1024 * 1024;
+constexpr size_t kMaxVideoFrames = 240;
+constexpr size_t kMaxPcmSamples = static_cast<size_t>(kAudioRate) * kAudioChannels * 5;
+constexpr double kMaxAlignmentSilenceSec = 2.0;
+
+// Remove token query parameters without rewriting unrelated parameters.
+QString StripTokenQuery(const QString& url) {
+  const int queryStart = url.indexOf(QLatin1Char('?'));
+  if (queryStart < 0) return url;
+  const int fragmentStart = url.indexOf(QLatin1Char('#'), queryStart);
+  const QString base = url.left(queryStart);
+  const QString query = url.mid(
+      queryStart + 1,
+      fragmentStart < 0 ? -1 : fragmentStart - queryStart - 1);
+  const QString suffix = fragmentStart < 0 ? QString() : url.mid(fragmentStart);
+
+  QStringList kept;
+  for (const QString& part : query.split(QLatin1Char('&'))) {
+    const QString key = part.section(QLatin1Char('='), 0, 0).toLower();
+    if (key == QLatin1String("api_key") || key == QLatin1String("apikey") ||
+        key == QLatin1String("api-key") || key == QLatin1String("access_token") ||
+        key == QLatin1String("accesstoken") || key == QLatin1String("token") ||
+        key == QLatin1String("secret") || key == QLatin1String("pw") ||
+        key == QLatin1String("password")) {
+      continue;
+    }
+    kept.append(part);
   }
-  return url;
+  if (kept.isEmpty()) return base + suffix;
+  return base + QLatin1Char('?') + kept.join(QLatin1Char('&')) + suffix;
+}
+
+int EffectivePort(const QUrl& url) {
+  if (url.port() >= 0) return url.port();
+  if (url.scheme().compare(QLatin1String("https"), Qt::CaseInsensitive) == 0) {
+    return 443;
+  }
+  if (url.scheme().compare(QLatin1String("http"), Qt::CaseInsensitive) == 0) {
+    return 80;
+  }
+  return -1;
+}
+
+bool SameOrigin(const QUrl& a, const QUrl& b) {
+  return a.scheme().compare(b.scheme(), Qt::CaseInsensitive) == 0 &&
+         a.host().compare(b.host(), Qt::CaseInsensitive) == 0 &&
+         EffectivePort(a) == EffectivePort(b);
+}
+
+// A same-host HTTP -> HTTPS upgrade is safe for the token and is common
+// behind a reverse proxy. Downgrades and other hosts are rejected.
+bool IsAllowedRedirect(const QUrl& from, const QUrl& to) {
+  if (SameOrigin(from, to)) return true;
+  return from.scheme().compare(QLatin1String("http"), Qt::CaseInsensitive) == 0 &&
+         to.scheme().compare(QLatin1String("https"), Qt::CaseInsensitive) == 0 &&
+         from.host().compare(to.host(), Qt::CaseInsensitive) == 0;
 }
 
 QString firstUriAfterStreamInf(const QString& text, const QUrl& base) {
@@ -89,15 +140,41 @@ Player::~Player() {
   QElapsedTimer t;
   t.start();
   requestStop();
-  const bool ok = wait(15000);
+  const bool ok = wait(kStopTimeoutMs);
   qInfo("[diag] ~Player: wait %lld ms -> %s", static_cast<long long>(t.elapsed()),
         ok ? "ok" : "TIMEOUT");
 }
 
 static void* tid() { return reinterpret_cast<void*>(QThread::currentThreadId()); }
 
+void Player::setError(const QString& text) {
+  std::lock_guard<std::mutex> lock(stateMutex_);
+  error_ = text;
+}
+
+QString Player::errorText() const {
+  std::lock_guard<std::mutex> lock(stateMutex_);
+  return error_;
+}
+
+void Player::setProducerError(const QString& text) {
+  std::lock_guard<std::mutex> lock(stateMutex_);
+  producerError_ = text;
+}
+
+bool Player::hasProducerError() const {
+  std::lock_guard<std::mutex> lock(stateMutex_);
+  return !producerError_.isEmpty();
+}
+
+QString Player::producerErrorText() const {
+  std::lock_guard<std::mutex> lock(stateMutex_);
+  return producerError_;
+}
+
 void Player::begin(const Config& config) {
   cfg_ = config;
+  allowedOrigin_ = QUrl(config.masterUrl);
   stop_.store(false);
   paused_.store(false);
   position_.store(config.startTicks / 1e7);
@@ -106,7 +183,7 @@ void Player::begin(const Config& config) {
 
 void Player::requestStop() {
   qInfo("[diag] requestStop (thread %p, producerState=%d, coda=%d)", tid(),
-        producerState_.load(), static_cast<int>(segmentUrls_.size()));
+        producerState_.load(), segmentCount_.load());
   stop_.store(true);
   // wake immediately whoever is waiting for a segment: without this the stop could
   // hang for up to 15 s and the thread was destroyed while still active.
@@ -134,54 +211,97 @@ void Player::setPaused(bool paused) {
   paused_.store(paused);
 }
 
-bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* out) {
-  const QString requestUrl = StripTokenQuery(url);
-  QNetworkRequest req{QUrl(requestUrl)};
-  // No redirect: the Authorization header must not follow a Location
-  // to another host.
-  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, false);
-  if (!cfg_.authHeader.isEmpty()) {
-    req.setRawHeader("Authorization", cfg_.authHeader.toUtf8());
+bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* out,
+                   qint64 maxBytes, QString* finalUrl) {
+  out->clear();
+  QUrl current(StripTokenQuery(url));
+  if (!current.isValid() || !SameOrigin(current, allowedOrigin_)) {
+    setError(QStringLiteral("URL fuori dal server Jellyfin"));
+    return false;
   }
 
-  QNetworkReply* reply = nam.get(req);
-
-  // Explicit timeout: Qt 5.14 does not have setTransferTimeout().
-  QTimer timeout;
-  timeout.setSingleShot(true);
-  QObject::connect(&timeout, &QTimer::timeout, reply, &QNetworkReply::abort);
-  timeout.start(15000);
-
-  // If we are asked to stop, the current request is aborted immediately:
-  // so the thread exits quickly and playback resources are released.
-  QTimer stopper;
-  stopper.setInterval(100);
-  QObject::connect(&stopper, &QTimer::timeout, reply, [this, reply]() {
-    if (stop_.load()) {
-      qInfo("[diag] abort richiesta in corso per stop");
-      reply->abort();
+  for (int redirects = 0; redirects < 5; ++redirects) {
+    QNetworkRequest req(current);
+    // Follow redirects manually: Qt would forward Authorization headers.
+    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, false);
+    req.setAttribute(QNetworkRequest::MaximumDownloadBufferSizeAttribute,
+                     static_cast<int>(maxBytes));
+    if (!cfg_.authHeader.isEmpty()) {
+      req.setRawHeader("Authorization", cfg_.authHeader.toUtf8());
     }
-  });
-  stopper.start();
 
-  QEventLoop loop;
-  QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-  loop.exec();
+    QNetworkReply* reply = nam.get(req);
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    QObject::connect(&timeout, &QTimer::timeout, reply, &QNetworkReply::abort);
+    timeout.start(15000);
 
-  const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-  const bool ok = reply->error() == QNetworkReply::NoError && status < 400;
-  if (ok) {
-    *out = reply->readAll();
-  } else {
-    error_ = QStringLiteral("HTTP %1: %2").arg(status).arg(reply->errorString());
+    QTimer stopper;
+    stopper.setInterval(100);
+    QObject::connect(&stopper, &QTimer::timeout, reply, [this, reply]() {
+      if (stop_.load()) {
+        qInfo("[diag] abort richiesta in corso per stop");
+        reply->abort();
+      }
+    });
+    stopper.start();
+
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    const int status =
+        reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (status >= 300 && status < 400) {
+      const QByteArray location = reply->rawHeader("Location");
+      reply->deleteLater();
+      if (location.isEmpty()) {
+        setError(QStringLiteral("redirect senza Location"));
+        return false;
+      }
+      const QUrl next = current.resolved(QUrl::fromEncoded(location));
+      if (!IsAllowedRedirect(current, next)) {
+        setError(QStringLiteral("redirect verso un host non consentito"));
+        return false;
+      }
+      if (!SameOrigin(current, next)) {
+        // Upgrade to HTTPS: subsequent segments use the new origin.
+        allowedOrigin_ = next;
+      }
+      current = next;
+      continue;
+    }
+
+    const bool ok =
+        reply->error() == QNetworkReply::NoError && status >= 200 && status < 300;
+    if (ok) {
+      const QVariant length = reply->header(QNetworkRequest::ContentLengthHeader);
+      if (length.isValid() && length.toLongLong() > maxBytes) {
+        setError(QStringLiteral("risposta troppo grande"));
+      } else {
+        *out = reply->readAll();
+        if (out->size() > maxBytes) {
+          out->clear();
+          setError(QStringLiteral("risposta troppo grande"));
+        }
+      }
+    } else {
+      setError(QStringLiteral("HTTP %1: %2").arg(status).arg(reply->errorString()));
+    }
+
+    QString shortUrl = RedactSecrets(current.toString());
+    if (shortUrl.size() > 110) shortUrl = shortUrl.left(110) + "...";
+    qInfo("[player] GET %d %d byte %s", status, static_cast<int>(out->size()),
+          qPrintable(shortUrl));
+    if (ok && !out->isEmpty() && finalUrl != nullptr) {
+      *finalUrl = current.toString();
+    }
+    reply->deleteLater();
+    return ok && !out->isEmpty();
   }
 
-  QString shortUrl = RedactSecrets(requestUrl);
-  if (shortUrl.size() > 110) shortUrl = shortUrl.left(110) + "...";
-  qInfo("[player] GET %d %d byte %s", status, static_cast<int>(out->size()),
-        qPrintable(shortUrl));
-  reply->deleteLater();
-  return ok;
+  setError(QStringLiteral("troppi redirect"));
+  return false;
 }
 
 namespace {
@@ -263,14 +383,14 @@ bool Player::openStreams() {
   qInfo("[player] SLVideo_CreateContext -> %p", static_cast<void*>(videoCtx));
   Trace("SLVideo_CreateContext -> %p", static_cast<void*>(videoCtx));
   if (videoCtx == nullptr) {
-    error_ = QStringLiteral("SLVideo_CreateContext fallita");
+    setError(QStringLiteral("SLVideo_CreateContext fallita"));
     return false;
   }
 
   // low latency = 1: I/P frames, the case the decoder is designed for
   CSLVideoStream* stream = SLVideo_CreateStream(videoCtx, k_ESLVideoFormatH264, 1);
   if (stream == nullptr) {
-    error_ = QStringLiteral("SLVideo_CreateStream fallita");
+    setError(QStringLiteral("SLVideo_CreateStream fallita"));
     SLVideo_FreeContext(videoCtx);
     return false;
   }
@@ -293,12 +413,12 @@ bool Player::openStreams() {
 
   const AVCodec* codec = avcodec_find_decoder(AV_CODEC_ID_AAC);
   if (codec == nullptr) {
-    error_ = QStringLiteral("decoder AAC non trovato in libavcodec");
+    setError(QStringLiteral("decoder AAC non trovato in libavcodec"));
     return false;
   }
   aacCtx_ = avcodec_alloc_context3(codec);
   if (aacCtx_ == nullptr || avcodec_open2(aacCtx_, codec, nullptr) < 0) {
-    error_ = QStringLiteral("apertura decoder AAC fallita");
+    setError(QStringLiteral("apertura decoder AAC fallita"));
     return false;
   }
   aacParser_ = av_parser_init(AV_CODEC_ID_AAC);
@@ -362,7 +482,7 @@ void Player::closeStreams() {
   }
 }
 
-void Player::releaseDisplay() {
+void Player::releaseAudioContext() {
   // The video context is released per playback by closeStreams(); only the
   // process-wide audio context is left to clean up here.
   if (g_audioCtx != nullptr) {
@@ -373,15 +493,19 @@ void Player::releaseDisplay() {
 
 bool Player::loadPlaylist(QNetworkAccessManager& nam) {
   QByteArray body;
-  if (!fetch(nam, cfg_.masterUrl, &body)) return false;
+  QString masterUrl;
+  if (!fetch(nam, cfg_.masterUrl, &body, kMaxPlaylistBytes, &masterUrl)) {
+    return false;
+  }
+  cfg_.masterUrl = masterUrl;
 
   QString text = QString::fromUtf8(body);
-  const QUrl base(cfg_.masterUrl);
+  const QUrl base(masterUrl);
 
   if (!text.contains(QLatin1String("#EXTINF"))) {
     const QString variant = firstUriAfterStreamInf(text, base);
     if (variant.isEmpty()) {
-      error_ = QStringLiteral("playlist senza varianti");
+      setError(QStringLiteral("playlist senza varianti"));
       return false;
     }
     // variant data, for the stats panel
@@ -391,15 +515,21 @@ bool Player::loadPlaylist(QNetworkAccessManager& nam) {
     const QString bw = line.section(QLatin1String("BANDWIDTH="), 1, 1).section(QLatin1Char(','), 0, 0);
     const QString codecs = line.section(QLatin1String("CODECS=\""), 1, 1).section(QLatin1Char('"'), 0, 0);
     const QString rate = line.section(QLatin1String("FRAME-RATE="), 1, 1).section(QLatin1Char(','), 0, 0);
-    stats_.insert("resolution", res);
-    stats_.insert("bandwidth", bw);
-    stats_.insert("codecs", codecs);
-    stats_.insert("framerate", rate);
+    {
+      std::lock_guard<std::mutex> lock(stateMutex_);
+      stats_.insert("resolution", res);
+      stats_.insert("bandwidth", bw);
+      stats_.insert("codecs", codecs);
+      stats_.insert("framerate", rate);
+    }
     break;
   }
   qInfo("[player] variante: %s", qPrintable(RedactSecrets(variant)));
-    cfg_.masterUrl = variant;
-    if (!fetch(nam, variant, &body)) return false;
+    QString finalVariant;
+    if (!fetch(nam, variant, &body, kMaxPlaylistBytes, &finalVariant)) {
+      return false;
+    }
+    cfg_.masterUrl = finalVariant;
     text = QString::fromUtf8(body);
   }
 
@@ -427,11 +557,37 @@ bool Player::loadPlaylist(QNetworkAccessManager& nam) {
     }
   }
 
+  constexpr int kMaxPlaylistSegments = 10000;
+  if (fresh.isEmpty()) {
+    setError(QStringLiteral("playlist vuota"));
+    return false;
+  }
+  if (fresh.size() > kMaxPlaylistSegments) {
+    setError(QStringLiteral("playlist troppo grande"));
+    return false;
+  }
+
   if (segmentUrls_.isEmpty()) {
     segmentUrls_ = fresh;
-  } else if (fresh.size() > segmentUrls_.size()) {
+  } else {
+    // Keep the pending segment aligned when the server uses a sliding window
+    // or grows the VOD playlist.
+    const QString pending =
+        (nextSegment_ >= 0 && nextSegment_ < segmentUrls_.size())
+            ? segmentUrls_.at(nextSegment_)
+            : lastSegmentUrl_;
+    int found = pending.isEmpty() ? -1 : fresh.indexOf(pending);
+    if (found < 0 && !lastSegmentUrl_.isEmpty()) {
+      found = fresh.indexOf(lastSegmentUrl_);
+      nextSegment_ = found >= 0 ? found + 1 : 0;
+    } else if (found >= 0) {
+      nextSegment_ = found;
+    } else {
+      nextSegment_ = 0;
+    }
     segmentUrls_ = fresh;
   }
+  segmentCount_.store(segmentUrls_.size());
 
   // Starting at a position: the server puts its absolute runtimeTicks in
   // each segment. We start from the segment covering startTicks and the
@@ -475,7 +631,9 @@ bool Player::fetchNextSegment(QNetworkAccessManager& nam, QByteArray* out) {
       for (int tentativo = 0; tentativo < 4; ++tentativo) {
         if (stop_.load()) return false;
         if (tentativo > 0) msleep(300);
-        if (fetch(nam, url, out)) {
+        if (fetch(nam, url, out, kMaxSegmentBytes)) {
+          lastSegmentUrl_ = url;
+          lastSegmentIndex_.store(nextSegment_);
           ++nextSegment_;
           return true;
         }
@@ -506,7 +664,7 @@ void Player::demuxSegment(const QByteArray& body) {
     emit stalled(false);
   }
   qInfo("[player] segmento %d: %d byte, TS=%s, pid video=%d audio=%d, +%d AU, +%d campioni (demux %d ms)",
-        nextSegment_ - 1, static_cast<int>(body.size()),
+        lastSegmentIndex_.load(), static_cast<int>(body.size()),
         (!body.isEmpty() && static_cast<uint8_t>(body[0]) == 0x47) ? "si" : "NO",
         demux_->videoPid(), demux_->audioPid(),
         static_cast<int>(videoQueue_.size() - beforeVideo),
@@ -523,6 +681,7 @@ bool Player::takeSegment(QByteArray* out, int timeoutMs) {
   if (segmentQueue_.empty()) return false;
   *out = std::move(segmentQueue_.front());
   segmentQueue_.pop_front();
+  segmentQueueBytes_ -= static_cast<size_t>(out->size());
   return true;
 }
 
@@ -534,7 +693,7 @@ void Player::producerLoop() {
   QNetworkAccessManager nam;
   if (!loadPlaylist(nam)) {
     producerState_.store(9);
-    producerError_ = error_.isEmpty() ? QStringLiteral("playlist non caricata") : error_;
+    setProducerError(errorText().isEmpty() ? QStringLiteral("playlist non caricata") : errorText());
     producerFinished_.store(true);
     queueCv_.notify_all();
     return;
@@ -545,11 +704,13 @@ void Player::producerLoop() {
 
   while (!stop_.load()) {
     size_t pending = 0;
+    size_t pendingBytes = 0;
     {
       std::lock_guard<std::mutex> lock(queueMutex_);
       pending = segmentQueue_.size();
+      pendingBytes = segmentQueueBytes_;
     }
-    if (pending >= 4) {
+    if (pending >= 4 || pendingBytes >= kMaxSegmentQueueBytes) {
       producerState_.store(3);  // queue full
       msleep(50);
       continue;
@@ -560,13 +721,14 @@ void Player::producerLoop() {
     if (fetchNextSegment(nam, &body)) {
       {
         std::lock_guard<std::mutex> lock(queueMutex_);
+        segmentQueueBytes_ += static_cast<size_t>(body.size());
         segmentQueue_.push_back(std::move(body));
       }
       queueCv_.notify_all();
     } else if (stop_.load() || playlistEnded_) {
       break;
-    } else if (!error_.isEmpty()) {
-      producerError_ = error_;
+    } else if (!errorText().isEmpty()) {
+      setProducerError(errorText());
       break;
     } else {
       msleep(150);
@@ -581,6 +743,16 @@ void Player::producerLoop() {
 
 void Player::onVideoPacket(const uint8_t* data, size_t size, int64_t pts) {
   if (size == 0) return;
+  if (size > kMaxAccessUnitBytes ||
+      auBuf_.size() + size > kMaxAccessUnitBytes) {
+    qWarning("[player] access unit oltre il limite, scarto il buffer");
+    auBuf_.clear();
+    auPts_.clear();
+    auScanPos_ = 0;
+    auLastStartCode_ = -1;
+    auHasVcl_ = false;
+    return;
+  }
   // Frames can be split across multiple PES (typical at 1080p): I accumulate the
   // elementary stream and rebuild the access units from the NALs, not from the PES.
   auPts_.push_back({auBuf_.size(), pts});
@@ -597,6 +769,10 @@ void Player::emitAccessUnit(size_t from, size_t to) {
   }
   if (pts < 0) pts = lastVideoPts_ + 3754;  // ~23.976 fps fallback
   lastVideoPts_ = pts;
+  if (videoQueue_.size() >= kMaxVideoFrames) {
+    qWarning("[player] coda video piena, scarto il frame nuovo");
+    return;
+  }
   videoQueue_.emplace_back(
       std::vector<uint8_t>(auBuf_.begin() + static_cast<long>(from),
                            auBuf_.begin() + static_cast<long>(to)),
@@ -688,10 +864,19 @@ void Player::decodeAudio(const uint8_t* data, size_t size, int64_t pts) {
     if (outSize <= 0) continue;
 
     AVPacket* pkt = av_packet_alloc();
+    if (pkt == nullptr) {
+      qWarning("[player] av_packet_alloc fallita");
+      return;
+    }
     pkt->data = out;
     pkt->size = outSize;
     if (avcodec_send_packet(aacCtx_, pkt) == 0) {
       AVFrame* frame = av_frame_alloc();
+      if (frame == nullptr) {
+        qWarning("[player] av_frame_alloc fallita");
+        av_packet_free(&pkt);
+        return;
+      }
       while (avcodec_receive_frame(aacCtx_, frame) == 0) {
         if (swr_ == nullptr) {
           AVChannelLayout outLayout{};
@@ -712,9 +897,33 @@ void Player::decodeAudio(const uint8_t* data, size_t size, int64_t pts) {
         }
 
         const int maxOut = swr_get_out_samples(swr_, frame->nb_samples);
-        const int needed = maxOut * kAudioChannels * static_cast<int>(sizeof(int16_t));
+        constexpr int kMaxChannels = kAudioChannels;
+        if (maxOut <= 0 ||
+            maxOut > std::numeric_limits<int>::max() /
+                         (kMaxChannels * static_cast<int>(sizeof(int16_t)))) {
+          qWarning("[player] dimensione audio non valida");
+          av_frame_free(&frame);
+          av_packet_free(&pkt);
+          return;
+        }
+        const qint64 needed64 =
+            static_cast<qint64>(maxOut) * kMaxChannels * sizeof(int16_t);
+        if (needed64 > 32 * 1024 * 1024) {
+          qWarning("[player] buffer audio troppo grande");
+          av_frame_free(&frame);
+          av_packet_free(&pkt);
+          return;
+        }
+        const int needed = static_cast<int>(needed64);
         if (needed > pcmOutCapacity_) {
-          pcmOut_ = static_cast<uint8_t*>(av_realloc(pcmOut_, needed));
+          auto* resized = static_cast<uint8_t*>(av_realloc(pcmOut_, needed));
+          if (resized == nullptr) {
+            qWarning("[player] av_realloc audio fallita");
+            av_frame_free(&frame);
+            av_packet_free(&pkt);
+            return;
+          }
+          pcmOut_ = resized;
           pcmOutCapacity_ = needed;
         }
         uint8_t* outPtr = pcmOut_;
@@ -724,6 +933,11 @@ void Player::decodeAudio(const uint8_t* data, size_t size, int64_t pts) {
         if (produced > 0) {
           const int16_t* samples = reinterpret_cast<const int16_t*>(pcmOut_);
           pcm_.insert(pcm_.end(), samples, samples + produced * kAudioChannels);
+          if (pcm_.size() - pcmRead_ > kMaxPcmSamples) {
+            const size_t drop = pcm_.size() - pcmRead_ - kMaxPcmSamples;
+            pcm_.erase(pcm_.begin() + static_cast<long>(pcmRead_),
+                       pcm_.begin() + static_cast<long>(pcmRead_ + drop));
+          }
         }
         av_frame_unref(frame);
       }
@@ -752,7 +966,7 @@ bool Player::pushAudioBlock() {
 
   void* dst = SLAudio_BeginFrame(static_cast<CSLAudioStream*>(audioStream_));
   if (dst == nullptr) {
-    error_ = QStringLiteral("SLAudio_BeginFrame nullo");
+    setError(QStringLiteral("SLAudio_BeginFrame nullo"));
     return false;
   }
   memcpy(dst, pcm_.data() + pcmRead_, kAudioBlockBytes);
@@ -789,13 +1003,13 @@ bool Player::pushVideoFrame() {
 
 void Player::run() {
   qInfo("[diag] player start (thread %p)", tid());
-  error_.clear();
+  setError(QString());
   QElapsedTimer wall;
   wall.start();
 
   if (!openStreams()) {
     closeStreams();
-    emit failed(error_);
+    emit failed(errorText());
     return;
   }
   producer_ = new ProducerThread(this);
@@ -808,27 +1022,36 @@ void Player::run() {
       return segmentQueue_.size() >= 2 || producerFinished_.load();
     });
   }
-  if (!producerError_.isEmpty()) {
-    error_ = producerError_;
+  if (hasProducerError()) {
+    setError(producerErrorText());
     stop_.store(true);
     if (producer_ != nullptr) {
-    producer_->wait(5000);
-    delete producer_;
-    producer_ = nullptr;
-  }
+      const bool joined = producer_->wait(kStopTimeoutMs);
+      if (joined) {
+        delete producer_;
+      } else {
+        qWarning("[player] producer non termina: lo lascio andare");
+        producer_->setParent(nullptr);
+      }
+      producer_ = nullptr;
+    }
     closeStreams();
-    emit failed(error_);
+    emit failed(errorText());
     return;
   }
 
   // The decoder needs the expected framerate: without it, it presents frames at
   // its internal pace and the video looks choppy even if the data is fine.
   {
-    double fps = stats_.value("framerate").toString().toDouble();
-    if (fps <= 1.0) fps = 25.0;
+    double fps;
+    {
+      std::lock_guard<std::mutex> lock(stateMutex_);
+      fps = stats_.value("framerate").toString().toDouble();
+    }
+    if (!std::isfinite(fps) || fps <= 1.0 || fps > 240.0) fps = 25.0;
     // The Link decoder wants an integer framerate (Moonlight passes integers):
     // 23.976 -> 24, 29.97 -> 30.
-    const unsigned fpsInt = static_cast<unsigned>(fps + 0.5);
+    const unsigned fpsInt = static_cast<unsigned>(std::lround(fps));
     SLVideo_SetStreamTargetFramerate(static_cast<CSLVideoStream*>(videoStream_),
                                      fpsInt, 1);
     SLVideo_SetStreamTargetBitrate(static_cast<CSLVideoStream*>(videoStream_), cfg_.maxBitrateKbps);
@@ -867,23 +1090,27 @@ void Player::run() {
   qInfo("[player] allineamento PTS: video=%lld audio=%lld (video-audio=%.3f s)",
         static_cast<long long>(firstVideoPts_),
         static_cast<long long>(firstAudioPts_), videoLead);
-  if (audioDelay > 0.05) {
-    const size_t silence = static_cast<size_t>(audioDelay * kAudioRate) * kAudioChannels;
+  if (audioDelay > 0.05 && audioDelay <= kMaxAlignmentSilenceSec) {
+    const size_t frames = static_cast<size_t>(audioDelay * kAudioRate);
+    const size_t silence = frames * kAudioChannels;
     pcm_.insert(pcm_.begin(), silence, 0);
     qInfo("[player] allineamento: %.3f s di silenzio in testa all'audio", audioDelay);
+  } else if (audioDelay > kMaxAlignmentSilenceSec) {
+    qWarning("[player] allineamento PTS anomalo (%.3f s), silenzio ignorato", audioDelay);
   } else {
     qInfo("[player] allineamento: audio e video partono insieme");
   }
 
-  if (cfg_.audioDelayMs != 0) {
-    const int frames = std::abs(cfg_.audioDelayMs) * kAudioRate / 1000;
+  const int delayMs = std::clamp(cfg_.audioDelayMs, -2000, 2000);
+  if (delayMs != 0) {
+    const int frames = std::abs(delayMs) * kAudioRate / 1000;
     const size_t interleaved = static_cast<size_t>(frames) * kAudioChannels;
-    if (cfg_.audioDelayMs > 0) {
+    if (delayMs > 0) {
       pcm_.insert(pcm_.begin(), interleaved, 0);
     } else {
       pcmRead_ = std::min(interleaved, pcm_.size());
     }
-    qInfo("[player] ritardo audio utente: %d ms", cfg_.audioDelayMs);
+    qInfo("[player] ritardo audio utente: %d ms", delayMs);
   }
 
   playClock_ = 0.0;
@@ -914,7 +1141,7 @@ void Player::run() {
             static_cast<int>(videoQueue_.size()), static_cast<int>(pcm_.size()));
     }
     if (!gotMedia && wall.elapsed() - startMs > 8000) {
-      error_ = QStringLiteral("Connessione persa: il server non ha inviato dati.");
+      setError(QStringLiteral("Connessione persa: il server non ha inviato dati."));
       failedNow = true;
       break;
     }
@@ -974,8 +1201,8 @@ void Player::run() {
       const bool noMedia = videoQueue_.empty() &&
                            (pcm_.size() - pcmRead_) < static_cast<size_t>(kAudioChannels);
       if (queueEmpty && noMedia) {
-        if (!producerError_.isEmpty()) {
-          error_ = producerError_;
+        if (hasProducerError()) {
+          setError(producerErrorText());
           failedNow = true;
         }
         break;
@@ -1044,7 +1271,11 @@ void Player::run() {
     if (wall.elapsed() - lastStats > 1000) {
       lastStats = wall.elapsed();
       const int submitted = submittedFrames_;
-      QVariantMap st = stats_;
+      QVariantMap st;
+      {
+        std::lock_guard<std::mutex> lock(stateMutex_);
+        st = stats_;
+      }
       st.insert("position", position_.load());
       st.insert("duration", cfg_.durationTicks / 1e7);
       st.insert("fps", submitted - lastSubmitted);
@@ -1087,7 +1318,7 @@ void Player::run() {
   if (producer_ != nullptr) {
     QElapsedTimer pt;
     pt.start();
-    const bool joined = producer_->wait(15000);
+    const bool joined = producer_->wait(kStopTimeoutMs);
     qInfo("[diag] join producer: %lld ms -> %s (state=%d)",
           static_cast<long long>(pt.elapsed()), joined ? "ok" : "TIMEOUT",
           producerState_.load());
@@ -1104,7 +1335,7 @@ void Player::run() {
   qInfo("[diag] closeStreams inizio");
   closeStreams();
   qInfo("[diag] closeStreams fine");
-  if (failedNow) emit failed(error_);
+  if (failedNow) emit failed(errorText());
   else emit finished();
   qInfo("[diag] player end");
 }

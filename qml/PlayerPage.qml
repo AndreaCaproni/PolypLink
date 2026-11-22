@@ -10,7 +10,7 @@ Item {
     property int screenHeight: 720
     property var labels: ({})
 
-    // Keep in sync with AppController::playerAction.
+    // Keep in sync with AppController::PlayerAction.
     QtObject {
         id: playerAction
         readonly property int seek: 0

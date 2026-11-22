@@ -105,6 +105,8 @@ Window {
             if (app.state === "home") {
                 root.page = "home"
                 root.detailOpen = false
+                root.credPass = ""
+                keyboard.text = ""
             }
         }
     }
@@ -588,7 +590,14 @@ Window {
         if (settingsChoiceOpen) { settingsChoiceOpen = false; return }
         if (languageOpen) { languageOpen = false; return }
         if (overviewOpen) { overviewOpen = false; return }
-        if (keyboardOpen) { keyboardOpen = false; return }
+        if (keyboardOpen) {
+            keyboardOpen = false
+            if (kbTarget === "pass") {
+                credPass = ""
+                keyboard.text = ""
+            }
+            return
+        }
         if (detailOpen) { detailOpen = false; return }
         if (page === "seasons") {
             root.detailOpen = true
@@ -964,10 +973,19 @@ Window {
                     onAccepted: {
                         if (root.kbTarget === "url") app.setManualServer(value)
                         else if (root.kbTarget === "user") root.credUser = value
-                        else if (root.kbTarget === "pass") root.credPass = value
+                        else if (root.kbTarget === "pass") {
+                            root.credPass = value
+                            keyboard.text = ""
+                        }
                         root.keyboardOpen = false
                     }
-                    onCancelled: root.keyboardOpen = false
+                    onCancelled: {
+                        root.keyboardOpen = false
+                        if (root.kbTarget === "pass") {
+                            root.credPass = ""
+                            keyboard.text = ""
+                        }
+                    }
                 }
 
             }

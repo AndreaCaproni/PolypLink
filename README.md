@@ -56,8 +56,9 @@ understand MKV, HEVC, 4K or HDR.
 - **Favorites** as a tab in the top bar.
 - **Clear network errors**: timeouts, *server unreachable* with **A** to retry,
   *connection lost* during playback.
-- **Account** and **Settings**: pages exist; their entries are placeholders for
-  the stable release.
+- **Account** and **Settings**: account stats plus real settings for default
+  quality, OSD duration and audio delay; the remaining entries are placeholders
+  for the stable release.
 
 ---
 
@@ -101,7 +102,7 @@ understand MKV, HEVC, 4K or HDR.
   `/24` (needed for Docker/bridge setups).
 - The Jellyfin token is stored in the app config with owner-only permissions
   (`0600`); log messages, including QML warnings, are redacted before they are
-  written to stderr or the USB log.
+  written to stderr or the device log.
 - Logout asks Jellyfin to revoke the session server-side, but it is
   best-effort: if the server is unreachable or the app is closed immediately,
   the session may remain active until it is revoked from the Jellyfin
@@ -261,7 +262,7 @@ would need its own authentication path.
 
 This is the canonical repository. Bug reports and pull requests are welcome
 here: please send improvements upstream instead of publishing separate
-vibecoded forks.
+forks.
 
 ---
 

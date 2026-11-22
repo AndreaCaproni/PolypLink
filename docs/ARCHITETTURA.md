@@ -88,9 +88,9 @@ il livello protocollo è totalmente diverso (HLS vs GameStream) e un fork
 significherebbe smontare più codice di quanto se ne scriva.
 
 Licenza: il nostro codice resta MIT. Le API `SLVideo`/`SLAudio` sono zlib (header
-allegati allo SDK). Se in futuro copiassimo codice da Moonlight, l'app dovrebbe
-diventare GPLv3: preferiamo riscrivere le ~100 righe di glue, che sono documentate
-dagli header.
+allegati allo SDK). Il workaround per il piano video è stato reimplementato in
+modo indipendente, senza codice Moonlight; vedi [PROVENANCE.md](../PROVENANCE.md).
+Nessun codice GPLv3 è incluso.
 
 ### Stack
 

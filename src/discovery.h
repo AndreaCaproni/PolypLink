@@ -50,6 +50,7 @@ class Discovery : public QObject {
   QVariantList servers_;
   bool searching_ = false;
   bool warnedAddress_ = false;
+  bool warnedLimit_ = false;
 
   QNetworkAccessManager nam_;
   QStringList lanHosts_;

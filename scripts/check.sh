@@ -31,13 +31,13 @@ sh "$ROOT/tests/test_settings_migration.sh"
 
 if command -v g++ >/dev/null 2>&1 && command -v pkg-config >/dev/null 2>&1 &&
    pkg-config --exists Qt5Core Qt5Network; then
-  OUT="/tmp/test_serverurl.$$"
+  OUT="$(mktemp "${TMPDIR:-/tmp}/test_serverurl.XXXXXX")"
   g++ -std=c++17 -fPIC "$ROOT/tests/test_serverurl.cpp" "$ROOT/src/serverurl.cpp" \
       $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
   "$OUT"
   rm -f "$OUT"
 
-  OUT="/tmp/test_discovery_address.$$"
+  OUT="$(mktemp "${TMPDIR:-/tmp}/test_discovery_address.XXXXXX")"
   g++ -std=c++17 -fPIC -I"$ROOT/src" "$ROOT/tests/test_discovery_address.cpp" \
       $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
   "$OUT"
@@ -47,7 +47,7 @@ else
 fi
 
 if command -v g++ >/dev/null 2>&1; then
-  OUT="/tmp/test_tsdemux.$$"
+  OUT="$(mktemp "${TMPDIR:-/tmp}/test_tsdemux.XXXXXX")"
   g++ -std=c++17 -fPIC -fsanitize=address,undefined -fno-omit-frame-pointer \
       -I"$ROOT/src" "$ROOT/tests/test_tsdemux.cpp" "$ROOT/src/tsdemux.cpp" -o "$OUT"
   "$OUT"

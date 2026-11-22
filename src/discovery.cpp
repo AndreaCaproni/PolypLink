@@ -35,6 +35,7 @@ void Discovery::start() {
 
   udpDone_ = false;
   warnedAddress_ = false;
+  warnedLimit_ = false;
   searching_ = true;
   emit searchingChanged();
 
@@ -65,6 +66,14 @@ void Discovery::start() {
 
 void Discovery::addEntry(const QString& address, const QString& name,
                          const QString& id) {
+  constexpr int kMaxServers = 64;
+  if (servers_.size() >= kMaxServers) {
+    if (!warnedLimit_) {
+      warnedLimit_ = true;
+      qWarning("[discovery] limite di %d server raggiunto", kMaxServers);
+    }
+    return;
+  }
   for (const QVariant& v : servers_) {
     if (v.toMap().value(QStringLiteral("address")).toString() == address) return;
   }

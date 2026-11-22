@@ -42,12 +42,14 @@ fi
 [[ -f "$SDK/setenv.sh" ]] || die "Steam Link SDK non trovato in '$SDK'."
 
 SDK_REAL="$(cd "$SDK" && pwd -P)"
+SDK_TMP=""
+cleanup() { if [[ -n "$SDK_TMP" ]]; then rm -rf "$SDK_TMP"; fi; }
+trap cleanup EXIT
 if [[ "$SDK_REAL" == *" "* ]]; then
-  SDK_LINK="/tmp/polyplink-sdk"
-  rm -f "$SDK_LINK"
-  ln -s "$SDK_REAL" "$SDK_LINK"
-  SDK_REAL="$SDK_LINK"
-  echo "==> path con spazi: uso il symlink $SDK_LINK"
+  SDK_TMP="$(mktemp -d "${TMPDIR:-/tmp}/polyplink-sdk.XXXXXX")"
+  ln -s "$SDK_REAL" "$SDK_TMP/sdk"
+  SDK_REAL="$SDK_TMP/sdk"
+  echo "==> path con spazi: uso il symlink $SDK_REAL"
 fi
 
 echo "==> SDK: $SDK_REAL"
@@ -80,10 +82,12 @@ cd "$BUILD"
 qmake "$ROOT/client.pro" >/dev/null
 
 echo "==> build"
-python3 - "$ROOT/src/buildstamp.h" <<'PYEOF'
+BUILD_EPOCH="${SOURCE_DATE_EPOCH:-$(date +%s)}"
+python3 - "$ROOT/src/buildstamp.h" "$BUILD_EPOCH" <<'PYEOF'
 import datetime, sys
-open(sys.argv[1], "w").write('#pragma once\n#define BUILD_STAMP "%s"\n'
-    % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+epoch = int(sys.argv[2])
+stamp = datetime.datetime.fromtimestamp(epoch, datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+open(sys.argv[1], "w").write('#pragma once\n#define BUILD_STAMP "%s"\n' % stamp)
 PYEOF
 make -j"$(nproc)"
 
@@ -128,7 +132,8 @@ EOF
 # definitely handles (a bare folder is not installed).
 rm -rf "$DIST"
 mkdir -p "$DIST/steamlink/apps"
-( cd "$STAGE" && tar -czf "$DIST/steamlink/apps/$APPNAME.tgz" "$APPNAME" )
+( cd "$STAGE" && tar --sort=name --owner=0 --group=0 --numeric-owner \
+    --mtime="@$BUILD_EPOCH" -czf "$DIST/steamlink/apps/$APPNAME.tgz" "$APPNAME" )
 
 # SSH and the personal hook are NOT part of the default kit: the normal build
 # must be copyable/shareable without keys or passwords. They are only needed

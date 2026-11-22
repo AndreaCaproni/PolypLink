@@ -35,8 +35,6 @@ class PlaybackController : public QObject {
   void startPlaybackAt(const QString& itemId, qint64 startTicks,
                        const QString& title, double durationSec,
                        int audioIndex, int subtitleIndex, int qualityKbps);
-  void restartAt(qint64 startTicks, int audioIndex, int subtitleIndex,
-                 int qualityKbps);
   bool stopPlayback();
   bool shutdown();
   void togglePause();

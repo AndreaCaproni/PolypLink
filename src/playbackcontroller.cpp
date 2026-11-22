@@ -5,6 +5,7 @@
 #include "redact.h"
 #include "settingscontroller.h"
 
+#include "translation.h"
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
@@ -15,15 +16,6 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include <QUuid>
-
-namespace {
-
-// Keep the original translation context so existing .qm files keep working.
-QString trApp(const char* text) {
-  return QCoreApplication::translate("AppController", text);
-}
-
-}  // namespace
 
 PlaybackController::PlaybackController(JellyfinClient* client,
                                        SettingsController* settings,
@@ -43,7 +35,7 @@ PlaybackController::PlaybackController(JellyfinClient* client,
     }
     if (now - lastProgressMs_ > 10000 && !stalled_) {
       stalled_ = true;
-      status_ = trApp("Connessione persa… riprovo");
+      status_ = TranslateApp("Connessione persa… riprovo");
       emit playerChanged();
     }
   });
@@ -62,16 +54,16 @@ bool PlaybackController::stopPlayerThread() {
   // a playback that we are reopening.
   QObject::disconnect(player_, nullptr, this, nullptr);
   player_->requestStop();
-  const bool joined = player_->wait(8000);
+  const bool joined = player_->wait(Player::kStopTimeoutMs);
   qInfo("[diag] teardownPlayer: wait %lld ms -> %s",
         static_cast<long long>(timer.elapsed()), joined ? "ok" : "TIMEOUT");
-  if (joined) {
-    delete player_;
-  } else {
-    qWarning("[player] il thread non termina: non lo cancello (evito crash)");
+  if (!joined) {
+    qWarning("[player] il thread non termina: mantengo il player e blocco nuovi avvii");
+    return false;
   }
+  delete player_;
   player_ = nullptr;
-  return joined;
+  return true;
 }
 
 bool PlaybackController::teardownPlayer() {
@@ -90,7 +82,13 @@ void PlaybackController::startPlaybackAt(const QString& itemId, qint64 startTick
                                          int qualityKbps) {
   qInfo("[diag] startPlaybackAt ticks=%lld player=%s",
         static_cast<long long>(startTicks), player_ ? "esistente" : "nullo");
-  stopPlayerThread();
+  if (!stopPlayerThread()) {
+    status_ = TranslateApp("Player precedente ancora attivo");
+    active_ = false;
+    emit playerChanged();
+    emit failed(status_);
+    return;
+  }
   const quint64 gen = ++playbackGen_;
   mediaSourceId_.clear();
 
@@ -210,7 +208,7 @@ void PlaybackController::startPlaybackAt(const QString& itemId, qint64 startTick
           stalled_ = false;
           stallWatch_.stop();
           status_ = error.isEmpty()
-                        ? trApp("Impossibile avviare la riproduzione")
+                        ? TranslateApp("Impossibile avviare la riproduzione")
                         : RedactSecrets(error);
           emit playerChanged();
           emit failed(status_);
@@ -274,7 +272,7 @@ void PlaybackController::startPlaybackAt(const QString& itemId, qint64 startTick
           }
         });
         connect(player_, &Player::failed, this, [this](const QString& message) {
-          status_ = trApp("Errore: %1").arg(message);
+          status_ = TranslateApp("Errore: %1").arg(message);
           active_ = false;
           stalled_ = false;
           stallWatch_.stop();
@@ -309,12 +307,6 @@ void PlaybackController::startPlaybackAt(const QString& itemId, qint64 startTick
                                      mediaSourceId_, audioIndex, subtitleIndex);
         player_->begin(cfg);
       });
-}
-
-void PlaybackController::restartAt(qint64 startTicks, int audioIndex,
-                                   int subtitleIndex, int qualityKbps) {
-  startPlaybackAt(playingItemId_, startTicks, title_, duration_, audioIndex,
-                  subtitleIndex, qualityKbps);
 }
 
 bool PlaybackController::stopPlayback() {

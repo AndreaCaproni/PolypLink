@@ -56,8 +56,9 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
 - **Preferiti** come scheda nella barra superiore.
 - **Errori di rete chiari**: timeout, *server non raggiungibile* con **A** per
   riprovare, *connessione persa* durante la riproduzione.
-- **Account** e **Impostazioni**: pagine presenti; le voci sono segnaposto per
-  la versione stabile.
+- **Account** e **Impostazioni**: statistiche account e impostazioni reali per
+  qualità predefinita, durata OSD e ritardo audio; le altre voci sono segnaposto
+  per la versione stabile.
 
 ---
 
@@ -102,7 +103,7 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
   la porta 8096 sulla `/24` locale (serve per Docker/bridge).
 - Il token Jellyfin è salvato nella configurazione con permessi solo-proprietario
   (`0600`); i log, inclusi i warning QML, vengono redatti prima di essere
-  scritti su stderr o sulla chiavetta.
+  scritti su stderr o nel log del dispositivo.
 - Il logout chiede a Jellyfin di revocare la sessione lato server, ma è
   best-effort: se il server non è raggiungibile o l'app viene chiusa subito, la
   sessione può restare attiva finché non viene revocata dalla dashboard di
@@ -259,7 +260,7 @@ avrebbe bisogno di un proprio percorso di autenticazione.
 ## Contribuire
 
 Questo è il repository canonico. Bug report e pull request sono benvenuti qui:
-meglio mandare i miglioramenti upstream che pubblicare fork vibecoded separati.
+meglio mandare i miglioramenti upstream che pubblicare fork separati.
 
 ---
 

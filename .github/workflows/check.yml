@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Install Qt/QML tools
         run: |
@@ -23,6 +25,17 @@ jobs:
         run: |
           if git ls-files | grep -qE '(^|/)keys/|^deploy/factory_test/run\.sh$'; then
             echo "errore: file sensibile tracciato da git" >&2
+            exit 1
+          fi
+          if git log --all --name-only --pretty=format: | \
+             grep -qE '(^|/)keys/|^deploy/factory_test/run\.sh$'; then
+            echo "errore: file sensibile nella storia git" >&2
+            exit 1
+          fi
+          if git rev-list --all | while read -r commit; do
+               git grep -I -l -E 'BEGIN (OPENSSH|RSA|EC) PRIVATE KEY' "$commit" 2>/dev/null || true
+             done | grep -q .; then
+            echo "errore: chiave privata nella storia git" >&2
             exit 1
           fi
 
@@ -46,24 +59,32 @@ jobs:
 
       - name: Log redaction
         run: |
+          OUT="$(mktemp "$RUNNER_TEMP/test_redact.XXXXXX")"
           g++ -std=c++17 -fPIC tests/test_redact.cpp src/redact.cpp \
-            $(pkg-config --cflags --libs Qt5Core) -o /tmp/test_redact
-          /tmp/test_redact
+            $(pkg-config --cflags --libs Qt5Core) -o "$OUT"
+          "$OUT"
+          rm -f "$OUT"
 
       - name: Server URL normalization
         run: |
+          OUT="$(mktemp "$RUNNER_TEMP/test_serverurl.XXXXXX")"
           g++ -std=c++17 -fPIC tests/test_serverurl.cpp src/serverurl.cpp \
-            $(pkg-config --cflags --libs Qt5Core Qt5Network) -o /tmp/test_serverurl
-          /tmp/test_serverurl
+            $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
+          "$OUT"
+          rm -f "$OUT"
 
       - name: TS demux safety
         run: |
+          OUT="$(mktemp "$RUNNER_TEMP/test_tsdemux.XXXXXX")"
           g++ -std=c++17 -fPIC -fsanitize=address,undefined -fno-omit-frame-pointer \
-            -Isrc tests/test_tsdemux.cpp src/tsdemux.cpp -o /tmp/test_tsdemux
-          /tmp/test_tsdemux
+            -Isrc tests/test_tsdemux.cpp src/tsdemux.cpp -o "$OUT"
+          "$OUT"
+          rm -f "$OUT"
 
       - name: Discovery address validation
         run: |
+          OUT="$(mktemp "$RUNNER_TEMP/test_discovery_address.XXXXXX")"
           g++ -std=c++17 -fPIC -Isrc tests/test_discovery_address.cpp \
-            $(pkg-config --cflags --libs Qt5Core Qt5Network) -o /tmp/test_discovery_address
-          /tmp/test_discovery_address
+            $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
+          "$OUT"
+          rm -f "$OUT"
