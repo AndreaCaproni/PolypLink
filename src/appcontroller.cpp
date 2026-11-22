@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <memory>
 #include <QUuid>
-#include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QUrl>
@@ -36,11 +35,20 @@ QString formatDuration(qint64 ticks) {
 }  // namespace
 
 AppController::AppController(QObject* parent) : QObject(parent) {
-  connect(&discovery_, &Discovery::serversChanged, this, &AppController::serversChanged);
-  connect(&discovery_, &Discovery::error, this, [this](const QString& m) {
-    setStatus(m);
-    emit error(m);
-  });
+  auth_ = std::make_unique<AuthController>(&client_);
+  connect(auth_.get(), &AuthController::stateRequested, this,
+          &AppController::setState);
+  connect(auth_.get(), &AuthController::statusRequested, this,
+          &AppController::setStatus);
+  connect(auth_.get(), &AuthController::errorRaised, this, &AppController::error);
+  connect(auth_.get(), &AuthController::authenticated, this,
+          &AppController::afterLogin);
+  connect(auth_.get(), &AuthController::loggedOut, this,
+          &AppController::handleLoggedOut);
+  connect(auth_.get(), &AuthController::serversChanged, this,
+          &AppController::serversChanged);
+  connect(auth_.get(), &AuthController::quickConnectChanged, this,
+          &AppController::quickConnectChanged);
 
   // Token revoked or expired: don't stay stuck on an empty home screen.
   connect(&client_, &JellyfinClient::unauthorized, this, [this]() {
@@ -108,101 +116,13 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     }
   });
 
-  qcTimer_.setInterval(2000);
-  connect(&qcTimer_, &QTimer::timeout, this, [this]() {
-    if (qcSecret_.isEmpty()) return;
-    if (++qcAttempts_ > 90) {
-      qcTimer_.stop();
-      qcStatus_ = tr("Tempo scaduto. Riprova.");
-      emit quickConnectChanged();
-      return;
-    }
-    client_.quickConnectPoll(qcSecret_, [this](const QJsonDocument& doc, const QString& err) {
-      if (!err.isEmpty()) return;  // polling ignores transient errors
-      const QJsonObject o = doc.object();
-      if (!o.value(QStringLiteral("Authenticated")).toBool()) return;
-      qcTimer_.stop();
-      qcStatus_ = tr("Autorizzato, accesso in corso…");
-      emit quickConnectChanged();
-      client_.quickConnectAuthenticate(
-          qcSecret_, [this](const QJsonDocument&, const QString& err2) {
-            if (!err2.isEmpty()) {
-              qcStatus_ = err2;
-              emit quickConnectChanged();
-              return;
-            }
-            qcSecret_.clear();
-            qcCode_.clear();
-            afterLogin();
-          });
-    });
-  });
-
   if (client_.hasToken()) {
     state_ = QStringLiteral("home");
     afterLogin();
     return;
   }
 
-  QTimer::singleShot(0, this, &AppController::applyConfigFile);
-}
-
-// The firmware copies steamlink/config/* to /mnt/config/ on every boot: that
-// path is persistent and readable by the app. It is needed because UDP discovery
-// does not cross Docker (bridge network) or networks with isolated broadcast.
-//
-// File format (one line, # for comments):
-//   https://jellyfin.example.com
-// The old user=/pass= directives are ignored: credentials must not be
-// written to a text file on the USB stick. Use the login screen
-// or Quick Connect.
-void AppController::applyConfigFile() {
-  const QStringList candidates = {
-      QStringLiteral("/mnt/config/system/jellyfin-server.txt"),
-      QStringLiteral("/home/apps/polyplink/server.txt"),
-  };
-
-  QString url;
-  QString used;
-  bool legacyCredentials = false;
-
-  for (const QString& path : candidates) {
-    QFile f(path);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) continue;
-    const QStringList lines = QString::fromUtf8(f.readAll()).split(QLatin1Char('\n'));
-    for (const QString& raw : lines) {
-      const QString line = raw.trimmed();
-      if (line.isEmpty() || line.startsWith(QLatin1Char('#'))) continue;
-      if (line.startsWith(QLatin1String("user=")) ||
-          line.startsWith(QLatin1String("pass="))) {
-        legacyCredentials = true;
-        continue;
-      }
-      if (url.isEmpty()) url = line;
-    }
-    if (!url.isEmpty()) {
-      used = path;
-      break;
-    }
-  }
-
-  if (legacyCredentials) {
-    qWarning("[security] user=/pass= in jellyfin-server.txt ignorati: "
-             "rimuovi le credenziali in chiaro dal file");
-  }
-
-  if (url.isEmpty()) {
-    qInfo("[config] nessun file di configurazione, avvio la scoperta automatica");
-    discover();
-    return;
-  }
-
-  qInfo("[config] server da %s: %s", qPrintable(used),
-        qPrintable(RedactSecrets(url)));
-
-  client_.setServer(url, true);
-  client_.setServerName(QString());
-  setState(QStringLiteral("auth"));
+  QTimer::singleShot(0, auth_.get(), &AuthController::applyConfigFile);
 }
 
 QString AppController::serverLabel() const {
@@ -459,91 +379,40 @@ void AppController::refreshUserStats() {
   }
 }
 
-QVariantList AppController::servers() const { return discovery_.servers(); }
+QVariantList AppController::servers() const { return auth_->servers(); }
 
-void AppController::discover() {
-  setStatus(tr("Cerco il server Jellyfin sulla rete…"));
-  discovery_.start();
+bool AppController::searching() const { return auth_->searching(); }
+
+QString AppController::quickConnectCode() const {
+  return auth_->quickConnectCode();
 }
 
-void AppController::setManualServer(const QString& url) {
-  QString u = NormalizeServerUrl(url);
-  if (u.isEmpty()) return;
+QString AppController::quickConnectStatus() const {
+  return auth_->quickConnectStatus();
+}
 
-  // Local HTTP: Jellyfin uses 8096. Public HTTPS: leave the default
-  // port (443) or the one written by the user, to avoid guessing wrong
-  // behind a reverse proxy.
-  const bool secure = u.startsWith(QLatin1String("https://"));
-  const int schemeEnd = u.indexOf(QLatin1String("://"));
-  const QString hostPart = schemeEnd >= 0 ? u.mid(schemeEnd + 3) : u;
-  if (!secure && !hostPart.contains(QLatin1Char(':')) &&
-      !hostPart.contains(QLatin1Char('/'))) {
-    u += QLatin1String(":8096");
-  }
-  client_.setServer(u);
-  setState(QStringLiteral("auth"));
+void AppController::discover() { auth_->discover(); }
+
+void AppController::setManualServer(const QString& url) {
+  auth_->setManualServer(url);
 }
 
 void AppController::loginWithPassword(const QString& user, const QString& pass) {
-  if (user.trimmed().isEmpty()) {
-    setStatus(tr("Inserisci il nome utente"));
-    return;
-  }
-  setStatus(tr("Accesso in corso…"));
-  client_.authenticate(user.trimmed(), pass,
-                       [this](const QJsonDocument&, const QString& err) {
-                         if (!err.isEmpty()) {
-                           setStatus(tr("Accesso fallito: %1").arg(err));
-                           return;
-                         }
-                         afterLogin();
-                       });
+  auth_->loginWithPassword(user, pass);
 }
 
-void AppController::selectServer(int index) {
-  const QVariantList list = discovery_.servers();
-  if (index < 0 || index >= list.size()) return;
-  const QVariantMap s = list.at(index).toMap();
-  client_.setServer(s.value(QStringLiteral("address")).toString());
-  client_.setServerName(s.value(QStringLiteral("name")).toString());
-  setState(QStringLiteral("auth"));
-}
+void AppController::selectServer(int index) { auth_->selectServer(index); }
 
-void AppController::beginQuickConnect() {
-  qcCode_.clear();
-  qcStatus_ = tr("Preparo il codice…");
-  emit quickConnectChanged();
-  setState(QStringLiteral("quickconnect"));
+void AppController::beginQuickConnect() { auth_->beginQuickConnect(); }
 
-  client_.quickConnectInitiate([this](const QJsonDocument& doc, const QString& err) {
-    if (!err.isEmpty()) {
-      qcStatus_ = err;
-      emit quickConnectChanged();
-      return;
-    }
-    const QJsonObject o = doc.object();
-    qcCode_ = o.value(QStringLiteral("Code")).toString();
-    qcSecret_ = o.value(QStringLiteral("Secret")).toString();
-    qcAttempts_ = 0;
-    qcStatus_ = tr(
-        "Apri Jellyfin sul telefono o sul PC: Impostazioni → Quick Connect, "
-        "e inserisci questo codice.");
-    emit quickConnectChanged();
-    if (!qcSecret_.isEmpty()) qcTimer_.start();
-  });
-}
-
-void AppController::cancelQuickConnect() {
-  qcTimer_.stop();
-  qcSecret_.clear();
-  qcCode_.clear();
-  setState(QStringLiteral("login"));
-}
+void AppController::cancelQuickConnect() { auth_->cancelQuickConnect(); }
 
 void AppController::logout() {
-  qcTimer_.stop();
   teardownPlayer();
-  client_.logout();
+  auth_->logout();
+}
+
+void AppController::handleLoggedOut() {
   views_.clear();
   resume_.clear();
   nextUp_.clear();
@@ -565,10 +434,7 @@ void AppController::logout() {
 
 void AppController::refreshHome() { afterLogin(); }
 
-void AppController::useSavedServer() {
-  if (client_.server().isEmpty()) return;
-  setState(QStringLiteral("auth"));
-}
+void AppController::useSavedServer() { auth_->useSavedServer(); }
 
 void AppController::afterLogin() {
   const quint64 gen = ++homeGen_;

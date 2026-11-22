@@ -6,7 +6,9 @@
 #include <QVariantList>
 #include <QVariantMap>
 
-#include "discovery.h"
+#include <memory>
+
+#include "authcontroller.h"
 #include "jellyfinclient.h"
 #include "player.h"
 
@@ -100,10 +102,10 @@ class AppController : public QObject {
   QVariantMap userStats() const { return userStats_; }
 
   QVariantList servers() const;
-  bool searching() const { return discovery_.searching(); }
+  bool searching() const;
 
-  QString quickConnectCode() const { return qcCode_; }
-  QString quickConnectStatus() const { return qcStatus_; }
+  QString quickConnectCode() const;
+  QString quickConnectStatus() const;
 
   QVariantList views() const { return views_; }
   QVariantList resume() const { return resume_; }
@@ -242,18 +244,16 @@ class AppController : public QObject {
   QVariantMap toMap(const QJsonObject& item) const;
   QVariantList toList(const QJsonArray& items) const;
   void afterLogin();
-  void applyConfigFile();
+  void handleLoggedOut();
 
   JellyfinClient client_;
-  Discovery discovery_;
+  std::unique_ptr<AuthController> auth_;
 
   QString state_ = QStringLiteral("login");
   QString status_;
   QString notice_;
   QVariantMap userStats_;
   QTimer noticeTimer_;
-  QString qcCode_;
-  QString qcStatus_;
 
   QVariantList views_;
   QVariantList resume_;
@@ -332,9 +332,6 @@ class AppController : public QObject {
   QString playingItemId_;
   qint64 lastReportMs_ = 0;
 
-  QTimer qcTimer_;
-  int qcAttempts_ = 0;
-  QString qcSecret_;
 };
 
 #endif  // APP_CONTROLLER_H
