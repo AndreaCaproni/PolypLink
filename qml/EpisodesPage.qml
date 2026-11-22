@@ -12,7 +12,7 @@ Item {
     property var episodes: []
     property string seriesPoster: ""
     property bool seasonActionsFocus: false
-    property int seasonAction: 0
+    property string seasonAction: "play"
     property int epIndex: 0
     property bool loading: false
 
@@ -72,7 +72,7 @@ Item {
                     icon: "replay"
                     label: episodesPage.watchFromStartLabel
                     primary: true
-                    active: episodesPage.seasonActionsFocus && episodesPage.seasonAction === 0
+                    active: episodesPage.seasonActionsFocus && episodesPage.seasonAction === "play"
                 }
                 ActionButton {
                     icon: (episodesPage.seasonInfo.played !== undefined &&
@@ -80,7 +80,7 @@ Item {
                     label: (episodesPage.seasonInfo.played !== undefined &&
                             episodesPage.seasonInfo.played)
                            ? episodesPage.unwatchedLabel : episodesPage.watchedLabel
-                    active: episodesPage.seasonActionsFocus && episodesPage.seasonAction === 1
+                    active: episodesPage.seasonActionsFocus && episodesPage.seasonAction === "watched"
                 }
                 ActionButton {
                     icon: (episodesPage.seasonInfo.favorite !== undefined &&
@@ -91,7 +91,7 @@ Item {
                     label: (episodesPage.seasonInfo.favorite !== undefined &&
                             episodesPage.seasonInfo.favorite)
                            ? episodesPage.unfavoriteLabel : episodesPage.favoriteLabel
-                    active: episodesPage.seasonActionsFocus && episodesPage.seasonAction === 2
+                    active: episodesPage.seasonActionsFocus && episodesPage.seasonAction === "favorite"
                 }
             }
 

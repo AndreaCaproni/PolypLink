@@ -4,15 +4,10 @@
 #include "serverurl.h"
 
 #include <QCoreApplication>
-#include <QDateTime>
-#include <QElapsedTimer>
 #include <algorithm>
 #include <memory>
-#include <QUuid>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QUrl>
-#include <QUrlQuery>
 #include <QVariantMap>
 #include <QtMath>
 
@@ -120,7 +115,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     if (!osdVisible_) return;
     // With focus on the seek bar the OSD stays still: the user is
     // choosing a point and must not lose the cursor.
-    if (playerFocus_ == 0) return;
+    if (playerFocus_ == ActionSeek) return;
     osdVisible_ = false;
     emit osdChanged();
   });
@@ -718,7 +713,7 @@ void AppController::showOsd() {
   if (!osdVisible_) {
     // When entering the OSD the focus starts on play/pause, not on the slider.
     osdVisible_ = true;
-    playerFocus_ = 2;
+    playerFocus_ = ActionToggle;
     emit osdChanged();
   }
   osdTimer_.start();
@@ -762,7 +757,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
   const bool wasHidden = !osdVisible_;
   if (wasHidden) {
     osdVisible_ = true;
-    playerFocus_ = 2;
+    playerFocus_ = ActionToggle;
     seekPreview_ = playback_->position();
     seekPending_ = false;
     emit osdChanged();
@@ -772,7 +767,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
   // hides the OSD immediately (video only, without waiting 5 s).
   if (!wasHidden) {
     if (dy < 0) {
-      if (playerFocus_ == 0) {
+      if (playerFocus_ == ActionSeek) {
         seekPending_ = false;
         seekPreview_ = playback_->position();
         osdVisible_ = false;
@@ -781,17 +776,17 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
         emit playerUiChanged();
         return;
       }
-      playerFocus_ = 0;
-    } else if (dy > 0 && playerFocus_ == 0) {
+      playerFocus_ = ActionSeek;
+    } else if (dy > 0 && playerFocus_ == ActionSeek) {
       // Leaving the slider without OK cancels the pending seek.
       seekPending_ = false;
       seekPreview_ = playback_->position();
-      playerFocus_ = 2;   // play/pause, in the middle of the row
+      playerFocus_ = ActionToggle;   // play/pause, in the middle of the row
     }
   }
 
   if (dx != 0) {
-    if (playerFocus_ == 0) {
+    if (playerFocus_ == ActionSeek) {
       // Acceleration: consecutive presses in the same direction widen
       // the step. With the stick, which repeats, you can move through even
       // long movies without pressing dozens of times.
@@ -820,7 +815,8 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
         seekPending_ = true;
       }
     } else {
-      playerFocus_ = qBound(1, playerFocus_ + dx, 8);
+      playerFocus_ = qBound(static_cast<int>(ActionBack10), playerFocus_ + dx,
+                            static_cast<int>(ActionStats));
     }
   }
 
@@ -856,36 +852,36 @@ void AppController::playerConfirm() {
 
   const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
   switch (playerFocus_) {
-    case 0:
+    case ActionSeek:
       if (seekPending_) commitSeek();
       else togglePause();
       break;
-    case 1:  // -10 s
+    case ActionBack10:
       seekPreview_ = qBound(0.0, playback_->position() - 10.0, maxPos);
       seekPending_ = true;
       commitSeek();
       break;
-    case 2:  // play / pause
+    case ActionToggle:
       togglePause();
       break;
-    case 3:  // +30 s
+    case ActionForward30:
       seekPreview_ = qBound(0.0, playback_->position() + 30.0, maxPos);
       seekPending_ = true;
       commitSeek();
       break;
-    case 4:
+    case ActionAudio:
       openPlayerMenu(QStringLiteral("audio"));
       break;
-    case 5:
+    case ActionSubtitles:
       openPlayerMenu(QStringLiteral("subtitles"));
       break;
-    case 6:
+    case ActionQuality:
       openPlayerMenu(QStringLiteral("quality"));
       break;
-    case 7:
+    case ActionAudioDelay:
       openPlayerMenu(QStringLiteral("avdelay"));
       break;
-    case 8:
+    case ActionStats:
       toggleStats();
       break;
     default:

@@ -32,7 +32,8 @@ Window {
     property int navIndex: 0
     // season page: focus on the buttons (true) or on the episodes (false)
     property bool seasonActionsFocus: false
-    property int seasonAction: 0
+    property string seasonAction: "play"
+    readonly property var seasonActionIds: ["play", "watched", "favorite"]
 
     // Settings and Account side menus: entries planned for the stable
     // version, placeholders for now.
@@ -278,17 +279,23 @@ Window {
         root.page = "seasons"
     }
 
+    function moveSeasonAction(delta) {
+        var i = seasonActionIds.indexOf(seasonAction)
+        if (i < 0) i = 0
+        seasonAction = seasonActionIds[(i + delta + seasonActionIds.length) % seasonActionIds.length]
+    }
+
     function seasonActionConfirm() {
-        if (seasonAction === 0) app.playSeasonFromStart()
-        else if (seasonAction === 1) app.toggleSeasonPlayed(app.seasonInfo.id)
-        else app.toggleSeasonFavorite(app.seasonInfo.id)
+        if (seasonAction === "play") app.playSeasonFromStart()
+        else if (seasonAction === "watched") app.toggleSeasonPlayed(app.seasonInfo.id)
+        else if (seasonAction === "favorite") app.toggleSeasonFavorite(app.seasonInfo.id)
     }
 
     function openSeasonNow() {
         if (app.seasons.length === 0) return
         root.epIndex = 0
         root.seasonActionsFocus = false
-        root.seasonAction = 0
+        root.seasonAction = "play"
         app.openSeason(root.seasonIndex)
         root.detailOpen = false
         root.page = "episodes"
@@ -1254,8 +1261,8 @@ Window {
                 } else handled = false
             } else if (page === "episodes") {
                 if (root.seasonActionsFocus) {
-                    if (event.key === Qt.Key_Left) { seasonAction = Math.max(0, seasonAction - 1) }
-                    else if (event.key === Qt.Key_Right) { seasonAction = Math.min(2, seasonAction + 1) }
+                    if (event.key === Qt.Key_Left) moveSeasonAction(-1)
+                    else if (event.key === Qt.Key_Right) moveSeasonAction(1)
                     else if (event.key === Qt.Key_Down) { seasonActionsFocus = false }
                     else if (event.key === Qt.Key_Return) { seasonActionConfirm() }
                     else if (event.key === Qt.Key_Escape) { goBack() }

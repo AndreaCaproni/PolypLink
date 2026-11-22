@@ -88,6 +88,19 @@ class AppController : public QObject {
   Q_PROPERTY(QVariantMap seasonInfo READ seasonInfo NOTIFY episodesChanged)
 
  public:
+  // Player OSD focus. Keep the order in sync with PlayerPage.qml.
+  enum PlayerAction {
+    ActionSeek = 0,
+    ActionBack10,
+    ActionToggle,
+    ActionForward30,
+    ActionAudio,
+    ActionSubtitles,
+    ActionQuality,
+    ActionAudioDelay,
+    ActionStats,
+  };
+
   explicit AppController(QObject* parent = nullptr);
 
   // Stop playback and release the process-wide display contexts on exit.

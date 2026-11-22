@@ -10,6 +10,20 @@ Item {
     property int screenHeight: 720
     property var labels: ({})
 
+    // Keep in sync with AppController::playerAction.
+    QtObject {
+        id: playerAction
+        readonly property int seek: 0
+        readonly property int back10: 1
+        readonly property int toggle: 2
+        readonly property int forward30: 3
+        readonly property int audio: 4
+        readonly property int subtitles: 5
+        readonly property int quality: 6
+        readonly property int audioDelay: 7
+        readonly property int stats: 8
+    }
+
     function formatTime(seconds) {
         var t = Math.floor(seconds > 0 ? seconds : 0)
         var h = Math.floor(t / 3600)
@@ -91,7 +105,7 @@ Item {
                 anchors.margins: -10
                 radius: 14
                 color: Theme.accentGlow
-                visible: app.playerFocus === 0 && app.osdVisible
+                visible: app.playerFocus === playerAction.seek && app.osdVisible
             }
 
             Rectangle {
@@ -154,7 +168,7 @@ Item {
                 anchors.margins: -8
                 radius: 14
                 color: "transparent"
-                border.width: app.playerFocus === 0 && app.osdVisible ? 2 : 0
+                border.width: app.playerFocus === playerAction.seek && app.osdVisible ? 2 : 0
                 border.color: Theme.accent
             }
         }
@@ -168,22 +182,22 @@ Item {
 
             PlayerButton {
                 text: "-10 s"
-                active: app.playerFocus === 1
+                active: app.playerFocus === playerAction.back10
             }
             PlayerIconButton {
                 paused: app.playerPaused
-                active: app.playerFocus === 2
+                active: app.playerFocus === playerAction.toggle
             }
             PlayerButton {
                 text: "+30 s"
-                active: app.playerFocus === 3
+                active: app.playerFocus === playerAction.forward30
             }
             Item { width: 18; height: 1 }
-            PlayerButton { text: labels.audio; active: app.playerFocus === 4 }
-            PlayerButton { text: labels.subtitles; active: app.playerFocus === 5 }
-            PlayerButton { text: labels.quality; active: app.playerFocus === 6 }
-            PlayerButton { text: labels.audioDelay; active: app.playerFocus === 7 }
-            PlayerButton { text: labels.stats; active: app.playerFocus === 8 }
+            PlayerButton { text: labels.audio; active: app.playerFocus === playerAction.audio }
+            PlayerButton { text: labels.subtitles; active: app.playerFocus === playerAction.subtitles }
+            PlayerButton { text: labels.quality; active: app.playerFocus === playerAction.quality }
+            PlayerButton { text: labels.audioDelay; active: app.playerFocus === playerAction.audioDelay }
+            PlayerButton { text: labels.stats; active: app.playerFocus === playerAction.stats }
         }
 
     }
