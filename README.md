@@ -127,6 +127,8 @@ split, playback hardening and real demo screenshots.
   `factory_test/run.sh`, which authorises the personal SSH key for `root` and
   `steam` and resets the root password to `steamlink123`. Never share that kit;
   keep private keys outside the repository and release archives.
+- Report vulnerabilities privately through [SECURITY.md](SECURITY.md); do not
+  open a public issue.
 
 ---
 
@@ -281,9 +283,9 @@ would need its own authentication path.
 
 ## Contributing
 
-This is the canonical repository. Bug reports and pull requests are welcome
-here: please send improvements upstream instead of publishing separate
-forks.
+This is the canonical repository. Bug reports and pull requests are welcome:
+see [CONTRIBUTING.md](CONTRIBUTING.md). For security issues use
+[SECURITY.md](SECURITY.md), never a public issue.
 
 ---
 

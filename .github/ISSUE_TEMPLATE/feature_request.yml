@@ -1,0 +1,53 @@
+name: Feature request
+description: Suggest an improvement that fits the Steam Link hardware.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        PolypLink targets a single-core CPU with 256 MB of RAM and hardware
+        H.264 decoding. Please describe the problem, not only the UI you want.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this is not a duplicate.
+          required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Playback and player OSD
+        - Navigation and library
+        - Sign-in and discovery
+        - Settings and account
+        - Packaging and installation
+        - Documentation and translations
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is awkward or missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Hardware or server constraints
+      description: Anything that affects memory, decoding, transcoding or the 1280x720 UI.

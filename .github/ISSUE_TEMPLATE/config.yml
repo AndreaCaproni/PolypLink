@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/AndreaCaproni/PolypLink/security/advisories/new
+    about: Report vulnerabilities privately. Never open a public issue for them.
+  - name: Jellyfin server help
+    url: https://jellyfin.org/docs/
+    about: Server setup, transcoding and library questions.

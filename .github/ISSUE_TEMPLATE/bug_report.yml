@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a reproducible problem on a real Steam Link.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing PolypLink. Before posting, remove server addresses,
+        usernames, tokens and passwords from logs and screenshots.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this is not a duplicate.
+          required: true
+        - label: I can reproduce this on a Steam Link.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: PolypLink version
+      description: Shown in the footer or Settings.
+      placeholder: 0.4.2-beta
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Steam Link firmware
+      description: Build number shown in the Link settings.
+  - type: input
+    id: server
+    attributes:
+      label: Jellyfin server version
+      placeholder: e.g. 10.10.7
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Media details
+      description: Codec, container, resolution, and whether it is a movie, episode or live TV.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Redact tokens, passwords, usernames and server addresses before posting.
+      render: text
+  - type: dropdown
+    id: network
+    attributes:
+      label: Server connection
+      options:
+        - HTTPS with a valid certificate
+        - HTTP on the local network
+        - Reverse proxy
+        - Other

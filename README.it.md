@@ -129,6 +129,8 @@ irrobustimento della riproduzione e screenshot reali dal demo.
   `factory_test/run.sh`, che autorizza la chiave SSH personale per `root` e
   `steam` e reimposta la password root a `steamlink123`. Non condividerlo mai;
   tieni le chiavi private fuori dal repository e dagli archivi di release.
+- Segnala le vulnerabilità in privato tramite [SECURITY.md](SECURITY.md); non
+  aprire una issue pubblica.
 
 ---
 
@@ -282,8 +284,9 @@ avrebbe bisogno di un proprio percorso di autenticazione.
 
 ## Contribuire
 
-Questo è il repository canonico. Bug report e pull request sono benvenuti qui:
-meglio mandare i miglioramenti upstream che pubblicare fork separati.
+Questo è il repository canonico. Bug report e pull request sono benvenuti: vedi
+[CONTRIBUTING.md](CONTRIBUTING.md). Per problemi di sicurezza usa
+[SECURITY.md](SECURITY.md), mai una issue pubblica.
 
 ---
 

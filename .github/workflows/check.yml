@@ -32,8 +32,10 @@ jobs:
             echo "errore: file sensibile nella storia git" >&2
             exit 1
           fi
+          # Match real PEM headers only, not the pattern text in this workflow
+          # or in the release secret gate.
           if git rev-list --all | while read -r commit; do
-               git grep -I -l -E 'BEGIN (OPENSSH|RSA|EC) PRIVATE KEY' "$commit" 2>/dev/null || true
+               git grep -I -l -E '^-----BEGIN [A-Z ]*PRIVATE KEY-----' "$commit" 2>/dev/null || true
              done | grep -q .; then
             echo "errore: chiave privata nella storia git" >&2
             exit 1
