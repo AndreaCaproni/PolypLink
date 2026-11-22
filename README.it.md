@@ -16,15 +16,13 @@ direttamente con il decoder hardware del Link.
 
 ## Screenshot
 
-| Home | Libreria |
+| Home | Dettaglio |
 |:---:|:---:|
-| ![Home](docs/images/screenshot-home.png) | ![Libreria film](docs/images/screenshot-library.png) |
-| **Dettaglio** | **Stagioni ed episodi** |
-| ![Dettaglio](docs/images/screenshot-detail.png) | ![Episodi](docs/images/screenshot-episodes.png) |
-| **Player OSD** | **Account** |
-| ![Player OSD](docs/images/screenshot-player.png) | ![Account](docs/images/screenshot-account.png) |
-| **Impostazioni** | **Accesso** |
-| ![Impostazioni](docs/images/screenshot-settings.png) | ![Accesso](docs/images/screenshot-login.png) |
+| ![Home](docs/images/screenshot-home.png) | ![Dettaglio](docs/images/screenshot-detail.png) |
+| **Player OSD** | **Impostazioni** |
+| ![Player OSD](docs/images/screenshot-player.png) | ![Impostazioni](docs/images/screenshot-settings.png) |
+
+[Altri screenshot](docs/SCREENSHOTS.md)
 
 ---
 

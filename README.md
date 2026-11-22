@@ -16,15 +16,13 @@ the Link's hardware decoder.
 
 ## Screenshots
 
-| Home | Library |
+| Home | Detail |
 |:---:|:---:|
-| ![Home screen](docs/images/screenshot-home.png) | ![Movies library](docs/images/screenshot-library.png) |
-| **Detail** | **Seasons and episodes** |
-| ![Detail page](docs/images/screenshot-detail.png) | ![Episodes](docs/images/screenshot-episodes.png) |
-| **Player OSD** | **Account** |
-| ![Player OSD](docs/images/screenshot-player.png) | ![Account](docs/images/screenshot-account.png) |
-| **Settings** | **Sign-in** |
-| ![Settings](docs/images/screenshot-settings.png) | ![Sign-in](docs/images/screenshot-login.png) |
+| ![Home screen](docs/images/screenshot-home.png) | ![Detail page](docs/images/screenshot-detail.png) |
+| **Player OSD** | **Settings** |
+| ![Player OSD](docs/images/screenshot-player.png) | ![Settings](docs/images/screenshot-settings.png) |
+
+[More screenshots](docs/SCREENSHOTS.md)
 
 ---
 
