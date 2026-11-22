@@ -46,6 +46,7 @@ HEADERS += src/inputpump.h \
            src/playbackcontroller.h \
            src/translation.h \
            src/quality.h \
+           src/videoformat.h \
            src/jellyfinclient.h \
            src/serverurl.h \
            src/redact.h \

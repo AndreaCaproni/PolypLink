@@ -6,8 +6,8 @@ import "."
 Item {
     id: playerLayer
 
-    property int screenWidth: 1280
-    property int screenHeight: 720
+    property int screenWidth: Theme.designWidth
+    property int screenHeight: Theme.designHeight
     property var labels: ({})
 
     // Keep in sync with AppController::PlayerAction.
@@ -35,8 +35,8 @@ Item {
     }
 
     visible: app.playerActive
-    width: 1280
-    height: 720
+    width: Theme.designWidth
+    height: Theme.designHeight
     scale: Math.min(screenWidth / width, screenHeight / height)
     transformOrigin: Item.TopLeft
     x: Math.round((screenWidth - width * scale) / 2)

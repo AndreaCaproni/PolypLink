@@ -6,6 +6,7 @@
 #include "settingscontroller.h"
 
 #include "translation.h"
+#include "videoformat.h"
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
@@ -17,12 +18,20 @@
 #include <QUrlQuery>
 #include <QUuid>
 
+namespace {
+
+constexpr int kStallCheckMs = 1000;
+constexpr int kStallTimeoutMs = 10000;
+constexpr int kProgressReportMs = 10000;
+
+}  // namespace
+
 PlaybackController::PlaybackController(JellyfinClient* client,
                                        SettingsController* settings,
                                        QObject* parent)
     : QObject(parent), client_(client), settings_(settings) {
   // The player reports a stall after 5 s; the banner appears after 10 s.
-  stallWatch_.setInterval(1000);
+  stallWatch_.setInterval(kStallCheckMs);
   connect(&stallWatch_, &QTimer::timeout, this, [this]() {
     if (!active_) {
       stallWatch_.stop();
@@ -33,7 +42,7 @@ PlaybackController::PlaybackController(JellyfinClient* client,
       lastProgressMs_ = now;
       return;
     }
-    if (now - lastProgressMs_ > 10000 && !stalled_) {
+    if (now - lastProgressMs_ > kStallTimeoutMs && !stalled_) {
       stalled_ = true;
       status_ = TranslateApp("Connessione persa… riprovo");
       emit playerChanged();
@@ -168,8 +177,8 @@ void PlaybackController::startPlaybackAt(const QString& itemId, qint64 startTick
               // The Link decoder goes up to 1920x1080: without this limit
               // Jellyfin can send 2560x1072 from 4K sources and SLVideo
               // rejects every frame with "stream macroblock error".
-              query.addQueryItem(QStringLiteral("MaxWidth"), QStringLiteral("1920"));
-              query.addQueryItem(QStringLiteral("MaxHeight"), QStringLiteral("1080"));
+              query.addQueryItem(QStringLiteral("MaxWidth"), QString::number(kMaxStreamWidth));
+              query.addQueryItem(QStringLiteral("MaxHeight"), QString::number(kMaxStreamHeight));
               // The Link only decodes H.264/AAC: we force re-encode to
               // get predictable timestamps and pacing (copy made it stutter).
               query.addQueryItem(QStringLiteral("EnableAutoStreamCopy"),
@@ -249,7 +258,7 @@ void PlaybackController::startPlaybackAt(const QString& itemId, qint64 startTick
           }
           emit positionChanged(seconds);
           const qint64 now = QDateTime::currentMSecsSinceEpoch();
-          if (now - lastReportMs_ > 10000 && !progressInFlight_) {
+          if (now - lastReportMs_ > kProgressReportMs && !progressInFlight_) {
             lastReportMs_ = now;
             progressInFlight_ = true;
             client_->reportPlaybackProgress(

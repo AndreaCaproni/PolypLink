@@ -15,14 +15,17 @@
 
 namespace {
 constexpr quint16 kDiscoveryPort = 7359;
+constexpr int kDiscoveryTimeoutMs = 2500;
+constexpr int kDiscoveryRetryMs = 400;
+constexpr int kProbeTimeoutMs = 600;
 }
 
 Discovery::Discovery(QObject* parent) : QObject(parent) {
   timeout_.setSingleShot(true);
-  timeout_.setInterval(2500);
+  timeout_.setInterval(kDiscoveryTimeoutMs);
   connect(&timeout_, &QTimer::timeout, this, &Discovery::finish);
 
-  retry_.setInterval(400);
+  retry_.setInterval(kDiscoveryRetryMs);
   connect(&retry_, &QTimer::timeout, this, [this]() {
     static const QByteArray question("Who is JellyfinServer?");
     socket_.writeDatagram(question, QHostAddress::Broadcast, kDiscoveryPort);
@@ -137,7 +140,7 @@ void Discovery::probeHost(const QString& ip) {
     reply->setProperty("timedOut", true);
     reply->abort();
   });
-  timer->start(600);
+  timer->start(kProbeTimeoutMs);
 
   connect(reply, &QNetworkReply::finished, this, [this, reply, ip]() {
     reply->deleteLater();

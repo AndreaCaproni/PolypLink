@@ -1,6 +1,7 @@
 #include "jellyfinclient.h"
 
 #include "redact.h"
+#include "videoformat.h"
 #include "serverurl.h"
 
 #include "version.h"
@@ -508,13 +509,13 @@ void JellyfinClient::fetchPlaybackInfo(const QString& itemId, qint64 startTicks,
     QJsonObject w;
     w.insert(QStringLiteral("Condition"), QStringLiteral("LessThanEqual"));
     w.insert(QStringLiteral("Property"), QStringLiteral("Width"));
-    w.insert(QStringLiteral("Value"), QStringLiteral("1920"));
+    w.insert(QStringLiteral("Value"), QString::number(kMaxStreamWidth));
     w.insert(QStringLiteral("IsRequired"), false);
     videoConditions.append(w);
     QJsonObject h;
     h.insert(QStringLiteral("Condition"), QStringLiteral("LessThanEqual"));
     h.insert(QStringLiteral("Property"), QStringLiteral("Height"));
-    h.insert(QStringLiteral("Value"), QStringLiteral("1080"));
+    h.insert(QStringLiteral("Value"), QString::number(kMaxStreamHeight));
     h.insert(QStringLiteral("IsRequired"), false);
     videoConditions.append(h);
   }
@@ -648,8 +649,8 @@ QString JellyfinClient::buildHlsUrl(const QString& itemId, const QString& playSe
   q.addQueryItem(QStringLiteral("AudioBitrate"), QStringLiteral("192000"));
   // Native-resolution output up to 1080p: it helps determine which heights
   // the Link decoder actually handles.
-  q.addQueryItem(QStringLiteral("MaxWidth"), QStringLiteral("1920"));
-  q.addQueryItem(QStringLiteral("MaxHeight"), QStringLiteral("1080"));
+  q.addQueryItem(QStringLiteral("MaxWidth"), QString::number(kMaxStreamWidth));
+  q.addQueryItem(QStringLiteral("MaxHeight"), QString::number(kMaxStreamHeight));
   q.addQueryItem(QStringLiteral("MaxAudioChannels"), QStringLiteral("2"));
   q.addQueryItem(QStringLiteral("TranscodingContainer"), QStringLiteral("ts"));
   q.addQueryItem(QStringLiteral("SegmentContainer"), QStringLiteral("ts"));

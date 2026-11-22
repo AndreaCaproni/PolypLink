@@ -7,8 +7,8 @@ Window {
     // The window stays visible: hiding it on this EGLFS device
     // turns off the display and the video plane is no longer composited.
     visible: true
-    width: Screen.width > 0 ? Screen.width : 1280
-    height: Screen.height > 0 ? Screen.height : 720
+    width: Screen.width > 0 ? Screen.width : Theme.designWidth
+    height: Screen.height > 0 ? Screen.height : Theme.designHeight
     color: app.playerActive ? Theme.transparent : Theme.bg
 
     // --- navigation ----------------------------------------------------------
@@ -640,8 +640,8 @@ Window {
     Item {
         id: canvas
         visible: !app.playerActive
-        width: 1280
-        height: 720
+        width: Theme.designWidth
+        height: Theme.designHeight
         scale: Math.min(root.width / width, root.height / height)
         transformOrigin: Item.TopLeft
         x: Math.round((root.width - width * scale) / 2)

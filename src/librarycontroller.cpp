@@ -13,6 +13,8 @@
 
 namespace {
 
+constexpr int kHomeRefreshDelayMs = 400;
+
 QString formatDuration(qint64 ticks) {
   if (ticks <= 0) return QString();
   const qint64 minutes = ticks / 600000000LL;  // 10,000,000 ticks per second
@@ -367,7 +369,7 @@ void LibraryController::togglePlayed() {
         patchLists(id, QStringLiteral("resumeTicks"), qint64(0));
         // "Continue watching" and "Next up" must be recalculated by the
         // server: a series can advance to the next episode.
-        QTimer::singleShot(400, this, [this]() { emit homeRefreshRequested(); });
+        QTimer::singleShot(kHomeRefreshDelayMs, this, [this]() { emit homeRefreshRequested(); });
         emit noticeRequested(!played ? TranslateApp("Segnato come visto")
                                      : TranslateApp("Segnato come non visto"));
       });
@@ -425,7 +427,7 @@ void LibraryController::toggleSeasonPlayed(const QString& seasonId) {
         emit episodesChanged();
         emit noticeRequested(!played ? TranslateApp("Stagione segnata come vista")
                                      : TranslateApp("Stagione segnata come non vista"));
-        QTimer::singleShot(400, this, [this]() { emit homeRefreshRequested(); });
+        QTimer::singleShot(kHomeRefreshDelayMs, this, [this]() { emit homeRefreshRequested(); });
       });
 }
 

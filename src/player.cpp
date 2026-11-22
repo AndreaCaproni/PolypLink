@@ -54,6 +54,7 @@ constexpr int kAudioBlockFrames = 960;  // 20 ms
 constexpr size_t kAudioBlockBytes = kAudioBlockFrames * kAudioChannels * sizeof(int16_t);
 
 // Hard limits for network data and decoded buffers on a 256 MB device.
+constexpr int kNetworkTimeoutMs = 15000;
 constexpr qint64 kMaxPlaylistBytes = 4 * 1024 * 1024;
 constexpr qint64 kMaxSegmentBytes = 64 * 1024 * 1024;
 constexpr size_t kMaxSegmentQueueBytes = 96 * 1024 * 1024;
@@ -234,7 +235,7 @@ bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* o
     QTimer timeout;
     timeout.setSingleShot(true);
     QObject::connect(&timeout, &QTimer::timeout, reply, &QNetworkReply::abort);
-    timeout.start(15000);
+    timeout.start(kNetworkTimeoutMs);
 
     QTimer stopper;
     stopper.setInterval(100);
@@ -1066,7 +1067,7 @@ void Player::run() {
   // Prebuffer: demux of the first segments already downloaded by the producer.
   for (int i = 0; i < 2 && !stop_.load(); ++i) {
     QByteArray segment;
-    if (!takeSegment(&segment, 15000)) break;
+    if (!takeSegment(&segment, kNetworkTimeoutMs)) break;
     demuxSegment(segment);
   }
   // Alignment: the audio clock starts from the first submitted sample, which is
