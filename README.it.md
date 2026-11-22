@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="docs/images/polyplink-logo.svg" width="56" height="56" alt="PolypLink logo" align="bottom">
+  <img src="docs/images/polyplink-logo.svg" width="56" height="56" alt="PolypLink logo" align="absmiddle">
   PolypLink
 </h1>
 
