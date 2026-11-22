@@ -496,7 +496,17 @@ Window {
 
     function moveCol(delta) {
         if (page === "library" || page === "favorites") {
-            gridIndex = clamp(gridIndex + delta, 0, Math.max(0, app.libraryItems.length - 1))
+            // Stop at the row edges: right must not wrap to the next row.
+            var count = app.libraryItems.length
+            if (count === 0) return
+            var cols = Math.max(1, libraryPage.columns)
+            var row = Math.floor(gridIndex / cols)
+            var col = gridIndex % cols
+            var nextCol = col + delta
+            if (nextCol < 0 || nextCol >= cols) return
+            var next = row * cols + nextCol
+            if (next < 0 || next >= count) return
+            gridIndex = next
             libraryPage.ensureVisible(gridIndex)
             return
         }

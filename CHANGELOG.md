@@ -37,6 +37,8 @@
 
 - Video queue overflow no longer drops the oldest frames (and therefore
   keyframes): fixes black/corrupted video and accelerated-looking playback.
+- Library/favorites grid navigation is row-aware: left/right stop at the row
+  edges instead of wrapping to the adjacent row.
 - Includes the 0.3.3 clean-room video-plane refresh/exit cleanup and all 0.3.2
   security fixes.
 
