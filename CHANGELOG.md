@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1-beta — 2026-11-22
+
+### Fixed
+
+- From the sign-in screen, **B** returns to the server search list instead of
+  quitting; the action is shown with a translated hint. It also works after
+  restarting into the sign-in screen.
+- Bundled a current Mozilla CA certificate store. Modern HTTPS roots (Let's
+  Encrypt ISRG X1/YR) now verify on the old Steam Link firmware, fixing login
+  to public servers such as `demo.jellyfin.org`.
+
 ## 0.4.0-beta — 2026-11-22
 
 ### Changed

@@ -3,12 +3,13 @@ PolypLink @VERSION@ — a native Jellyfin client for the Valve Steam Link (2015)
 No Chromium: Qt Quick/C++ with hardware H.264 decoding (SLVideo) and AAC audio
 (SLAudio). The server transcodes to H.264/AAC over HLS.
 
-This is **0.4.0**: a major internal refactor plus a playback security and
-reliability hardening pass. The controller split, named action IDs and the
-reviewer fixes (redirect/token safety, memory limits, thread lifetime, QML
-password cleanup) are included. It also carries all 0.3.3 licensing/display
-fixes and the 0.3.2 security fixes (TS demuxer, discovery, redaction, HTTP
-warning). The PolypLink rebrand and the player work from 0.3.0 are included.
+This is **0.4.1**: it adds a translated way back to the server list from the
+sign-in screen (B) and bundles a current Mozilla CA store so modern HTTPS
+servers, including `demo.jellyfin.org`, verify correctly on the old Steam Link
+firmware. It includes the 0.4.0 refactor and playback hardening (redirect/token
+safety, memory limits, thread lifetime, QML password cleanup), the 0.3.3
+licensing/display fixes, and the 0.3.2 security fixes. The PolypLink rebrand
+and the player work from 0.3.0 are included.
 
 ## Refactor
 
@@ -53,6 +54,10 @@ warning). The PolypLink rebrand and the player work from 0.3.0 are included.
 
 ## Reliability and packaging
 
+- The sign-in screen returns to server discovery with **B**; a translated hint
+  is shown.
+- A current Mozilla CA bundle is loaded in addition to the firmware roots, so
+  modern HTTPS certificates (Let's Encrypt) work.
 - Video queue overflow drops new frames instead of the oldest (keyframe) ones:
   black/corrupted/accelerated-looking playback is fixed.
 - GitHub Actions checks: QML lint, translation completeness, settings migration
