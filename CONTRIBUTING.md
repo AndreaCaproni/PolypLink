@@ -1,7 +1,8 @@
 # Contributing
 
 Thanks for helping. This is the canonical repository: please send fixes here
-instead of publishing separate forks.
+instead of publishing separate forks. By participating, you agree to the
+[Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Before you start
 
