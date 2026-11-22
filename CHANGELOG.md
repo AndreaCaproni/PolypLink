@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.2-beta — 2026-11-22
 
 ### Security
 

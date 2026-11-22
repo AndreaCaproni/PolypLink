@@ -3,4 +3,4 @@
 // Nome visibile e versione dell'app. La versione compare nel log di avvio,
 // nella pagina Impostazioni e nel changelog.
 #define APP_NAME "PolypLink"
-#define APP_VERSION "0.3.1-beta"
+#define APP_VERSION "0.3.2-beta"

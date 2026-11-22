@@ -3,19 +3,31 @@ PolypLink @VERSION@ — a native Jellyfin client for the Valve Steam Link (2015)
 No Chromium: Qt Quick/C++ with hardware H.264 decoding (SLVideo) and AAC audio
 (SLAudio). The server transcodes to H.264/AAC over HLS.
 
-This is a **hardening release** on top of 0.3.0: security, tests, migration and
-packaging. The PolypLink rebrand and the player work from 0.3.0 are included.
+This is a **security and reliability release** on top of 0.3.1: fixes for a TS
+demuxer out-of-bounds read, spoofed server discovery, wider log redaction and a
+clearer warning for unencrypted HTTP. The PolypLink rebrand and the player work
+from 0.3.0 are included.
 
 ## Security
 
-- `ApiKey`, `token`, `access_token` and `Authorization` values are redacted from
-  logs and stream URLs.
-- Logs on the USB drive no longer expose the Jellyfin API key. Redaction now
-  also covers Qt/QML warnings, including image-loading errors.
+- The TS demuxer validates the PES header before parsing PTS/DTS; truncated or
+  malformed packets are rejected instead of reading past the buffer.
+- Jellyfin UDP discovery no longer trusts the advertised host: the app uses the
+  IP that sent the datagram and rejects non-HTTP(S) schemes, userinfo and
+  query/fragment suffixes. The full server address is always shown.
+- `ApiKey`, `token`, `access_token`, `secret`, `Pw`, `password`, JSON
+  `AccessToken`/`Password` fields and playback errors returned by the server
+  are redacted from logs. QML image-loading warnings are covered too.
+- The sign-in screen warns when the server uses plain HTTP to a non-loopback
+  host: password and token are not encrypted in that case.
+- Authenticated API/player requests do not follow redirects, so the
+  `Authorization` token cannot be forwarded to another host.
 - The settings file and directory are owner-only (`0600`/`0700`).
 - Plaintext `user=`/`pass=` support in `jellyfin-server.txt` was removed.
+- The default USB kit contains no SSH hook, key or root password. The personal
+  development hook requires `./build.sh --dev-ssh` and must not be shared.
 - Manual server entry uses HTTPS for public hostnames; HTTP is for trusted LANs
-  only and is logged as insecure.
+  only and is shown as insecure in the UI.
 - FFmpeg source offer and copyright notice are included for LGPL compliance.
 
 ## Reliability and packaging
