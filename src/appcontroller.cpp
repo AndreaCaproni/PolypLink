@@ -77,6 +77,33 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   connect(settings_.get(), &SettingsController::statusRequested, this,
           &AppController::setStatus);
 
+  playback_ = std::make_unique<PlaybackController>(&client_, settings_.get());
+  connect(playback_.get(), &PlaybackController::playerChanged, this,
+          &AppController::playerChanged);
+  connect(playback_.get(), &PlaybackController::positionChanged, this,
+          [this](double seconds) {
+            if (!seekPending_) seekPreview_ = seconds;
+            emit playerPositionChanged();
+            emit playerUiChanged();
+          });
+  connect(playback_.get(), &PlaybackController::statsChanged, this,
+          &AppController::playerStatsChanged);
+  connect(playback_.get(), &PlaybackController::failed, this,
+          [this](const QString& message) {
+            setStatus(message);
+            nextEpisode_.clear();
+            nextEpisodeDismissed_ = false;
+            emit nextEpisodeChanged();
+            osdVisible_ = false;
+            emit osdChanged();
+          });
+  connect(playback_.get(), &PlaybackController::finished, this, [this]() {
+    nextEpisode_.clear();
+    nextEpisodeDismissed_ = false;
+    emit nextEpisodeChanged();
+    QTimer::singleShot(800, this, &AppController::refreshHome);
+  });
+
   // Token revoked or expired: don't stay stuck on an empty home screen.
   connect(&client_, &JellyfinClient::unauthorized, this, [this]() {
     if (state_ == QLatin1String("login")) return;
@@ -89,7 +116,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   osdTimer_.setSingleShot(true);
   osdTimer_.setInterval(settings_->osdSeconds() * 1000);
   connect(&osdTimer_, &QTimer::timeout, this, [this]() {
-    if (playerPaused_ || !playerActive_) return;
+    if (playback_->paused() || !playback_->active()) return;
     if (!osdVisible_) return;
     // With focus on the seek bar the OSD stays still: the user is
     // choosing a point and must not lose the cursor.
@@ -106,27 +133,6 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     if (notice_.isEmpty()) return;
     notice_.clear();
     emit noticeChanged();
-  });
-
-  // Network down: the player can stay stuck in a fetch and never emit
-  // "stalled". This watchdog watches the position and shows the banner after
-  // 5 seconds without progress.
-  stallWatch_.setInterval(1000);
-  connect(&stallWatch_, &QTimer::timeout, this, [this]() {
-    if (!playerActive_) {
-      stallWatch_.stop();
-      return;
-    }
-    const qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if (playerPaused_) {
-      lastProgressMs_ = now;
-      return;
-    }
-    if (now - lastProgressMs_ > 10000 && !playerStalled_) {
-      playerStalled_ = true;
-      playerStatus_ = tr("Connessione persa… riprovo");
-      emit playerChanged();
-    }
   });
 
   if (client_.hasToken()) {
@@ -150,20 +156,20 @@ bool AppController::insecureHttp() const {
 QString AppController::userImage() const { return client_.userImageUrl(); }
 
 bool AppController::nextEpisodeVisible() const {
-  if (!playerActive_ || nextEpisode_.isEmpty() || nextEpisodeDismissed_) return false;
-  if (playerDuration_ <= 1.0 || playerPaused_) return false;
-  const double remaining = playerDuration_ - playerPosition_;
+  if (!playback_->active() || nextEpisode_.isEmpty() || nextEpisodeDismissed_) return false;
+  if (playback_->duration() <= 1.0 || playback_->paused()) return false;
+  const double remaining = playback_->duration() - playback_->position();
   return remaining > 0.0 && remaining <= 60.0;
 }
 
 void AppController::loadNextEpisode(const QString& seriesId,
                                     const QString& currentId) {
   if (seriesId.isEmpty() || currentId.isEmpty()) return;
-  const quint64 gen = playbackGen_;
+  const quint64 gen = playback_->generation();
   client_.fetchEpisodes(
       seriesId, QString(),
       [this, gen, currentId](const QJsonDocument& doc, const QString& err) {
-        if (gen != playbackGen_ || !playerActive_ || !err.isEmpty()) return;
+        if (gen != playback_->generation() || !playback_->active() || !err.isEmpty()) return;
         QVector<QJsonObject> eps;
         for (const QJsonValue& v : doc.object().value(QStringLiteral("Items")).toArray())
           eps.append(v.toObject());
@@ -196,8 +202,8 @@ void AppController::loadNextEpisode(const QString& seriesId,
 }
 
 void AppController::retryPlayback() {
-  if (!playerActive_) return;
-  startPlaybackAt(playingItemId_, static_cast<qint64>(playerPosition_ * 1e7));
+  if (!playback_->active()) return;
+  startPlaybackAt(playback_->playingItemId(), static_cast<qint64>(playback_->position() * 1e7));
 }
 
 void AppController::playNextEpisode() {
@@ -216,7 +222,7 @@ void AppController::dismissNextEpisode() {
 }
 
 void AppController::openPlayerMenu(const QString& mode) {
-  if (!playerActive_) return;
+  if (!playback_->active()) return;
   playerMenuItems_.clear();
   playerMenuMode_ = mode;
 
@@ -421,7 +427,17 @@ void AppController::beginQuickConnect() { auth_->beginQuickConnect(); }
 void AppController::cancelQuickConnect() { auth_->cancelQuickConnect(); }
 
 void AppController::logout() {
-  teardownPlayer();
+  playback_->shutdown();
+  nextEpisode_.clear();
+  nextEpisodeDismissed_ = false;
+  playerMenuOpen_ = false;
+  osdVisible_ = false;
+  seekPending_ = false;
+  statsOpen_ = false;
+  emit nextEpisodeChanged();
+  emit osdChanged();
+  emit playerUiChanged();
+  emit playerMenuChanged();
   auth_->logout();
 }
 
@@ -607,44 +623,8 @@ void AppController::startPlayback(const QString& itemId) {
 
 void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                     const QString& title, double durationSec) {
-  const bool newItem = (!playerActive_ || itemId != playingItemId_);
-  const quint64 gen = ++playbackGen_;
-  mediaSourceId_.clear();
-  qInfo("[diag] startPlaybackAt gen=%llu ticks=%lld player=%s",
-        static_cast<unsigned long long>(gen), static_cast<long long>(startTicks),
-        player_ ? "esistente" : "nullo");
-  if (player_ != nullptr) {
-    QElapsedTimer ot;
-    ot.start();
-    // Disconnect the signals BEFORE stopping it: otherwise its "finished"
-    // is read as end of playback and closes the player we are
-    // reopening (settings change / seek).
-    QObject::disconnect(player_, nullptr, this, nullptr);
-    player_->requestStop();
-    const bool joined = player_->wait(8000);
-    qInfo("[diag] stop player precedente: %lld ms -> %s",
-          static_cast<long long>(ot.elapsed()), joined ? "ok" : "TIMEOUT");
-    if (joined) delete player_;
-    else qWarning("[player] il thread non termina: non lo cancello");
-    player_ = nullptr;
-  }
-
-  playSessionId_ = QUuid::createUuid().toString(QUuid::WithoutBraces);
-  playingItemId_ = itemId;
-  playerTitle_ = title.isEmpty() ? library_->detail().value(QStringLiteral("name")).toString()
-                                 : title;
-  playerDuration_ = durationSec > 0.0
-                        ? durationSec
-                        : library_->detail().value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
-  playerPosition_ = startTicks / 1e7;
-  playerStatus_.clear();
-  playerActive_ = true;
-  playerPaused_ = false;
-  playerStalled_ = false;
-  lastProgressPos_ = playerPosition_;
-  lastProgressMs_ = QDateTime::currentMSecsSinceEpoch();
-  stallWatch_.start();
-
+  const bool newItem =
+      (!playback_->active() || itemId != playback_->playingItemId());
   QString nextSeriesId = pendingSeriesId_;
   pendingSeriesId_.clear();
   if (nextSeriesId.isEmpty() && newItem &&
@@ -657,265 +637,43 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
     nextEpisodeDismissed_ = false;
     emit nextEpisodeChanged();
   }
-  if (newItem && !nextSeriesId.isEmpty()) loadNextEpisode(nextSeriesId, itemId);
-
-  emit playerChanged();
-  emit playerPositionChanged();
-
-  // PlaybackInfo creates the transcode session with tracks and bitrate. The
-  // position does not go through StartTimeTicks (the server propagates it to the
-  // segments, which reject it): the player starts from the segment that covers it.
-  client_.fetchPlaybackInfo(
-      itemId, startTicks, audioIndex_, subtitleIndex_, qualityKbps_,
-      [this, itemId, startTicks, gen](const QJsonDocument& doc, const QString& err) {
-        if (gen != playbackGen_ || !playerActive_) return;
-
-        QString url;
-        if (err.isEmpty()) {
-          const QJsonArray sources =
-              doc.object().value(QStringLiteral("MediaSources")).toArray();
-          if (!sources.isEmpty()) {
-            const QJsonObject s0 = sources.at(0).toObject();
-            url = s0.value(QStringLiteral("TranscodingUrl")).toString();
-            if (url.isEmpty()) url = s0.value(QStringLiteral("DirectStreamUrl")).toString();
-            if (!url.isEmpty() && !url.startsWith(QLatin1String("http"))) {
-              url = client_.server() + url;
-            }
-            if (!url.isEmpty()) {
-              // The server URL carries *its own* choices (default subtitles
-              // burned in, audio track, StartTimeTicks). We rewrite it with
-              // ours: without this the server burns in the subtitles even
-              // if the user turned them off.
-              QUrl u(url);
-              QUrlQuery q(u);
-              const QStringList managed{
-                  QStringLiteral("StartTimeTicks"),
-                  QStringLiteral("SubtitleStreamIndex"),
-                  QStringLiteral("SubtitleMethod"),
-                  QStringLiteral("AudioStreamIndex"),
-                  QStringLiteral("MaxWidth"),
-                  QStringLiteral("MaxHeight"),
-                  QStringLiteral("EnableAutoStreamCopy"),
-                  QStringLiteral("AllowVideoStreamCopy"),
-                  QStringLiteral("AllowAudioStreamCopy")};
-              for (const QString& key : managed) {
-                while (q.hasQueryItem(key)) q.removeAllQueryItems(key);
-              }
-              if (audioIndex_ >= 0) {
-                q.addQueryItem(QStringLiteral("AudioStreamIndex"),
-                               QString::number(audioIndex_));
-              }
-              if (subtitleIndex_ >= 0) {
-                // selected track: the only possible way on the Link, burn-in
-                q.addQueryItem(QStringLiteral("SubtitleStreamIndex"),
-                               QString::number(subtitleIndex_));
-                q.addQueryItem(QStringLiteral("SubtitleMethod"),
-                               QStringLiteral("Encode"));
-              } else {
-                // off: explicit -1, the server does not pick one on its own
-                q.addQueryItem(QStringLiteral("SubtitleStreamIndex"),
-                               QStringLiteral("-1"));
-              }
-              // The Link decoder goes up to 1920x1080: without this limit
-              // Jellyfin can send 2560x1072 from 4K sources and SLVideo
-              // rejects every frame with "stream macroblock error".
-              q.addQueryItem(QStringLiteral("MaxWidth"), QStringLiteral("1920"));
-              q.addQueryItem(QStringLiteral("MaxHeight"), QStringLiteral("1080"));
-              // The Link only decodes H.264/AAC: we force re-encode to
-              // get predictable timestamps and pacing (copy made it stutter).
-              q.addQueryItem(QStringLiteral("EnableAutoStreamCopy"), QStringLiteral("false"));
-              q.addQueryItem(QStringLiteral("AllowVideoStreamCopy"), QStringLiteral("false"));
-              q.addQueryItem(QStringLiteral("AllowAudioStreamCopy"), QStringLiteral("false"));
-              // The token travels in the player's Authorization header, not
-              // in the query string (which ends up in server/proxy logs).
-              q.removeAllQueryItems(QStringLiteral("api_key"));
-              q.removeAllQueryItems(QStringLiteral("ApiKey"));
-              u.setQuery(q);
-              url = u.toString(QUrl::FullyEncoded);
-            }
-            const QString psid = s0.value(QStringLiteral("PlaySessionId")).toString();
-            if (!psid.isEmpty()) playSessionId_ = psid;
-            // The Jellyfin dashboard shows the correct session only if it knows
-            // which media source it is and that it is a transcode.
-            const QString msid = s0.value(QStringLiteral("Id")).toString();
-            mediaSourceId_ = msid.isEmpty() ? itemId : msid;
-          }
-        }
-        if (url.isEmpty() && err.isEmpty()) {
-          qWarning("[player] PlaybackInfo senza URL, uso il fallback");
-          url = client_.buildHlsUrl(itemId, playSessionId_, itemId, qualityKbps_,
-                                    startTicks, audioIndex_, subtitleIndex_);
-        }
-        if (url.isEmpty()) {
-          // No "blind" player: black screen for 8 s and then it closes.
-          qWarning("[player] avvio annullato: %s",
-                   qPrintable(RedactSecrets(err)));
-          playerActive_ = false;
-          playerPaused_ = false;
-                  playerStalled_ = false;
-          osdVisible_ = false;
-          nextEpisode_.clear();
-          nextEpisodeDismissed_ = false;
-          setStatus(err.isEmpty() ? tr("Impossibile avviare la riproduzione")
-                                  : RedactSecrets(err));
-          emit nextEpisodeChanged();
-          emit playerChanged();
-          emit osdChanged();
-          return;
-        }
-        // The server accepts PlayMethod=Transcode only if the PlaySessionId is
-        // the one of the transcode job, that is, the one in the stream URL.
-        {
-          const QUrlQuery streamQuery{QUrl(url)};
-          const QString urlPsid =
-              streamQuery.queryItemValue(QStringLiteral("PlaySessionId"));
-          if (!urlPsid.isEmpty()) playSessionId_ = urlPsid;
-          const QString urlMsid =
-              streamQuery.queryItemValue(QStringLiteral("MediaSourceId"));
-          if (!urlMsid.isEmpty()) mediaSourceId_ = urlMsid;
-        }
-        qInfo("[player] sessione: psid=%s msid=%s", qPrintable(playSessionId_),
-              qPrintable(mediaSourceId_));
-        qInfo("[player] stream: %s", qPrintable(RedactSecrets(url).left(150)));
-
-        player_ = new Player(this);
-        connect(player_, &Player::statsChanged, this, [this](const QVariantMap& stats) {
-          playerStats_ = stats;
-          emit playerStatsChanged();
-        });
-        connect(player_, &Player::positionChanged, this, [this](double seconds) {
-          playerPosition_ = seconds;
-          if (qAbs(seconds - lastProgressPos_) > 0.05) {
-            lastProgressPos_ = seconds;
-            lastProgressMs_ = QDateTime::currentMSecsSinceEpoch();
-            if (playerStalled_) {
-              playerStalled_ = false;
-              playerStatus_.clear();
-              emit playerChanged();
-            }
-          }
-          if (!seekPending_) seekPreview_ = seconds;
-          emit playerPositionChanged();
-          emit playerUiChanged();
-          const qint64 now = QDateTime::currentMSecsSinceEpoch();
-          if (now - lastReportMs_ > 10000 && !progressInFlight_) {
-            lastReportMs_ = now;
-            progressInFlight_ = true;
-            client_.reportPlaybackProgress(
-                playingItemId_, playSessionId_, static_cast<qint64>(seconds * 1e7),
-                playerPaused_, mediaSourceId_, audioIndex_, subtitleIndex_,
-                [this](const QJsonDocument&, const QString&) {
-                  progressInFlight_ = false;
-                });
-          }
-        });
-        // The player reports the stall after 5 s, but only the watchdog
-        // shows the banner at 10 s. Here we use the signal only to hide it
-        // as soon as the data comes back.
-        connect(player_, &Player::stalled, this, [this](bool stalled) {
-          if (!stalled && playerStalled_) {
-            playerStalled_ = false;
-            playerStatus_.clear();
-            lastProgressMs_ = QDateTime::currentMSecsSinceEpoch();
-            emit playerChanged();
-          }
-        });
-        connect(player_, &Player::failed, this, [this](const QString& message) {
-          playerStatus_ = tr("Errore: %1").arg(message);
-          playerActive_ = false;
-          playerStalled_ = false;
-          stallWatch_.stop();
-          nextEpisode_.clear();
-          nextEpisodeDismissed_ = false;
-          setStatus(playerStatus_);
-          emit nextEpisodeChanged();
-          emit playerChanged();
-        });
-        connect(player_, &Player::finished, this, [this]() {
-          if (!playerActive_) return;
-          client_.reportPlaybackStopped(playingItemId_, playSessionId_,
-                                        static_cast<qint64>(playerPosition_ * 1e7),
-                                        mediaSourceId_);
-          playerActive_ = false;
-          playerStalled_ = false;
-          stallWatch_.stop();
-          nextEpisode_.clear();
-          nextEpisodeDismissed_ = false;
-          emit nextEpisodeChanged();
-          emit playerChanged();
-          // the home must immediately reflect "Continue watching" and the next episode
-          QTimer::singleShot(800, this, &AppController::refreshHome);
-        });
-
-        Player::Config cfg;
-        cfg.masterUrl = url;
-        cfg.itemId = itemId;
-        cfg.playSessionId = playSessionId_;
-        cfg.title = playerTitle_;
-        cfg.authHeader = client_.authHeader();
-        cfg.startTicks = startTicks;
-        cfg.durationTicks = static_cast<qint64>(playerDuration_ * 1e7);
-        cfg.maxBitrateKbps = qualityKbps_;
-        cfg.audioDelayMs = settings_->audioDelayMs();
-
-        if (mediaSourceId_.isEmpty()) mediaSourceId_ = itemId;
-        client_.reportPlaybackStart(itemId, playSessionId_, startTicks,
-                                    mediaSourceId_, audioIndex_, subtitleIndex_);
-        player_->begin(cfg);
-      });
+  const QString resolvedTitle =
+      title.isEmpty()
+          ? library_->detail().value(QStringLiteral("name")).toString()
+          : title;
+  const double resolvedDuration =
+      durationSec > 0.0
+          ? durationSec
+          : library_->detail().value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
+  playback_->startPlaybackAt(itemId, startTicks, resolvedTitle, resolvedDuration,
+                             audioIndex_, subtitleIndex_, qualityKbps_);
+  if (newItem && !nextSeriesId.isEmpty()) {
+    loadNextEpisode(nextSeriesId, itemId);
+  }
 }
 
 void AppController::shutdown() {
-  if (teardownPlayer()) {
+  if (playback_->shutdown()) {
     Player::releaseDisplay();
   } else {
     qWarning("[shutdown] player thread still running: display release skipped");
   }
 }
 
-bool AppController::teardownPlayer() {
-  ++playbackGen_;
-  stallWatch_.stop();
-  playerStalled_ = false;
-  if (player_ == nullptr) {
-    qInfo("[diag] teardownPlayer: nessun player");
-    return true;
-  }
-  QElapsedTimer t;
-  t.start();
-  player_->requestStop();
-  const bool joined = player_->wait(8000);
-  qInfo("[diag] teardownPlayer: wait %lld ms -> %s",
-        static_cast<long long>(t.elapsed()), joined ? "ok" : "TIMEOUT");
-  if (joined) {
-    delete player_;
-  } else {
-    qWarning("[player] il thread non termina: non lo cancello (evito crash)");
-  }
-  player_ = nullptr;
-  playerActive_ = false;
-  playerPaused_ = false;
-  playerMenuOpen_ = false;
-  osdVisible_ = false;
-  seekPending_ = false;
-  statsOpen_ = false;
-  progressInFlight_ = false;
-  emit playerChanged();
-  emit osdChanged();
-  emit playerUiChanged();
-  emit playerMenuChanged();
-  return joined;
-}
-
 void AppController::stopPlayback() {
   nextEpisode_.clear();
   nextEpisodeDismissed_ = false;
   emit nextEpisodeChanged();
-  if (player_ == nullptr) return;
-  const qint64 position = static_cast<qint64>(playerPosition_ * 1e7);
-  teardownPlayer();
-  client_.reportPlaybackStopped(playingItemId_, playSessionId_, position,
-                                mediaSourceId_);
+  const bool hadPlayer = playback_->stopPlayback();
+  if (!hadPlayer) return;
+  playerMenuOpen_ = false;
+  osdVisible_ = false;
+  seekPending_ = false;
+  statsOpen_ = false;
+  emit playerChanged();
+  emit osdChanged();
+  emit playerUiChanged();
+  emit playerMenuChanged();
   QTimer::singleShot(800, this, &AppController::refreshHome);
 }
 
@@ -955,8 +713,8 @@ void AppController::cycleQuality(int delta) {
 }
 
 void AppController::showOsd() {
-  if (!playerActive_) return;
-  if (!seekPending_) seekPreview_ = playerPosition_;
+  if (!playback_->active()) return;
+  if (!seekPending_) seekPreview_ = playback_->position();
   if (!osdVisible_) {
     // When entering the OSD the focus starts on play/pause, not on the slider.
     osdVisible_ = true;
@@ -968,35 +726,20 @@ void AppController::showOsd() {
 }
 
 void AppController::restartPlaybackAtPosition() {
-  if (player_ == nullptr) return;
-  startPlaybackAt(playingItemId_, static_cast<qint64>(playerPosition_ * 1e7));
+  if (!playback_->hasPlayer()) return;
+  startPlaybackAt(playback_->playingItemId(), static_cast<qint64>(playback_->position() * 1e7));
 }
 
 void AppController::togglePause() {
-  if (player_ == nullptr) return;
-
-  if (!playerPaused_) {
-    // pause: stop sending audio and video, the frame stays frozen
-    playerPaused_ = true;
-    player_->setPaused(true);
-    seekPending_ = false;
-    seekPreview_ = playerPosition_;
-    showOsd();
-    emit playerChanged();
-    return;
-  }
-
-  // resume: unfreeze the decoder, the stream has stayed open.
-  playerPaused_ = false;
-  player_->setPaused(false);
+  if (!playback_->active()) return;
+  playback_->togglePause();
   seekPending_ = false;
-  seekPreview_ = playerPosition_;
+  seekPreview_ = playback_->position();
   showOsd();
-  emit playerChanged();
 }
 
 void AppController::toggleStats() {
-  if (!playerActive_) return;
+  if (!playback_->active()) return;
   statsOpen_ = !statsOpen_;
   emit playerUiChanged();
 }
@@ -1014,13 +757,13 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
     else if (dx != 0) playerMenuClose();
     return;
   }
-  if (!playerActive_) return;
+  if (!playback_->active()) return;
 
   const bool wasHidden = !osdVisible_;
   if (wasHidden) {
     osdVisible_ = true;
     playerFocus_ = 2;
-    seekPreview_ = playerPosition_;
+    seekPreview_ = playback_->position();
     seekPending_ = false;
     emit osdChanged();
   }
@@ -1031,7 +774,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
     if (dy < 0) {
       if (playerFocus_ == 0) {
         seekPending_ = false;
-        seekPreview_ = playerPosition_;
+        seekPreview_ = playback_->position();
         osdVisible_ = false;
         osdTimer_.stop();
         emit osdChanged();
@@ -1042,7 +785,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
     } else if (dy > 0 && playerFocus_ == 0) {
       // Leaving the slider without OK cancels the pending seek.
       seekPending_ = false;
-      seekPreview_ = playerPosition_;
+      seekPreview_ = playback_->position();
       playerFocus_ = 2;   // play/pause, in the middle of the row
     }
   }
@@ -1069,9 +812,9 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
       else if (seekSteps_ < 6) step = dx > 0 ? 60.0 : -60.0;
       else step = dx > 0 ? 180.0 : -180.0;
 
-      const double maxPos = playerDuration_ > 1.0 ? playerDuration_ - 1.0 : 0.0;
+      const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
       seekPreview_ = qBound(0.0, seekPreview_ + step, maxPos);
-      if (qAbs(seekPreview_ - playerPosition_) < 0.4) {
+      if (qAbs(seekPreview_ - playback_->position()) < 0.4) {
         seekPending_ = false;
       } else {
         seekPending_ = true;
@@ -1097,10 +840,10 @@ void AppController::playerConfirm() {
     playerMenuConfirm();
     return;
   }
-  if (!playerActive_) return;
+  if (!playback_->active()) return;
   if (!osdVisible_) {
     // First the two "urgent" cards: connection lost and next episode.
-    if (playerStalled_) {
+    if (playback_->stalled()) {
       retryPlayback();
       return;
     }
@@ -1111,14 +854,14 @@ void AppController::playerConfirm() {
   }
   if (!osdVisible_) playerNavigate(0, 0);
 
-  const double maxPos = playerDuration_ > 1.0 ? playerDuration_ - 1.0 : 0.0;
+  const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
   switch (playerFocus_) {
     case 0:
       if (seekPending_) commitSeek();
       else togglePause();
       break;
     case 1:  // -10 s
-      seekPreview_ = qBound(0.0, playerPosition_ - 10.0, maxPos);
+      seekPreview_ = qBound(0.0, playback_->position() - 10.0, maxPos);
       seekPending_ = true;
       commitSeek();
       break;
@@ -1126,7 +869,7 @@ void AppController::playerConfirm() {
       togglePause();
       break;
     case 3:  // +30 s
-      seekPreview_ = qBound(0.0, playerPosition_ + 30.0, maxPos);
+      seekPreview_ = qBound(0.0, playback_->position() + 30.0, maxPos);
       seekPending_ = true;
       commitSeek();
       break;
@@ -1158,7 +901,7 @@ void AppController::commitSeek() {
   seekPending_ = false;
   const qint64 ticks = static_cast<qint64>(seekPreview_ * 1e7);
   qInfo("[player] seek confermato a %.0f s", seekPreview_);
-  startPlaybackAt(playingItemId_, ticks);
+  startPlaybackAt(playback_->playingItemId(), ticks);
 }
 
 void AppController::playerBack() {
@@ -1175,7 +918,7 @@ void AppController::playerBack() {
     playerMenuClose();
     return;
   }
-  if (!playerActive_) return;
+  if (!playback_->active()) return;
   qInfo("[diag] playerBack: osdVisible=%d focus=%d", osdVisible_ ? 1 : 0,
         playerFocus_);
   if (!osdVisible_ && nextEpisodeVisible()) {
@@ -1186,7 +929,7 @@ void AppController::playerBack() {
     seekPending_ = false;
     seekSteps_ = 0;
     seekDirection_ = 0;
-    seekPreview_ = playerPosition_;
+    seekPreview_ = playback_->position();
     osdVisible_ = false;
     osdTimer_.stop();
     emit osdChanged();
@@ -1236,5 +979,3 @@ void AppController::setStatus(const QString& s) {
   status_ = s;
   emit statusChanged();
 }
-
-

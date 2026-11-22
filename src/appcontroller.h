@@ -11,6 +11,7 @@
 #include "authcontroller.h"
 #include "jellyfinclient.h"
 #include "librarycontroller.h"
+#include "playbackcontroller.h"
 #include "player.h"
 #include "settingscontroller.h"
 
@@ -120,14 +121,14 @@ class AppController : public QObject {
   int libraryIndex() const { return library_->libraryIndex(); }
 
   QVariantMap detail() const { return library_->detail(); }
-  bool playerActive() const { return playerActive_; }
-  bool playerPaused() const { return playerPaused_; }
-  bool playerStalled() const { return playerStalled_; }
-  double playerPosition() const { return playerPosition_; }
-  double playerDuration() const { return playerDuration_; }
-  QString playerTitle() const { return playerTitle_; }
-  QString playerStatus() const { return playerStatus_; }
-  QVariantMap playerStats() const { return playerStats_; }
+  bool playerActive() const { return playback_->active(); }
+  bool playerPaused() const { return playback_->paused(); }
+  bool playerStalled() const { return playback_->stalled(); }
+  double playerPosition() const { return playback_->position(); }
+  double playerDuration() const { return playback_->duration(); }
+  QString playerTitle() const { return playback_->title(); }
+  QString playerStatus() const { return playback_->status(); }
+  QVariantMap playerStats() const { return playback_->stats(); }
   QVariantMap nextEpisode() const { return nextEpisode_; }
   bool nextEpisodeVisible() const;
   bool playerMenuOpen() const { return playerMenuOpen_; }
@@ -235,7 +236,6 @@ class AppController : public QObject {
   void showNotice(const QString& message);
   void openPlayerMenu(const QString& mode);
   void playEpisode(const QJsonObject& episode);
-  bool teardownPlayer();
   void loadNextEpisode(const QString& seriesId, const QString& currentId);
   void commitSeek();
   void updateTracksFromItem(const QJsonObject& item);
@@ -248,6 +248,7 @@ class AppController : public QObject {
   std::unique_ptr<AuthController> auth_;
   std::unique_ptr<LibraryController> library_;
   std::unique_ptr<SettingsController> settings_;
+  std::unique_ptr<PlaybackController> playback_;
 
   QString state_ = QStringLiteral("login");
   QString status_;
@@ -258,10 +259,6 @@ class AppController : public QObject {
   void startPlaybackAt(const QString& itemId, qint64 startTicks,
                        const QString& title = QString(), double durationSec = -1.0);
 
-  Player* player_ = nullptr;
-  bool playerActive_ = false;
-  bool playerPaused_ = false;
-  bool playerStalled_ = false;
   QVariantMap nextEpisode_;
   bool nextEpisodeDismissed_ = false;
   QString pendingSeriesId_;
@@ -269,9 +266,6 @@ class AppController : public QObject {
   QString playerMenuMode_;
   QVariantList playerMenuItems_;
   int playerMenuIndex_ = 0;
-  QTimer stallWatch_;
-  qint64 lastProgressMs_ = 0;
-  double lastProgressPos_ = -1.0;
   bool osdVisible_ = false;
   QTimer osdTimer_;
   int playerFocus_ = 0;
@@ -281,25 +275,12 @@ class AppController : public QObject {
   double seekPreview_ = 0;
   bool seekPending_ = false;
   bool statsOpen_ = false;
-  bool progressInFlight_ = false;
-  // Every start invalidates PlaybackInfo callbacks still in flight.
-  quint64 playbackGen_ = 0;
-  double playerPosition_ = 0.0;
-  double playerDuration_ = 0.0;
-  QString playerTitle_;
-  QString playerStatus_;
-  QString mediaSourceId_;
-  QString playSessionId_;
-  QVariantMap playerStats_;
   QVariantList audioTracks_;
   QVariantList subtitleTracks_;
   int audioIndex_ = -1;
   int subtitleIndex_ = -1;
   int qualityKbps_ = 12000;
   int audioDelayBeforeMenu_ = 0;
-  QString playingItemId_;
-  qint64 lastReportMs_ = 0;
-
 };
 
 #endif  // APP_CONTROLLER_H

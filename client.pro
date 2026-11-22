@@ -28,6 +28,7 @@ SOURCES += src/main.cpp \
            src/authcontroller.cpp \
            src/librarycontroller.cpp \
            src/settingscontroller.cpp \
+           src/playbackcontroller.cpp \
            src/jellyfinclient.cpp \
            src/serverurl.cpp \
            src/redact.cpp \
@@ -42,6 +43,7 @@ HEADERS += src/inputpump.h \
            src/authcontroller.h \
            src/librarycontroller.h \
            src/settingscontroller.h \
+           src/playbackcontroller.h \
            src/jellyfinclient.h \
            src/serverurl.h \
            src/redact.h \

@@ -499,14 +499,25 @@ Item {
         }
     }
 
-    // pause symbol: two bars, no font glyph
-    Row {
+    // When paused the centre symbol is a play triangle, matching the OSD
+    // button; while playing the overlay is absent and the button shows pause.
+    Canvas {
         anchors.centerIn: parent
-        spacing: 14
         visible: app.playerPaused
-
-        Rectangle { width: 16; height: 52; radius: 3; color: Theme.text }
-        Rectangle { width: 16; height: 52; radius: 3; color: Theme.text }
+        width: 48
+        height: 48
+        onVisibleChanged: requestPaint()
+        onPaint: {
+            var ctx = getContext("2d")
+            ctx.reset()
+            ctx.fillStyle = Theme.text
+            ctx.beginPath()
+            ctx.moveTo(12, 6)
+            ctx.lineTo(40, 24)
+            ctx.lineTo(12, 42)
+            ctx.closePath()
+            ctx.fill()
+        }
     }
 
     // transcoding statistics (Start/Menu key)
