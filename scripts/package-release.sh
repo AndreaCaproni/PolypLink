@@ -41,14 +41,21 @@ sed -e "s/@VERSION@/$VERSION/g" -e "s/@VERSION_SHORT@/$VERSION_SHORT/g" \
     "$ROOT/packaging/release/RELEASE_NOTES.md" > "$RELEASE/RELEASE_NOTES.md"
 
 python3 - "$RELEASE" "$APP" "$VERSION" <<'PY'
-import os, sys, zipfile
+import os, sys, time, zipfile
 release, app, version = sys.argv[1], sys.argv[2], sys.argv[3]
+epoch = int(os.environ.get("SOURCE_DATE_EPOCH", "0"))
+date_time = time.gmtime(epoch)[:6] if epoch > 0 else time.localtime()[:6]
 out = os.path.join(release, f"{app}-{version}-usb.zip")
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     for base, _, files in os.walk(os.path.join(release, "usb")):
-        for name in files:
+        for name in sorted(files):
             path = os.path.join(base, name)
-            z.write(path, os.path.relpath(path, os.path.join(release, "usb")))
+            rel = os.path.relpath(path, os.path.join(release, "usb"))
+            info = zipfile.ZipInfo(rel, date_time)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            with open(path, "rb") as handle:
+                z.writestr(info, handle.read())
 print("zip:", out)
 PY
 
