@@ -1,8 +1,7 @@
-<p align="center">
-  <img src="docs/images/polyplink-logo.svg" width="120" alt="PolypLink logo">
-</p>
-
-# PolypLink
+<h1 align="center">
+  <img src="docs/images/polyplink-logo.svg" width="64" alt="PolypLink logo" align="middle">
+  PolypLink
+</h1>
 
 > Italiano: [README.it.md](README.it.md)
 
@@ -65,17 +64,26 @@ understand MKV, HEVC, 4K or HDR.
 - **Account** and **Settings**: account stats plus real settings for default
   quality, OSD duration and audio delay; the remaining entries are placeholders
   for the stable release.
+- **21 UI languages**, switchable in Settings and remembered across restarts.
 
 ---
 
 ## Roadmap
 
-- Home rows: show/hide and reorder.
-- Search across movies, series and episodes.
-- Next-episode autoplay with countdown.
-- Trickplay thumbnails on the seek bar.
-- In-stream seeking without restarting the transcode.
-- More native-speaker review for the 21 UI languages.
+Towards a stable 1.0, in rough order:
+
+- **Search** across movies, series and episodes.
+- **Home rows**: show/hide and reorder.
+- **Next-episode autoplay** using the existing countdown card.
+- **Trickplay thumbnails** on the seek bar.
+- **In-stream seeking** without restarting the transcode.
+- **Finish the placeholder settings** and the remaining Account options.
+- **Native-speaker review** of the 21 UI languages.
+- Broader server and hardware testing before 1.0.
+
+Recently completed in the 0.4.x line: corrected QML translation contexts, the
+bundled Mozilla CA store, the **B** return to the server list, the controller
+split, playback hardening and real demo screenshots.
 
 ---
 
@@ -253,11 +261,18 @@ build.sh        build + USB package
 
 ---
 
+## AI-assisted development
+
+PolypLink is developed with extensive use of AI coding assistants for code,
+documentation, translations and reviews. Every change is built, exercised on
+real Steam Link hardware and reviewed before it ships; AI output is not
+published unchecked. Security-sensitive areas were also audited, and the
+findings were fixed before the beta.
+
 ## Development notes
 
-Built with heavy AI assistance, then tested and curated on real Steam Link
-hardware. This is a beta: expect rough edges, and please include logs and
-hardware details in bug reports.
+Built and curated on real Steam Link hardware. This is a beta: expect rough
+edges, and please include logs and hardware details in bug reports.
 
 Technical note: QML image requests receive the Jellyfin `Authorization` header
 only when the image URL matches the server's scheme, host and port. All image

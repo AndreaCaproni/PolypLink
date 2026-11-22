@@ -1,8 +1,7 @@
-<p align="center">
-  <img src="docs/images/polyplink-logo.svg" width="120" alt="PolypLink logo">
-</p>
-
-# PolypLink
+<h1 align="center">
+  <img src="docs/images/polyplink-logo.svg" width="64" alt="PolypLink logo" align="middle">
+  PolypLink
+</h1>
 
 > English: [README.md](README.md)
 
@@ -65,17 +64,27 @@ non deve saper leggere MKV, HEVC, 4K o HDR.
 - **Account** e **Impostazioni**: statistiche account e impostazioni reali per
   qualità predefinita, durata OSD e ritardo audio; le altre voci sono segnaposto
   per la versione stabile.
+- **Interfaccia in 21 lingue**, selezionabili dalle Impostazioni e memorizzate
+  tra un avvio e l'altro.
 
 ---
 
 ## Roadmap
 
-- Righe della home: mostra/nascondi e riordina.
-- Ricerca tra film, serie ed episodi.
-- Autoplay del prossimo episodio con countdown.
-- Trickplay: miniature sulla barra di seek.
-- Seek in-stream senza riavviare la transcodifica.
-- Revisione madrelingua delle 21 lingue.
+Verso una 1.0 stabile, in ordine indicativo:
+
+- **Ricerca** tra film, serie ed episodi.
+- **Righe della home**: mostra/nascondi e riordina.
+- **Autoplay del prossimo episodio** usando la scheda countdown già presente.
+- **Trickplay**: miniature sulla barra di seek.
+- **Seek in-stream** senza riavviare la transcodifica.
+- **Completare le impostazioni segnaposto** e le restanti voci dell'Account.
+- **Revisione madrelingua** delle 21 lingue.
+- Test più ampi su server e hardware prima della 1.0.
+
+Completato di recente nella serie 0.4.x: contesti di traduzione QML corretti,
+bundle CA Mozilla, ritorno alla lista server con **B**, split dei controller,
+irrobustimento della riproduzione e screenshot reali dal demo.
 
 ---
 
@@ -252,11 +261,19 @@ build.sh        build + pacchetto USB
 
 ---
 
+## Sviluppo con AI
+
+PolypLink è sviluppato con un uso esteso di assistenti di programmazione AI per
+codice, documentazione, traduzioni e revisioni. Ogni modifica viene compilata,
+provata su hardware Steam Link reale e rivista prima di essere pubblicata;
+l'output AI non viene pubblicato senza controllo. Le parti sensibili alla
+sicurezza sono state inoltre sottoposte ad audit, con i problemi corretti prima
+della beta.
+
 ## Note di sviluppo
 
-Costruito con un forte supporto AI, poi testato e curato su hardware Steam Link
-reale. È una beta: aspettati qualche spigolo e allega log e dettagli hardware
-nelle segnalazioni.
+Costruito e curato su hardware Steam Link reale. È una beta: aspettati qualche
+spigolo e allega log e dettagli hardware nelle segnalazioni.
 
 Nota tecnica: le richieste delle immagini QML ricevono l'header `Authorization`
 di Jellyfin solo se l'URL coincide con schema, host e porta del server. Oggi
