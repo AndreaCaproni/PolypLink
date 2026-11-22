@@ -10,6 +10,7 @@
 
 #include "authcontroller.h"
 #include "jellyfinclient.h"
+#include "librarycontroller.h"
 #include "player.h"
 
 // Bridge between the Jellyfin API and the QML UI. It exposes lists ready for the views
@@ -107,17 +108,17 @@ class AppController : public QObject {
   QString quickConnectCode() const;
   QString quickConnectStatus() const;
 
-  QVariantList views() const { return views_; }
-  QVariantList resume() const { return resume_; }
-  QVariantList nextUp() const { return nextUp_; }
-  QVariantList latest() const { return latest_; }
-  bool loading() const { return loading_; }
+  QVariantList views() const { return library_->views(); }
+  QVariantList resume() const { return library_->resume(); }
+  QVariantList nextUp() const { return library_->nextUp(); }
+  QVariantList latest() const { return library_->latest(); }
+  bool loading() const { return library_->loading(); }
 
-  QString libraryTitle() const { return libraryTitle_; }
-  QVariantList libraryItems() const { return libraryItems_; }
-  int libraryIndex() const { return libraryIndex_; }
+  QString libraryTitle() const { return library_->libraryTitle(); }
+  QVariantList libraryItems() const { return library_->libraryItems(); }
+  int libraryIndex() const { return library_->libraryIndex(); }
 
-  QVariantMap detail() const { return detail_; }
+  QVariantMap detail() const { return library_->detail(); }
   bool playerActive() const { return playerActive_; }
   bool playerPaused() const { return playerPaused_; }
   bool playerStalled() const { return playerStalled_; }
@@ -145,12 +146,12 @@ class AppController : public QObject {
   double seekPreview() const { return seekPreview_; }
   bool seekPending() const { return seekPending_; }
   bool statsOpen() const { return statsOpen_; }
-  QVariantList seasons() const { return seasons_; }
-  QString seriesTitle() const { return seriesTitle_; }
-  QString seriesPoster() const { return seriesPoster_; }
-  QVariantList episodes() const { return episodes_; }
-  QString seasonTitle() const { return seasonTitle_; }
-  QVariantMap seasonInfo() const { return seasonInfo_; }
+  QVariantList seasons() const { return library_->seasons(); }
+  QString seriesTitle() const { return library_->seriesTitle(); }
+  QString seriesPoster() const { return library_->seriesPoster(); }
+  QVariantList episodes() const { return library_->episodes(); }
+  QString seasonTitle() const { return library_->seasonTitle(); }
+  QVariantMap seasonInfo() const { return library_->seasonInfo(); }
 
   Q_INVOKABLE void discover();
   Q_INVOKABLE void selectServer(int index);
@@ -236,18 +237,16 @@ class AppController : public QObject {
   void playEpisode(const QJsonObject& episode);
   bool teardownPlayer();
   void loadNextEpisode(const QString& seriesId, const QString& currentId);
-  void loadLatest(quint64 gen);
   void commitSeek();
+  void updateTracksFromItem(const QJsonObject& item);
   void setState(const QString& s);
   void setStatus(const QString& s);
-  void setLoading(bool v);
-  QVariantMap toMap(const QJsonObject& item) const;
-  QVariantList toList(const QJsonArray& items) const;
   void afterLogin();
   void handleLoggedOut();
 
   JellyfinClient client_;
   std::unique_ptr<AuthController> auth_;
+  std::unique_ptr<LibraryController> library_;
 
   QString state_ = QStringLiteral("login");
   QString status_;
@@ -255,29 +254,6 @@ class AppController : public QObject {
   QVariantMap userStats_;
   QTimer noticeTimer_;
 
-  QVariantList views_;
-  QVariantList resume_;
-  QVariantList nextUp_;
-  QVariantList latest_;
-  bool loading_ = false;
-
-  QString libraryTitle_;
-  QVariantList libraryItems_;
-  QString libraryParentId_;
-  int libraryIndex_ = -1;
-
-  QVariantMap detail_;
-  QVariantList seasons_;
-  QString seriesTitle_;
-  QString seriesPoster_;
-  QVariantList episodes_;
-  QString seasonTitle_;
-  QVariantMap seasonInfo_;
-  QString seriesOverview_;
-  QString seriesId_;
-  QString currentSeasonId_;
-
-  void patchLists(const QString& itemId, const QString& key, const QVariant& value);
   void startPlaybackAt(const QString& itemId, qint64 startTicks,
                        const QString& title = QString(), double durationSec = -1.0);
 
@@ -307,12 +283,6 @@ class AppController : public QObject {
   bool progressInFlight_ = false;
   // Every start invalidates PlaybackInfo callbacks still in flight.
   quint64 playbackGen_ = 0;
-  // Every old async request is ignored when a new one starts.
-  quint64 itemGen_ = 0;
-  quint64 libraryGen_ = 0;
-  quint64 homeGen_ = 0;
-  quint64 seasonsGen_ = 0;
-  quint64 episodesGen_ = 0;
   double playerPosition_ = 0.0;
   double playerDuration_ = 0.0;
   QString playerTitle_;

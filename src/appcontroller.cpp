@@ -23,15 +23,6 @@ QString uiText(const char* text) {
   return QCoreApplication::translate("main", text);
 }
 
-QString formatDuration(qint64 ticks) {
-  if (ticks <= 0) return QString();
-  const qint64 minutes = ticks / 600000000LL;  // 10,000,000 ticks per second
-  const qint64 h = minutes / 60;
-  const qint64 m = minutes % 60;
-  if (h > 0) return QStringLiteral("%1h %2m").arg(h).arg(m, 2, 10, QLatin1Char('0'));
-  return QStringLiteral("%1m").arg(m);
-}
-
 }  // namespace
 
 AppController::AppController(QObject* parent) : QObject(parent) {
@@ -49,6 +40,30 @@ AppController::AppController(QObject* parent) : QObject(parent) {
           &AppController::serversChanged);
   connect(auth_.get(), &AuthController::quickConnectChanged, this,
           &AppController::quickConnectChanged);
+
+  library_ = std::make_unique<LibraryController>(&client_);
+  connect(library_.get(), &LibraryController::viewsChanged, this,
+          &AppController::viewsChanged);
+  connect(library_.get(), &LibraryController::homeChanged, this,
+          &AppController::homeChanged);
+  connect(library_.get(), &LibraryController::libraryChanged, this,
+          &AppController::libraryChanged);
+  connect(library_.get(), &LibraryController::detailChanged, this,
+          &AppController::detailChanged);
+  connect(library_.get(), &LibraryController::seasonsChanged, this,
+          &AppController::seasonsChanged);
+  connect(library_.get(), &LibraryController::episodesChanged, this,
+          &AppController::episodesChanged);
+  connect(library_.get(), &LibraryController::loadingChanged, this,
+          &AppController::loadingChanged);
+  connect(library_.get(), &LibraryController::statusRequested, this,
+          &AppController::setStatus);
+  connect(library_.get(), &LibraryController::noticeRequested, this,
+          &AppController::showNotice);
+  connect(library_.get(), &LibraryController::homeRefreshRequested, this,
+          &AppController::refreshHome);
+  connect(library_.get(), &LibraryController::itemLoaded, this,
+          &AppController::updateTracksFromItem);
 
   // Token revoked or expired: don't stay stuck on an empty home screen.
   connect(&client_, &JellyfinClient::unauthorized, this, [this]() {
@@ -173,7 +188,7 @@ void AppController::loadNextEpisode(const QString& seriesId,
           qInfo("[player] nessun prossimo episodio");
           return;
         }
-        nextEpisode_ = toMap(eps.at(pos + 1));
+        nextEpisode_ = library_->toMap(eps.at(pos + 1));
         nextEpisodeDismissed_ = false;
         qInfo("[player] prossimo episodio: %s",
               qPrintable(nextEpisode_.value(QStringLiteral("name")).toString()));
@@ -313,14 +328,14 @@ void AppController::playerMenuClose() {
 }
 
 void AppController::openPreviousEpisode() {
-  const QString current = detail_.value(QStringLiteral("id")).toString();
-  const QString seriesId = detail_.value(QStringLiteral("seriesId")).toString();
+  const QString current = library_->detail().value(QStringLiteral("id")).toString();
+  const QString seriesId = library_->detail().value(QStringLiteral("seriesId")).toString();
   if (current.isEmpty() || seriesId.isEmpty()) return;
-  setLoading(true);
+  library_->setLoading(true);
   client_.fetchEpisodes(
       seriesId, QString(),
       [this, current](const QJsonDocument& doc, const QString& err) {
-        setLoading(false);
+        library_->setLoading(false);
         if (!err.isEmpty()) {
           setStatus(err);
           return;
@@ -413,18 +428,8 @@ void AppController::logout() {
 }
 
 void AppController::handleLoggedOut() {
-  views_.clear();
-  resume_.clear();
-  nextUp_.clear();
-  latest_.clear();
-  libraryItems_.clear();
-  detail_.clear();
+  library_->clear();
   userStats_.clear();
-  emit viewsChanged();
-  emit homeChanged();
-  emit libraryChanged();
-  emit detailChanged();
-  setLoading(false);
   setStatus(QString());
   // After a logout you choose the server: the saved one stays at the top,
   // so you get back in with one key or switch to another.
@@ -437,140 +442,40 @@ void AppController::refreshHome() { afterLogin(); }
 void AppController::useSavedServer() { auth_->useSavedServer(); }
 
 void AppController::afterLogin() {
-  const quint64 gen = ++homeGen_;
   setState(QStringLiteral("home"));
   setStatus(QString());
-  setLoading(true);
-
-  client_.fetchViews([this, gen](const QJsonDocument& doc, const QString& err) {
-    if (gen != homeGen_) return;
-    if (!err.isEmpty()) {
-      setStatus(err);
-      setLoading(false);
-      return;
-    }
-    views_.clear();
-    const QJsonArray items = doc.object().value(QStringLiteral("Items")).toArray();
-    for (const QJsonValue& v : items) {
-      const QJsonObject o = v.toObject();
-      const QString type = o.value(QStringLiteral("CollectionType")).toString();
-      // Music/playlists make no sense in this first version.
-      if (type == QLatin1String("music") || type == QLatin1String("playlists")) continue;
-      QVariantMap m;
-      m.insert(QStringLiteral("id"), o.value(QStringLiteral("Id")).toString());
-      m.insert(QStringLiteral("name"), o.value(QStringLiteral("Name")).toString());
-      m.insert(QStringLiteral("type"), type);
-      const QString tag =
-          o.value(QStringLiteral("ImageTags")).toObject().value(QStringLiteral("Primary")).toString();
-      m.insert(QStringLiteral("image"),
-               client_.imageUrl(o.value(QStringLiteral("Id")).toString(),
-                                QStringLiteral("Primary"), 320, tag));
-      views_.append(m);
-    }
-    emit viewsChanged();
-    // "Recently added": one call per library, so each card knows where it comes
-    // from (useful for duplicates across libraries) and the order stays
-    // chronological.
-    loadLatest(gen);
-  });
-
-  client_.fetchResume(20, [this, gen](const QJsonDocument& doc, const QString& err) {
-    if (gen != homeGen_) return;
-    if (err.isEmpty()) {
-      resume_ = toList(doc.object().value(QStringLiteral("Items")).toArray());
-      emit homeChanged();
-    }
-  });
-
-  // "Next up": the next unwatched episode of already started series.
-  client_.fetchNextUp(20, [this, gen](const QJsonDocument& doc, const QString& err) {
-    if (gen != homeGen_) return;
-    if (err.isEmpty()) {
-      nextUp_ = toList(doc.object().value(QStringLiteral("Items")).toArray());
-      emit homeChanged();
-    }
-  });
-
+  library_->loadHome();
 }
 
-void AppController::loadLatest(quint64 gen) {
-  auto acc = std::make_shared<QVariantList>();
-  auto left = std::make_shared<int>(0);
+void AppController::openView(int index) { library_->openView(index); }
 
-  for (const QVariant& v : views_) {
-    const QVariantMap vm = v.toMap();
-    const QString vid = vm.value(QStringLiteral("id")).toString();
-    const QString vname = vm.value(QStringLiteral("name")).toString();
-    if (vid.isEmpty()) continue;
-    ++(*left);
-    client_.fetchLatestFor(
-        vid, 8,
-        [this, acc, left, vname, gen](const QJsonDocument& doc, const QString& err) {
-          if (gen != homeGen_) return;
-          if (err.isEmpty()) {
-            for (const QVariant& item : toList(doc.array())) {
-              const QVariantMap m = item.toMap();
-              const QString type = m.value(QStringLiteral("type")).toString();
-              if (type == QLatin1String("Episode") ||
-                  type == QLatin1String("Season")) {
-                continue;
-              }
-              QVariantMap tagged = m;
-              tagged.insert(QStringLiteral("library"), vname);
-              acc->append(tagged);
-            }
-          }
-          if (--(*left) == 0) {
-            if (gen != homeGen_) return;
-            std::sort(acc->begin(), acc->end(),
-                      [](const QVariant& a, const QVariant& b) {
-                        return a.toMap().value(QStringLiteral("dateCreated")).toString() >
-                               b.toMap().value(QStringLiteral("dateCreated")).toString();
-                      });
-            latest_ = *acc;
-            setLoading(false);
-            emit homeChanged();
-          }
-        });
-  }
+void AppController::openFavorites() { library_->openFavorites(); }
 
-  if (*left == 0) {
-    latest_.clear();
-    setLoading(false);
-    emit homeChanged();
-  }
+void AppController::openItem(const QString& itemId) { library_->openItem(itemId); }
+
+void AppController::openSeason(int index) { library_->openSeason(index); }
+
+void AppController::reopenSeries() { library_->reopenSeries(); }
+
+void AppController::togglePlayed() { library_->togglePlayed(); }
+
+void AppController::toggleFavorite() { library_->toggleFavorite(); }
+
+void AppController::toggleSeasonPlayed(const QString& seasonId) {
+  library_->toggleSeasonPlayed(seasonId);
 }
 
-QVariantMap AppController::toMap(const QJsonObject& item) const {
-  QVariantMap m;
-  const QString id = item.value(QStringLiteral("Id")).toString();
-  m.insert(QStringLiteral("id"), id);
-  m.insert(QStringLiteral("name"), item.value(QStringLiteral("Name")).toString());
-  m.insert(QStringLiteral("type"), item.value(QStringLiteral("Type")).toString());
-  m.insert(QStringLiteral("seriesId"), item.value(QStringLiteral("SeriesId")).toString());
-  m.insert(QStringLiteral("seasonId"), item.value(QStringLiteral("SeasonId")).toString());
-  m.insert(QStringLiteral("indexNumber"), item.value(QStringLiteral("IndexNumber")).toInt());
-  m.insert(QStringLiteral("parentIndexNumber"),
-           item.value(QStringLiteral("ParentIndexNumber")).toInt());
-  m.insert(QStringLiteral("overview"), item.value(QStringLiteral("Overview")).toString());
-  {
-    QVariantList genres;
-    for (const QJsonValue& g : item.value(QStringLiteral("Genres")).toArray()) {
-      genres.append(g.toString());
-    }
-    m.insert(QStringLiteral("genres"), genres);
-  }
-  m.insert(QStringLiteral("childCount"), item.value(QStringLiteral("ChildCount")).toInt());
-  m.insert(QStringLiteral("rating"),
-           item.value(QStringLiteral("CommunityRating")).toDouble());
-  m.insert(QStringLiteral("communityRating"),
-           item.value(QStringLiteral("CommunityRating")).toDouble());
-  m.insert(QStringLiteral("officialRating"),
-           item.value(QStringLiteral("OfficialRating")).toString());
+void AppController::toggleSeasonFavorite(const QString& seasonId) {
+  library_->toggleSeasonFavorite(seasonId);
+}
 
-  // Technical details from the first source: resolution and audio.
-  QString resolution;
-  QString audio;
+void AppController::updateTracksFromItem(const QJsonObject& item) {
+  audioTracks_.clear();
+  subtitleTracks_.clear();
+  audioIndex_ = -1;
+  subtitleIndex_ = -1;
+  // starts from the default quality chosen in the settings
+  qualityKbps_ = defaultQualityKbps_;
   const QJsonArray sources = item.value(QStringLiteral("MediaSources")).toArray();
   if (!sources.isEmpty()) {
     const QJsonArray streams =
@@ -578,372 +483,44 @@ QVariantMap AppController::toMap(const QJsonObject& item) const {
     for (const QJsonValue& sv : streams) {
       const QJsonObject st = sv.toObject();
       const QString type = st.value(QStringLiteral("Type")).toString();
-      if (type == QLatin1String("Video") && resolution.isEmpty()) {
-        const int h = st.value(QStringLiteral("Height")).toInt();
-        if (h >= 1900) resolution = QStringLiteral("4K");
-        else if (h >= 1000) resolution = QStringLiteral("1080p");
-        else if (h >= 700) resolution = QStringLiteral("720p");
-        else if (h > 0) resolution = QStringLiteral("%1p").arg(h);
-      } else if (type == QLatin1String("Audio") && audio.isEmpty()) {
-        const QString codec = st.value(QStringLiteral("Codec")).toString().toUpper();
+      const int index = st.value(QStringLiteral("Index")).toInt();
+      const QString lang = st.value(QStringLiteral("Language")).toString();
+      const QString codec = st.value(QStringLiteral("Codec")).toString().toUpper();
+      if (type == QLatin1String("Audio")) {
         const int channels = st.value(QStringLiteral("Channels")).toInt();
-        QString layout;
-        if (channels == 6) layout = QStringLiteral(" 5.1");
-        else if (channels == 8) layout = QStringLiteral(" 7.1");
-        else if (channels == 2) layout = QStringLiteral(" stereo");
-        audio = codec + layout;
+        QString label = lang.isEmpty() ? QStringLiteral("Audio %1").arg(index) : lang;
+        if (!codec.isEmpty()) label += QStringLiteral(" · ") + codec;
+        if (channels == 6) label += QStringLiteral(" 5.1");
+        else if (channels == 8) label += QStringLiteral(" 7.1");
+        QVariantMap track;
+        track.insert(QStringLiteral("index"), index);
+        track.insert(QStringLiteral("label"), label);
+        audioTracks_.append(track);
+        if (audioIndex_ < 0 || st.value(QStringLiteral("IsDefault")).toBool()) {
+          audioIndex_ = index;
+        }
+      } else if (type == QLatin1String("Subtitle")) {
+        QString label = lang.isEmpty() ? tr("Sottotitoli %1").arg(index) : lang;
+        const QString title = st.value(QStringLiteral("DisplayTitle")).toString();
+        if (!title.isEmpty()) label += QStringLiteral(" · ") + title;
+        QVariantMap track;
+        track.insert(QStringLiteral("index"), index);
+        track.insert(QStringLiteral("label"), label);
+        subtitleTracks_.append(track);
       }
     }
   }
-  m.insert(QStringLiteral("resolution"), resolution);
-  m.insert(QStringLiteral("audio"), audio);
-
-  const int year = item.value(QStringLiteral("ProductionYear")).toInt();
-  m.insert(QStringLiteral("year"), year);
-  m.insert(QStringLiteral("dateCreated"),
-           item.value(QStringLiteral("DateCreated")).toString());
-  const qint64 runtime = static_cast<qint64>(item.value(QStringLiteral("RunTimeTicks")).toDouble());
-  m.insert(QStringLiteral("runtimeTicks"), runtime);
-
-  QString subtitle;
-  if (year > 0) subtitle = QString::number(year);
-  const QString duration = formatDuration(runtime);
-  m.insert(QStringLiteral("duration"), duration);
-  if (!duration.isEmpty()) subtitle += (subtitle.isEmpty() ? QString() : QStringLiteral(" · ")) + duration;
-
-  // For episodes the useful title is "Series · S1 E3"
-  const QString series = item.value(QStringLiteral("SeriesName")).toString();
-  if (!series.isEmpty()) {
-    const int season = item.value(QStringLiteral("ParentIndexNumber")).toInt();
-    const int episode = item.value(QStringLiteral("IndexNumber")).toInt();
-    subtitle = series;
-    if (season > 0 && episode > 0) {
-      subtitle += QStringLiteral(" · S%1 E%2").arg(season).arg(episode);
-    }
-  }
-  m.insert(QStringLiteral("subtitle"), subtitle);
-
-  const QJsonObject tags = item.value(QStringLiteral("ImageTags")).toObject();
-  m.insert(QStringLiteral("image"),
-           client_.imageUrl(id, QStringLiteral("Primary"), 400,
-                            tags.value(QStringLiteral("Primary")).toString()));
-  const QJsonArray backdrops = item.value(QStringLiteral("BackdropImageTags")).toArray();
-  m.insert(QStringLiteral("backdrop"),
-           backdrops.isEmpty()
-               ? QString()
-               : client_.imageUrl(id, QStringLiteral("Backdrop"), 1280, backdrops.at(0).toString()));
-
-  // --- horizontal cards (Continue watching / Next up) ---------
-  // Episodes use the 16:9 screenshot as Primary; movies use the Thumb.
-  const double imgAspect = item.value(QStringLiteral("PrimaryImageAspectRatio")).toDouble();
-  const QString thumbTag = tags.value(QStringLiteral("Thumb")).toString();
-  const QString primaryTag = tags.value(QStringLiteral("Primary")).toString();
-  QString landscape;
-  if (!thumbTag.isEmpty()) {
-    landscape = client_.imageUrl(id, QStringLiteral("Thumb"), 640, thumbTag);
-  } else if (imgAspect >= 1.2 && !primaryTag.isEmpty()) {
-    landscape = client_.imageUrl(id, QStringLiteral("Primary"), 640, primaryTag);
-  } else if (!backdrops.isEmpty()) {
-    landscape = client_.imageUrl(id, QStringLiteral("Backdrop"), 1280,
-                                 backdrops.at(0).toString());
-  } else {
-    landscape = m.value(QStringLiteral("image")).toString();
-  }
-  m.insert(QStringLiteral("imageLandscape"), landscape);
-
-  QString cardTitle = item.value(QStringLiteral("Name")).toString();
-  QString cardSubtitle = year > 0 ? QString::number(year) : subtitle;
-  if (item.value(QStringLiteral("Type")).toString() == QLatin1String("Episode")) {
-    if (!series.isEmpty()) cardTitle = series;
-    const int season = item.value(QStringLiteral("ParentIndexNumber")).toInt();
-    const int episode = item.value(QStringLiteral("IndexNumber")).toInt();
-    if (season > 0 && episode > 0) {
-      cardSubtitle = QStringLiteral("S%1 E%2").arg(season).arg(episode);
-      const QString epName = item.value(QStringLiteral("Name")).toString();
-      if (!epName.isEmpty()) cardSubtitle += QStringLiteral(" · ") + epName;
-    }
-  }
-  m.insert(QStringLiteral("cardTitle"), cardTitle);
-  m.insert(QStringLiteral("cardSubtitle"), cardSubtitle);
-
-  const QJsonObject userData = item.value(QStringLiteral("UserData")).toObject();
-  m.insert(QStringLiteral("played"), userData.value(QStringLiteral("Played")).toBool());
-  m.insert(QStringLiteral("favorite"),
-           userData.value(QStringLiteral("IsFavorite")).toBool());
-  m.insert(QStringLiteral("progress"),
-           userData.value(QStringLiteral("PlayedPercentage")).toDouble());
-  m.insert(QStringLiteral("resumeTicks"),
-           static_cast<qint64>(userData.value(QStringLiteral("PlaybackPositionTicks")).toDouble()));
-  return m;
-}
-
-QVariantList AppController::toList(const QJsonArray& items) const {
-  QVariantList out;
-  out.reserve(items.size());
-  for (const QJsonValue& v : items) out.append(toMap(v.toObject()));
-  return out;
-}
-
-void AppController::openView(int index) {
-  if (index < 0 || index >= views_.size()) return;
-  const QVariantMap view = views_.at(index).toMap();
-  libraryParentId_ = view.value(QStringLiteral("id")).toString();
-  libraryTitle_ = view.value(QStringLiteral("name")).toString();
-  libraryIndex_ = index;
-
-  const QString collection = view.value(QStringLiteral("type")).toString();
-  QString include = QStringLiteral("Movie,Series");
-  if (collection == QLatin1String("movies")) include = QStringLiteral("Movie");
-  else if (collection == QLatin1String("tvshows")) include = QStringLiteral("Series");
-  else if (collection == QLatin1String("boxsets")) include = QStringLiteral("BoxSet");
-
-  const quint64 gen = ++libraryGen_;
-  libraryItems_.clear();
-  emit libraryChanged();
-  setLoading(true);
-  setStatus(QString());
-
-  client_.fetchLibrary(libraryParentId_, include, QStringLiteral("SortName"), 300, 0,
-                       [this, gen](const QJsonDocument& doc, const QString& err) {
-                         if (gen != libraryGen_) return;
-                         setLoading(false);
-                         if (!err.isEmpty()) {
-                           setStatus(err);
-                           return;
-                         }
-                         libraryItems_ =
-                             toList(doc.object().value(QStringLiteral("Items")).toArray());
-                         emit libraryChanged();
-                       });
-}
-
-void AppController::openFavorites() {
-  libraryParentId_.clear();
-  libraryTitle_ = QStringLiteral("Preferiti");
-  const quint64 gen = ++libraryGen_;
-  libraryItems_.clear();
-  emit libraryChanged();
-  setLoading(true);
-  setStatus(QString());
-  client_.fetchFavorites(200, [this, gen](const QJsonDocument& doc, const QString& err) {
-    if (gen != libraryGen_) return;
-    setLoading(false);
-    if (!err.isEmpty()) {
-      setStatus(err);
-      return;
-    }
-    libraryItems_ = toList(doc.object().value(QStringLiteral("Items")).toArray());
-    emit libraryChanged();
-  });
-}
-
-void AppController::openItem(const QString& itemId) {
-  const quint64 gen = ++itemGen_;
-  // If it is a different title, don't show the previous card for 10 s.
-  if (detail_.value(QStringLiteral("id")).toString() != itemId) {
-    detail_.clear();
-    detail_.insert(QStringLiteral("id"), itemId);
-    emit detailChanged();
-  }
-  setLoading(true);
-  client_.fetchItem(itemId, [this, gen](const QJsonDocument& doc, const QString& err) {
-    if (gen != itemGen_) return;
-    setLoading(false);
-    if (!err.isEmpty()) {
-      setStatus(err);
-      detail_.insert(QStringLiteral("name"), tr("Impossibile caricare"));
-      detail_.insert(QStringLiteral("overview"), err);
-      emit detailChanged();
-      return;
-    }
-    const QJsonObject o = doc.object();
-    detail_ = toMap(o);
-    detail_.insert(QStringLiteral("communityRating"),
-                   o.value(QStringLiteral("CommunityRating")).toDouble());
-    detail_.insert(QStringLiteral("officialRating"),
-                   o.value(QStringLiteral("OfficialRating")).toString());
-    detail_.insert(QStringLiteral("tagline"), o.value(QStringLiteral("Tagline")).toString());
-    emit detailChanged();
-
-    // audio and subtitle tracks of the file
-    audioTracks_.clear();
-    subtitleTracks_.clear();
-    audioIndex_ = -1;
-    subtitleIndex_ = -1;
-    // starts from the default quality chosen in the settings
-    qualityKbps_ = defaultQualityKbps_;
-    const QJsonArray sources = o.value(QStringLiteral("MediaSources")).toArray();
-    if (!sources.isEmpty()) {
-      const QJsonArray streams =
-          sources.at(0).toObject().value(QStringLiteral("MediaStreams")).toArray();
-      for (const QJsonValue& sv : streams) {
-        const QJsonObject st = sv.toObject();
-        const QString type = st.value(QStringLiteral("Type")).toString();
-        const int index = st.value(QStringLiteral("Index")).toInt();
-        const QString lang = st.value(QStringLiteral("Language")).toString();
-        const QString codec = st.value(QStringLiteral("Codec")).toString().toUpper();
-        if (type == QLatin1String("Audio")) {
-          const int ch = st.value(QStringLiteral("Channels")).toInt();
-          QString label = lang.isEmpty() ? QStringLiteral("Audio %1").arg(index) : lang;
-          if (!codec.isEmpty()) label += QStringLiteral(" · ") + codec;
-          if (ch == 6) label += QStringLiteral(" 5.1");
-          else if (ch == 8) label += QStringLiteral(" 7.1");
-          QVariantMap tr;
-          tr.insert(QStringLiteral("index"), index);
-          tr.insert(QStringLiteral("label"), label);
-          audioTracks_.append(tr);
-          if (audioIndex_ < 0 || st.value(QStringLiteral("IsDefault")).toBool()) audioIndex_ = index;
-        } else if (type == QLatin1String("Subtitle")) {
-          QString label = lang.isEmpty() ? tr("Sottotitoli %1").arg(index) : lang;
-          const QString title = st.value(QStringLiteral("DisplayTitle")).toString();
-          if (!title.isEmpty()) label += QStringLiteral(" · ") + title;
-          QVariantMap tr;
-          tr.insert(QStringLiteral("index"), index);
-          tr.insert(QStringLiteral("label"), label);
-          subtitleTracks_.append(tr);
-        }
-      }
-    }
-    emit tracksChanged();
-
-    const QString type = o.value(QStringLiteral("Type")).toString();
-    if (type == QLatin1String("Series")) {
-      seriesId_ = o.value(QStringLiteral("Id")).toString();
-      seriesTitle_ = o.value(QStringLiteral("Name")).toString();
-      seriesPoster_ = detail_.value(QStringLiteral("image")).toString();
-      seriesOverview_ = o.value(QStringLiteral("Overview")).toString();
-      seasons_.clear();
-      emit seasonsChanged();
-      const quint64 sgen = ++seasonsGen_;
-      client_.fetchSeasons(seriesId_, [this, sgen](const QJsonDocument& seasonsDoc,
-                                                  const QString& e) {
-        if (sgen != seasonsGen_) return;
-        if (!e.isEmpty()) {
-          setStatus(e);
-          return;
-        }
-        seasons_ = toList(seasonsDoc.object().value(QStringLiteral("Items")).toArray());
-        for (QVariant& v : seasons_) {
-          QVariantMap m = v.toMap();
-          m.insert(QStringLiteral("name"), m.value(QStringLiteral("name")).toString());
-          v = m;
-        }
-        emit seasonsChanged();
-      });
-    } else if (type == QLatin1String("Episode")) {
-      const QString sid = o.value(QStringLiteral("SeriesId")).toString();
-      if (!sid.isEmpty()) seriesId_ = sid;
-    }
-  });
-}
-
-void AppController::openSeason(int index) {
-  if (index < 0 || index >= seasons_.size()) return;
-  const QVariantMap season = seasons_.at(index).toMap();
-  currentSeasonId_ = season.value(QStringLiteral("id")).toString();
-  seasonTitle_ = season.value(QStringLiteral("name")).toString();
-  seasonInfo_ = season;
-  seasonInfo_.insert(QStringLiteral("series"), seriesTitle_);
-  seasonInfo_.insert(QStringLiteral("seriesId"), seriesId_);
-  if (seasonInfo_.value(QStringLiteral("overview")).toString().isEmpty()) {
-    seasonInfo_.insert(QStringLiteral("overview"), seriesOverview_);
-  }
-  episodes_.clear();
-  emit episodesChanged();
-  setLoading(true);
-  const quint64 gen = ++episodesGen_;
-  client_.fetchEpisodes(seriesId_, currentSeasonId_,
-                        [this, gen](const QJsonDocument& doc, const QString& err) {
-                          if (gen != episodesGen_) return;
-                          setLoading(false);
-                          if (!err.isEmpty()) {
-                            setStatus(err);
-                            return;
-                          }
-                          episodes_ =
-                              toList(doc.object().value(QStringLiteral("Items")).toArray());
-                          emit episodesChanged();
-                        });
-}
-
-void AppController::reopenSeries() {
-  if (seriesId_.isEmpty()) return;
-  openItem(seriesId_);
-}
-
-void AppController::patchLists(const QString& itemId, const QString& key,
-                               const QVariant& value) {
-  auto patch = [&](QVariantList& list) {
-    for (int i = 0; i < list.size(); ++i) {
-      QVariantMap m = list.at(i).toMap();
-      if (m.value(QStringLiteral("id")).toString() == itemId) {
-        m.insert(key, value);
-        list[i] = m;
-      }
-    }
-  };
-  patch(resume_);
-  patch(nextUp_);
-  patch(latest_);
-  patch(libraryItems_);
-  patch(episodes_);
-  emit homeChanged();
-  emit libraryChanged();
-  emit episodesChanged();
-}
-
-void AppController::togglePlayed() {
-  const QString id = detail_.value(QStringLiteral("id")).toString();
-  if (id.isEmpty()) return;
-  const bool played = detail_.value(QStringLiteral("played")).toBool();
-  client_.setPlayed(id, !played, [this, id, played](const QJsonDocument&, const QString& err) {
-    if (!err.isEmpty()) {
-      setStatus(err);
-      return;
-    }
-    // Like the server: marking watched/unwatched also resets the resume
-    // position, otherwise "Resume" and "Play from start" would remain.
-    detail_.insert(QStringLiteral("played"), !played);
-    detail_.insert(QStringLiteral("progress"), 0.0);
-    detail_.insert(QStringLiteral("resumeTicks"), qint64(0));
-    emit detailChanged();
-    patchLists(id, QStringLiteral("played"), !played);
-    patchLists(id, QStringLiteral("progress"), 0.0);
-    patchLists(id, QStringLiteral("resumeTicks"), qint64(0));
-    // "Continue watching" and "Next up" must be recalculated by the
-    // server: a series can advance to the next episode.
-    QTimer::singleShot(400, this, &AppController::refreshHome);
-    showNotice(!played ? tr("Segnato come visto")
-                       : tr("Segnato come non visto"));
-  });
-}
-
-void AppController::toggleFavorite() {
-  const QString id = detail_.value(QStringLiteral("id")).toString();
-  if (id.isEmpty()) return;
-  const bool favorite = detail_.value(QStringLiteral("favorite")).toBool();
-  client_.setFavorite(id, !favorite,
-                      [this, id, favorite](const QJsonDocument&, const QString& err) {
-                        if (!err.isEmpty()) {
-                          setStatus(err);
-                          return;
-                        }
-                        detail_.insert(QStringLiteral("favorite"), !favorite);
-                        emit detailChanged();
-                        patchLists(id, QStringLiteral("favorite"), !favorite);
-                        showNotice(!favorite ? tr("Aggiunto ai preferiti")
-                                             : tr("Rimosso dai preferiti"));
-                      });
+  emit tracksChanged();
 }
 
 void AppController::playItem(const QString& itemId) { startPlayback(itemId); }
 
 void AppController::playSeries(const QString& seriesId) {
   if (seriesId.isEmpty()) return;
-  setLoading(true);
+  library_->setLoading(true);
   client_.fetchNextUpForSeries(
       seriesId, [this, seriesId](const QJsonDocument& doc, const QString& err) {
-        setLoading(false);
+        library_->setLoading(false);
         const QJsonArray items = doc.object().value(QStringLiteral("Items")).toArray();
         if (err.isEmpty() && !items.isEmpty()) {
           playEpisode(items.at(0).toObject());
@@ -978,83 +555,19 @@ void AppController::playSeries(const QString& seriesId) {
       });
 }
 
-void AppController::toggleSeasonPlayed(const QString& seasonId) {
-  if (seasonId.isEmpty()) return;
-  bool played = false;
-  for (const QVariant& v : seasons_) {
-    const QVariantMap m = v.toMap();
-    if (m.value(QStringLiteral("id")).toString() == seasonId) {
-      played = m.value(QStringLiteral("played")).toBool();
-      break;
-    }
-  }
-  client_.setPlayed(seasonId, !played,
-                    [this, seasonId, played](const QJsonDocument&, const QString& err) {
-                      if (!err.isEmpty()) {
-                        setStatus(err);
-                        return;
-                      }
-                      for (int i = 0; i < seasons_.size(); ++i) {
-                        QVariantMap m = seasons_.at(i).toMap();
-                        if (m.value(QStringLiteral("id")).toString() == seasonId) {
-                          m.insert(QStringLiteral("played"), !played);
-                          m.insert(QStringLiteral("progress"), 0.0);
-                          seasons_[i] = m;
-                          break;
-                        }
-                      }
-                      if (seasonInfo_.value(QStringLiteral("id")).toString() == seasonId) {
-                        seasonInfo_.insert(QStringLiteral("played"), !played);
-                        seasonInfo_.insert(QStringLiteral("progress"), 0.0);
-                      }
-                      emit seasonsChanged();
-                      emit episodesChanged();
-                      showNotice(!played ? tr("Stagione segnata come vista")
-                                         : tr("Stagione segnata come non vista"));
-                      QTimer::singleShot(400, this, &AppController::refreshHome);
-                    });
-}
-
-void AppController::toggleSeasonFavorite(const QString& seasonId) {
-  if (seasonId.isEmpty()) return;
-  bool favorite = seasonInfo_.value(QStringLiteral("favorite")).toBool();
-  client_.setFavorite(seasonId, !favorite,
-                      [this, seasonId, favorite](const QJsonDocument&, const QString& err) {
-                        if (!err.isEmpty()) {
-                          setStatus(err);
-                          return;
-                        }
-                        if (seasonInfo_.value(QStringLiteral("id")).toString() == seasonId) {
-                          seasonInfo_.insert(QStringLiteral("favorite"), !favorite);
-                        }
-                        for (int i = 0; i < seasons_.size(); ++i) {
-                          QVariantMap m = seasons_.at(i).toMap();
-                          if (m.value(QStringLiteral("id")).toString() == seasonId) {
-                            m.insert(QStringLiteral("favorite"), !favorite);
-                            seasons_[i] = m;
-                            break;
-                          }
-                        }
-                        emit seasonsChanged();
-                        emit episodesChanged();
-                        showNotice(!favorite ? tr("Stagione aggiunta ai preferiti")
-                                             : tr("Stagione rimossa dai preferiti"));
-                      });
-}
-
 void AppController::playSeasonFromStart() {
-  if (episodes_.isEmpty()) {
+  if (library_->episodes().isEmpty()) {
     setStatus(tr("Gli episodi non sono ancora caricati"));
     return;
   }
-  const QVariantMap ep = episodes_.first().toMap();
+  const QVariantMap ep = library_->episodes().first().toMap();
   const QString id = ep.value(QStringLiteral("id")).toString();
   if (id.isEmpty()) return;
   QString title = ep.value(QStringLiteral("name")).toString();
-  if (!seriesTitle_.isEmpty()) title = seriesTitle_ + QStringLiteral(" · ") + title;
+  if (!library_->seriesTitle().isEmpty()) title = library_->seriesTitle() + QStringLiteral(" · ") + title;
   const double dur = ep.value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
   qualityKbps_ = defaultQualityKbps_;
-  pendingSeriesId_ = seasonInfo_.value(QStringLiteral("seriesId")).toString();
+  pendingSeriesId_ = library_->seasonInfo().value(QStringLiteral("seriesId")).toString();
   startPlaybackAt(id, 0, title, dur);
 }
 
@@ -1084,13 +597,13 @@ void AppController::playEpisode(const QJsonObject& episode) {
 }
 
 void AppController::playFromStart() {
-  const QString id = detail_.value(QStringLiteral("id")).toString();
+  const QString id = library_->detail().value(QStringLiteral("id")).toString();
   if (id.isEmpty()) return;
   startPlaybackAt(id, 0);
 }
 
 void AppController::startPlayback(const QString& itemId) {
-  const qint64 resume = detail_.value(QStringLiteral("resumeTicks")).toLongLong();
+  const qint64 resume = library_->detail().value(QStringLiteral("resumeTicks")).toLongLong();
   startPlaybackAt(itemId, resume);
 }
 
@@ -1120,11 +633,11 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
 
   playSessionId_ = QUuid::createUuid().toString(QUuid::WithoutBraces);
   playingItemId_ = itemId;
-  playerTitle_ = title.isEmpty() ? detail_.value(QStringLiteral("name")).toString()
+  playerTitle_ = title.isEmpty() ? library_->detail().value(QStringLiteral("name")).toString()
                                  : title;
   playerDuration_ = durationSec > 0.0
                         ? durationSec
-                        : detail_.value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
+                        : library_->detail().value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
   playerPosition_ = startTicks / 1e7;
   playerStatus_.clear();
   playerActive_ = true;
@@ -1137,9 +650,9 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
   QString nextSeriesId = pendingSeriesId_;
   pendingSeriesId_.clear();
   if (nextSeriesId.isEmpty() && newItem &&
-      itemId == detail_.value(QStringLiteral("id")).toString() &&
-      detail_.value(QStringLiteral("type")) == QLatin1String("Episode")) {
-    nextSeriesId = detail_.value(QStringLiteral("seriesId")).toString();
+      itemId == library_->detail().value(QStringLiteral("id")).toString() &&
+      library_->detail().value(QStringLiteral("type")) == QLatin1String("Episode")) {
+    nextSeriesId = library_->detail().value(QStringLiteral("seriesId")).toString();
   }
   if (newItem) {
     nextEpisode_.clear();
@@ -1791,8 +1304,4 @@ void AppController::setStatus(const QString& s) {
   emit statusChanged();
 }
 
-void AppController::setLoading(bool v) {
-  if (loading_ == v) return;
-  loading_ = v;
-  emit loadingChanged();
-}
+
