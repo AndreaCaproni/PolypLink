@@ -12,6 +12,7 @@
 #include "jellyfinclient.h"
 #include "librarycontroller.h"
 #include "player.h"
+#include "settingscontroller.h"
 
 // Bridge between the Jellyfin API and the QML UI. It exposes lists ready for the views
 // (QVariantList of QVariantMap) to avoid maintaining C++ models.
@@ -133,14 +134,14 @@ class AppController : public QObject {
   QString playerMenuMode() const { return playerMenuMode_; }
   QVariantList playerMenuItems() const { return playerMenuItems_; }
   int playerMenuIndex() const { return playerMenuIndex_; }
-  int audioDelayMs() const { return audioDelayMs_; }
+  int audioDelayMs() const { return settings_->audioDelayMs(); }
   QVariantList audioTracks() const { return audioTracks_; }
   QVariantList subtitleTracks() const { return subtitleTracks_; }
   int audioIndex() const { return audioIndex_; }
   int subtitleIndex() const { return subtitleIndex_; }
   int qualityKbps() const { return qualityKbps_; }
-  int qualityDefaultKbps() const { return defaultQualityKbps_; }
-  int osdSeconds() const { return osdSeconds_; }
+  int qualityDefaultKbps() const { return settings_->defaultQualityKbps(); }
+  int osdSeconds() const { return settings_->osdSeconds(); }
   bool osdVisible() const { return osdVisible_; }
   int playerFocus() const { return playerFocus_; }
   double seekPreview() const { return seekPreview_; }
@@ -233,7 +234,6 @@ class AppController : public QObject {
   void showOsd();
   void showNotice(const QString& message);
   void openPlayerMenu(const QString& mode);
-  void saveDefaults();
   void playEpisode(const QJsonObject& episode);
   bool teardownPlayer();
   void loadNextEpisode(const QString& seriesId, const QString& currentId);
@@ -247,6 +247,7 @@ class AppController : public QObject {
   JellyfinClient client_;
   std::unique_ptr<AuthController> auth_;
   std::unique_ptr<LibraryController> library_;
+  std::unique_ptr<SettingsController> settings_;
 
   QString state_ = QStringLiteral("login");
   QString status_;
@@ -295,9 +296,6 @@ class AppController : public QObject {
   int audioIndex_ = -1;
   int subtitleIndex_ = -1;
   int qualityKbps_ = 12000;
-  int defaultQualityKbps_ = 12000;
-  int osdSeconds_ = 5;
-  int audioDelayMs_ = 0;
   int audioDelayBeforeMenu_ = 0;
   QString playingItemId_;
   qint64 lastReportMs_ = 0;

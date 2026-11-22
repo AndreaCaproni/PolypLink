@@ -5,7 +5,6 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
-#include <QSettings>
 #include <QElapsedTimer>
 #include <algorithm>
 #include <memory>
@@ -65,6 +64,19 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   connect(library_.get(), &LibraryController::itemLoaded, this,
           &AppController::updateTracksFromItem);
 
+  settings_ = std::make_unique<SettingsController>(&client_);
+  connect(settings_.get(), &SettingsController::settingsChanged, this,
+          &AppController::tracksChanged);
+  connect(settings_.get(), &SettingsController::audioDelayChanged, this,
+          &AppController::playerMenuChanged);
+  connect(settings_.get(), &SettingsController::osdSecondsChanged, this, [this]() {
+    osdTimer_.setInterval(settings_->osdSeconds() * 1000);
+  });
+  connect(settings_.get(), &SettingsController::noticeRequested, this,
+          &AppController::showNotice);
+  connect(settings_.get(), &SettingsController::statusRequested, this,
+          &AppController::setStatus);
+
   // Token revoked or expired: don't stay stuck on an empty home screen.
   connect(&client_, &JellyfinClient::unauthorized, this, [this]() {
     if (state_ == QLatin1String("login")) return;
@@ -74,22 +86,8 @@ AppController::AppController(QObject* parent) : QObject(parent) {
 
   // The OSD stays for 5 s, then fades out: it stays still during pause and
   // while the settings panel is open.
-  QSettings settings;
-  defaultQualityKbps_ = settings.value(QStringLiteral("defaultQualityKbps"), 12000).toInt();
-  {
-    static const int valid[] = {4000, 8000, 12000, 20000, 30000,
-                                40000, 50000, 60000, 80000, 100000};
-    bool ok = false;
-    for (int q : valid) if (q == defaultQualityKbps_) ok = true;
-    if (!ok) defaultQualityKbps_ = 12000;
-  }
-  osdSeconds_ = settings.value(QStringLiteral("osdSeconds"), 5).toInt();
-  if (osdSeconds_ != 3 && osdSeconds_ != 5 && osdSeconds_ != 8) osdSeconds_ = 5;
-  audioDelayMs_ =
-      std::clamp(settings.value(QStringLiteral("audioDelayMs"), 0).toInt(), -2000, 2000);
-
   osdTimer_.setSingleShot(true);
-  osdTimer_.setInterval(osdSeconds_ * 1000);
+  osdTimer_.setInterval(settings_->osdSeconds() * 1000);
   connect(&osdTimer_, &QTimer::timeout, this, [this]() {
     if (playerPaused_ || !playerActive_) return;
     if (!osdVisible_) return;
@@ -225,7 +223,7 @@ void AppController::openPlayerMenu(const QString& mode) {
   // The audio delay is not a list: it is a popup with two arrows and 100 ms
   // steps. The value is applied only on confirmation.
   if (mode == QLatin1String("avdelay")) {
-    audioDelayBeforeMenu_ = audioDelayMs_;
+    audioDelayBeforeMenu_ = settings_->audioDelayMs();
     playerMenuOpen_ = true;
     osdTimer_.stop();
     if (!osdVisible_) {
@@ -475,7 +473,7 @@ void AppController::updateTracksFromItem(const QJsonObject& item) {
   audioIndex_ = -1;
   subtitleIndex_ = -1;
   // starts from the default quality chosen in the settings
-  qualityKbps_ = defaultQualityKbps_;
+  qualityKbps_ = settings_->defaultQualityKbps();
   const QJsonArray sources = item.value(QStringLiteral("MediaSources")).toArray();
   if (!sources.isEmpty()) {
     const QJsonArray streams =
@@ -566,7 +564,7 @@ void AppController::playSeasonFromStart() {
   QString title = ep.value(QStringLiteral("name")).toString();
   if (!library_->seriesTitle().isEmpty()) title = library_->seriesTitle() + QStringLiteral(" · ") + title;
   const double dur = ep.value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
-  qualityKbps_ = defaultQualityKbps_;
+  qualityKbps_ = settings_->defaultQualityKbps();
   pendingSeriesId_ = library_->seasonInfo().value(QStringLiteral("seriesId")).toString();
   startPlaybackAt(id, 0, title, dur);
 }
@@ -590,7 +588,7 @@ void AppController::playEpisode(const QJsonObject& episode) {
           .value(QStringLiteral("PlaybackPositionTicks"))
           .toDouble());
   const double dur = episode.value(QStringLiteral("RunTimeTicks")).toDouble() / 1e7;
-  qualityKbps_ = defaultQualityKbps_;
+  qualityKbps_ = settings_->defaultQualityKbps();
   pendingSeriesId_ = episode.value(QStringLiteral("SeriesId")).toString();
   qInfo("[player] serie: riproduco %s", qPrintable(title));
   startPlaybackAt(id, ticks, title, dur);
@@ -858,7 +856,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
         cfg.startTicks = startTicks;
         cfg.durationTicks = static_cast<qint64>(playerDuration_ * 1e7);
         cfg.maxBitrateKbps = qualityKbps_;
-        cfg.audioDelayMs = audioDelayMs_;
+        cfg.audioDelayMs = settings_->audioDelayMs();
 
         if (mediaSourceId_.isEmpty()) mediaSourceId_ = itemId;
         client_.reportPlaybackStart(itemId, playSessionId_, startTicks,
@@ -1007,7 +1005,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
   if (playerMenuOpen_) {
     if (playerMenuMode_ == QLatin1String("avdelay")) {
       if (dx != 0) {
-        audioDelayMs_ = std::clamp(audioDelayMs_ + dx * 50, -2000, 2000);
+        settings_->previewAudioDelay(settings_->audioDelayMs() + dx * 50);
         emit playerMenuChanged();
       }
       return;
@@ -1090,8 +1088,8 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
 void AppController::playerConfirm() {
   if (playerMenuOpen_) {
     if (playerMenuMode_ == QLatin1String("avdelay")) {
-      const bool changed = audioDelayMs_ != audioDelayBeforeMenu_;
-      saveDefaults();
+      const bool changed = settings_->audioDelayMs() != audioDelayBeforeMenu_;
+      settings_->commitAudioDelay();
       playerMenuClose();
       if (changed) restartPlaybackAtPosition();
       return;
@@ -1168,8 +1166,8 @@ void AppController::playerBack() {
     if (playerMenuMode_ == QLatin1String("avdelay")) {
       // B also closes by confirming: the set value must not go back to 0
       // when the popup is reopened.
-      const bool changed = audioDelayMs_ != audioDelayBeforeMenu_;
-      saveDefaults();
+      const bool changed = settings_->audioDelayMs() != audioDelayBeforeMenu_;
+      settings_->commitAudioDelay();
       playerMenuClose();
       if (changed) restartPlaybackAtPosition();
       return;
@@ -1204,92 +1202,27 @@ void AppController::setState(const QString& s) {
   emit stateChanged();
 }
 
-void AppController::saveDefaults() {
-  QSettings s;
-  s.setValue(QStringLiteral("defaultQualityKbps"), defaultQualityKbps_);
-  s.setValue(QStringLiteral("osdSeconds"), osdSeconds_);
-  s.setValue(QStringLiteral("audioDelayMs"), audioDelayMs_);
-}
-
 void AppController::setDefaultQuality(int kbps) {
-  static const int valid[] = {4000, 8000, 12000, 20000, 30000,
-                              40000, 50000, 60000, 80000, 100000};
-  bool ok = false;
-  for (int q : valid) if (q == kbps) ok = true;
-  if (!ok || defaultQualityKbps_ == kbps) return;
-  defaultQualityKbps_ = kbps;
-  saveDefaults();
-  emit tracksChanged();
-  showNotice(tr("Qualità predefinita: %1 Mbps").arg(kbps / 1000));
+  settings_->setDefaultQuality(kbps);
 }
 
 void AppController::setOsdSeconds(int seconds) {
-  if (seconds != 3 && seconds != 5 && seconds != 8) return;
-  if (osdSeconds_ == seconds) return;
-  osdSeconds_ = seconds;
-  osdTimer_.setInterval(seconds * 1000);
-  saveDefaults();
-  emit tracksChanged();
-  showNotice(tr("OSD: %1 secondi").arg(seconds));
+  settings_->setOsdSeconds(seconds);
 }
 
-void AppController::setAudioDelay(int ms) {
-  ms = std::clamp(ms, -2000, 2000);
-  if (audioDelayMs_ == ms) return;
-  audioDelayMs_ = ms;
-  saveDefaults();
-  emit playerMenuChanged();
-  emit tracksChanged();
-  qInfo("[player] ritardo audio predefinito: %d ms", ms);
-}
+void AppController::setAudioDelay(int ms) { settings_->setAudioDelay(ms); }
 
 void AppController::cycleDefaultQuality(int delta) {
-  static const int values[] = {4000, 8000, 12000, 20000, 30000, 40000, 50000, 60000, 80000, 100000};
-  int pos = 2;
-  for (int i = 0; i < 10; ++i) if (values[i] == defaultQualityKbps_) pos = i;
-  pos = (pos + delta + 10) % 10;
-  defaultQualityKbps_ = values[pos];
-  saveDefaults();
-  emit tracksChanged();
-  showNotice(tr("Qualità predefinita: %1 Mbps").arg(defaultQualityKbps_ / 1000));
+  settings_->cycleDefaultQuality(delta);
 }
 
 void AppController::cycleOsdSeconds(int delta) {
-  static const int values[] = {3, 5, 8};
-  int pos = 1;
-  for (int i = 0; i < 3; ++i) if (values[i] == osdSeconds_) pos = i;
-  pos = (pos + delta + 3) % 3;
-  osdSeconds_ = values[pos];
-  osdTimer_.setInterval(osdSeconds_ * 1000);
-  saveDefaults();
-  emit tracksChanged();
-  showNotice(tr("OSD: %1 secondi").arg(osdSeconds_));
+  settings_->cycleOsdSeconds(delta);
 }
 
-void AppController::resetSettings() {
-  defaultQualityKbps_ = 12000;
-  osdSeconds_ = 5;
-  osdTimer_.setInterval(5000);
-  saveDefaults();
-  emit tracksChanged();
-  showNotice(tr("Impostazioni ripristinate"));
-}
+void AppController::resetSettings() { settings_->resetSettings(); }
 
-void AppController::testConnection() {
-  if (client_.server().isEmpty()) {
-    showNotice(tr("Nessun server configurato"));
-    return;
-  }
-  showNotice(tr("Verifico la connessione…"));
-  client_.fetchViews([this](const QJsonDocument& doc, const QString& err) {
-    if (!err.isEmpty()) {
-      setStatus(err);
-      return;
-    }
-    const int n = doc.object().value(QStringLiteral("Items")).toArray().size();
-    showNotice(tr("Connessione OK · %1 librerie").arg(n));
-  });
-}
+void AppController::testConnection() { settings_->testConnection(); }
 
 void AppController::showNotice(const QString& message) {
   if (message.isEmpty()) return;
