@@ -26,7 +26,7 @@ QString uiText(const char* text) {
 
 QString formatDuration(qint64 ticks) {
   if (ticks <= 0) return QString();
-  const qint64 minutes = ticks / 600000000LL;  // 10.000.000 tick al secondo
+  const qint64 minutes = ticks / 600000000LL;  // 10,000,000 ticks per second
   const qint64 h = minutes / 60;
   const qint64 m = minutes % 60;
   if (h > 0) return QStringLiteral("%1h %2m").arg(h).arg(m, 2, 10, QLatin1Char('0'));
@@ -42,15 +42,15 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     emit error(m);
   });
 
-  // Token revocato o scaduto: non si resta bloccati su una home vuota.
+  // Token revoked or expired: don't stay stuck on an empty home screen.
   connect(&client_, &JellyfinClient::unauthorized, this, [this]() {
     if (state_ == QLatin1String("login")) return;
     qWarning("[api] sessione non piu' valida: torno al login");
     logout();
   });
 
-  // L'OSD resta 5 s, poi sfuma: durante la pausa e con il pannello
-  // impostazioni aperto resta fermo.
+  // The OSD stays for 5 s, then fades out: it stays still during pause and
+  // while the settings panel is open.
   QSettings settings;
   defaultQualityKbps_ = settings.value(QStringLiteral("defaultQualityKbps"), 12000).toInt();
   {
@@ -70,15 +70,15 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   connect(&osdTimer_, &QTimer::timeout, this, [this]() {
     if (playerPaused_ || !playerActive_) return;
     if (!osdVisible_) return;
-    // Con il focus sulla barra di seek l'OSD resta fermo: l'utente sta
-    // scegliendo un punto e non deve perdere il cursore.
+    // With focus on the seek bar the OSD stays still: the user is
+    // choosing a point and must not lose the cursor.
     if (playerFocus_ == 0) return;
     osdVisible_ = false;
     emit osdChanged();
   });
 
-  // Il seek parte solo quando si conferma con A: muovendo il cursore il
-  // video non si interrompe e non c'e' alcun salto automatico per inattivita'.
+  // Seeking only starts when confirmed with A: moving the cursor does
+  // not interrupt the video and there is no automatic jump on inactivity.
   noticeTimer_.setSingleShot(true);
   noticeTimer_.setInterval(3000);
   connect(&noticeTimer_, &QTimer::timeout, this, [this]() {
@@ -87,9 +87,9 @@ AppController::AppController(QObject* parent) : QObject(parent) {
     emit noticeChanged();
   });
 
-  // Rete caduta: il player puo' restare bloccato in una fetch e non emettere
-  // "stalled". Questo watchdog guarda la posizione e mostra il cartello dopo
-  // 5 secondi senza avanzamento.
+  // Network down: the player can stay stuck in a fetch and never emit
+  // "stalled". This watchdog watches the position and shows the banner after
+  // 5 seconds without progress.
   stallWatch_.setInterval(1000);
   connect(&stallWatch_, &QTimer::timeout, this, [this]() {
     if (!playerActive_) {
@@ -118,7 +118,7 @@ AppController::AppController(QObject* parent) : QObject(parent) {
       return;
     }
     client_.quickConnectPoll(qcSecret_, [this](const QJsonDocument& doc, const QString& err) {
-      if (!err.isEmpty()) return;  // il polling ignora gli errori transitori
+      if (!err.isEmpty()) return;  // polling ignores transient errors
       const QJsonObject o = doc.object();
       if (!o.value(QStringLiteral("Authenticated")).toBool()) return;
       qcTimer_.stop();
@@ -147,15 +147,15 @@ AppController::AppController(QObject* parent) : QObject(parent) {
   QTimer::singleShot(0, this, &AppController::applyConfigFile);
 }
 
-// Il firmware copia steamlink/config/* in /mnt/config/ a ogni avvio: quel
-// percorso e' persistente e leggibile dall'app. Serve perche' la scoperta UDP
-// non attraversa Docker (rete bridge) ne' reti con broadcast isolato.
+// The firmware copies steamlink/config/* to /mnt/config/ on every boot: that
+// path is persistent and readable by the app. It is needed because UDP discovery
+// does not cross Docker (bridge network) or networks with isolated broadcast.
 //
-// Formato del file (una riga, # per i commenti):
+// File format (one line, # for comments):
 //   https://jellyfin.example.com
-// Le vecchie direttive user=/pass= sono ignorate: le credenziali non vanno
-// scritte in un file di testo sulla chiavetta. Si usa la schermata di accesso
-// o Quick Connect.
+// The old user=/pass= directives are ignored: credentials must not be
+// written to a text file on the USB stick. Use the login screen
+// or Quick Connect.
 void AppController::applyConfigFile() {
   const QStringList candidates = {
       QStringLiteral("/mnt/config/system/jellyfin-server.txt"),
@@ -287,8 +287,8 @@ void AppController::openPlayerMenu(const QString& mode) {
   playerMenuItems_.clear();
   playerMenuMode_ = mode;
 
-  // Il ritardo audio non e' una lista: e' un popup con due frecce e passi
-  // da 100 ms. Il valore si applica solo alla conferma.
+  // The audio delay is not a list: it is a popup with two arrows and 100 ms
+  // steps. The value is applied only on confirmation.
   if (mode == QLatin1String("avdelay")) {
     audioDelayBeforeMenu_ = audioDelayMs_;
     playerMenuOpen_ = true;
@@ -470,9 +470,9 @@ void AppController::setManualServer(const QString& url) {
   QString u = NormalizeServerUrl(url);
   if (u.isEmpty()) return;
 
-  // HTTP locale: Jellyfin usa 8096. HTTPS pubblico: si lascia la porta
-  // predefinita (443) o quella scritta dall'utente, per non indovinare male
-  // dietro un reverse proxy.
+  // Local HTTP: Jellyfin uses 8096. Public HTTPS: leave the default
+  // port (443) or the one written by the user, to avoid guessing wrong
+  // behind a reverse proxy.
   const bool secure = u.startsWith(QLatin1String("https://"));
   const int schemeEnd = u.indexOf(QLatin1String("://"));
   const QString hostPart = schemeEnd >= 0 ? u.mid(schemeEnd + 3) : u;
@@ -557,8 +557,8 @@ void AppController::logout() {
   emit detailChanged();
   setLoading(false);
   setStatus(QString());
-  // Dopo un logout si sceglie il server: quello salvato resta in cima,
-  // così si rientra con un tasto o si passa a un altro.
+  // After a logout you choose the server: the saved one stays at the top,
+  // so you get back in with one key or switch to another.
   setState(QStringLiteral("login"));
   discover();
 }
@@ -588,7 +588,7 @@ void AppController::afterLogin() {
     for (const QJsonValue& v : items) {
       const QJsonObject o = v.toObject();
       const QString type = o.value(QStringLiteral("CollectionType")).toString();
-      // Musica/playlist non hanno senso in questa prima versione.
+      // Music/playlists make no sense in this first version.
       if (type == QLatin1String("music") || type == QLatin1String("playlists")) continue;
       QVariantMap m;
       m.insert(QStringLiteral("id"), o.value(QStringLiteral("Id")).toString());
@@ -602,9 +602,9 @@ void AppController::afterLogin() {
       views_.append(m);
     }
     emit viewsChanged();
-    // "Aggiunti di recente": una chiamata per libreria, cosi' ogni card sa
-    // da dove arriva (utile per i doppioni tra librerie) e l'ordine resta
-    // cronologico.
+    // "Recently added": one call per library, so each card knows where it comes
+    // from (useful for duplicates across libraries) and the order stays
+    // chronological.
     loadLatest(gen);
   });
 
@@ -616,7 +616,7 @@ void AppController::afterLogin() {
     }
   });
 
-  // "Prossimo episodio": il prossimo non visto delle serie gia' iniziate.
+  // "Next up": the next unwatched episode of already started series.
   client_.fetchNextUp(20, [this, gen](const QJsonDocument& doc, const QString& err) {
     if (gen != homeGen_) return;
     if (err.isEmpty()) {
@@ -702,7 +702,7 @@ QVariantMap AppController::toMap(const QJsonObject& item) const {
   m.insert(QStringLiteral("officialRating"),
            item.value(QStringLiteral("OfficialRating")).toString());
 
-  // Dettagli tecnici dalla prima sorgente: risoluzione e audio.
+  // Technical details from the first source: resolution and audio.
   QString resolution;
   QString audio;
   const QJsonArray sources = item.value(QStringLiteral("MediaSources")).toArray();
@@ -745,7 +745,7 @@ QVariantMap AppController::toMap(const QJsonObject& item) const {
   m.insert(QStringLiteral("duration"), duration);
   if (!duration.isEmpty()) subtitle += (subtitle.isEmpty() ? QString() : QStringLiteral(" · ")) + duration;
 
-  // Per gli episodi il titolo utile e' "Serie · S1 E3"
+  // For episodes the useful title is "Series · S1 E3"
   const QString series = item.value(QStringLiteral("SeriesName")).toString();
   if (!series.isEmpty()) {
     const int season = item.value(QStringLiteral("ParentIndexNumber")).toInt();
@@ -767,8 +767,8 @@ QVariantMap AppController::toMap(const QJsonObject& item) const {
                ? QString()
                : client_.imageUrl(id, QStringLiteral("Backdrop"), 1280, backdrops.at(0).toString()));
 
-  // --- card orizzontali (Continua a guardare / Prossimo episodio) ---------
-  // Gli episodi hanno come Primary lo screenshot 16:9; i film hanno il Thumb.
+  // --- horizontal cards (Continue watching / Next up) ---------
+  // Episodes use the 16:9 screenshot as Primary; movies use the Thumb.
   const double imgAspect = item.value(QStringLiteral("PrimaryImageAspectRatio")).toDouble();
   const QString thumbTag = tags.value(QStringLiteral("Thumb")).toString();
   const QString primaryTag = tags.value(QStringLiteral("Primary")).toString();
@@ -873,7 +873,7 @@ void AppController::openFavorites() {
 
 void AppController::openItem(const QString& itemId) {
   const quint64 gen = ++itemGen_;
-  // Se e' un altro titolo, non mostrare per 10 s la scheda precedente.
+  // If it is a different title, don't show the previous card for 10 s.
   if (detail_.value(QStringLiteral("id")).toString() != itemId) {
     detail_.clear();
     detail_.insert(QStringLiteral("id"), itemId);
@@ -899,12 +899,12 @@ void AppController::openItem(const QString& itemId) {
     detail_.insert(QStringLiteral("tagline"), o.value(QStringLiteral("Tagline")).toString());
     emit detailChanged();
 
-    // tracce audio e sottotitoli del file
+    // audio and subtitle tracks of the file
     audioTracks_.clear();
     subtitleTracks_.clear();
     audioIndex_ = -1;
     subtitleIndex_ = -1;
-    // parte dalla qualità predefinita scelta nelle impostazioni
+    // starts from the default quality chosen in the settings
     qualityKbps_ = defaultQualityKbps_;
     const QJsonArray sources = o.value(QStringLiteral("MediaSources")).toArray();
     if (!sources.isEmpty()) {
@@ -1035,8 +1035,8 @@ void AppController::togglePlayed() {
       setStatus(err);
       return;
     }
-    // Come il server: segnare visto/non visto azzera anche la posizione di
-    // ripresa, altrimenti resterebbero "Riprendi" e "Riproduci dall'inizio".
+    // Like the server: marking watched/unwatched also resets the resume
+    // position, otherwise "Resume" and "Play from start" would remain.
     detail_.insert(QStringLiteral("played"), !played);
     detail_.insert(QStringLiteral("progress"), 0.0);
     detail_.insert(QStringLiteral("resumeTicks"), qint64(0));
@@ -1044,8 +1044,8 @@ void AppController::togglePlayed() {
     patchLists(id, QStringLiteral("played"), !played);
     patchLists(id, QStringLiteral("progress"), 0.0);
     patchLists(id, QStringLiteral("resumeTicks"), qint64(0));
-    // "Continua a guardare" e "Prossimo episodio" vanno ricalcolati dal
-    // server: una serie puo' far avanzare l'episodio successivo.
+    // "Continue watching" and "Next up" must be recalculated by the
+    // server: a series can advance to the next episode.
     QTimer::singleShot(400, this, &AppController::refreshHome);
     showNotice(!played ? tr("Segnato come visto")
                        : tr("Segnato come non visto"));
@@ -1083,7 +1083,7 @@ void AppController::playSeries(const QString& seriesId) {
           playEpisode(items.at(0).toObject());
           return;
         }
-        // Serie mai iniziata o gia' finita: primo episodio non visto.
+        // Series never started or already finished: first unwatched episode.
         client_.fetchEpisodes(
             seriesId, QString(),
             [this](const QJsonDocument& d2, const QString& e2) {
@@ -1239,9 +1239,9 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
   if (player_ != nullptr) {
     QElapsedTimer ot;
     ot.start();
-    // Scollega i segnali PRIMA di fermarlo: altrimenti il suo "finished"
-    // viene letto come fine riproduzione e chiude il player che stiamo
-    // riaprendo (cambio impostazioni / seek).
+    // Disconnect the signals BEFORE stopping it: otherwise its "finished"
+    // is read as end of playback and closes the player we are
+    // reopening (settings change / seek).
     QObject::disconnect(player_, nullptr, this, nullptr);
     player_->requestStop();
     const bool joined = player_->wait(8000);
@@ -1285,9 +1285,9 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
   emit playerChanged();
   emit playerPositionChanged();
 
-  // PlaybackInfo crea la sessione di transcode con tracce e bitrate. La
-  // posizione non passa da StartTimeTicks (il server la propaga ai segmenti,
-  // che la rifiutano): il player parte dal segmento che copre il tempo.
+  // PlaybackInfo creates the transcode session with tracks and bitrate. The
+  // position does not go through StartTimeTicks (the server propagates it to the
+  // segments, which reject it): the player starts from the segment that covers it.
   client_.fetchPlaybackInfo(
       itemId, startTicks, audioIndex_, subtitleIndex_, qualityKbps_,
       [this, itemId, startTicks, gen](const QJsonDocument& doc, const QString& err) {
@@ -1305,10 +1305,10 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
               url = client_.server() + url;
             }
             if (!url.isEmpty()) {
-              // L'URL del server porta le scelte *sue* (sottotitoli predefiniti
-              // in burn-in, traccia audio, StartTimeTicks). Lo riscriviamo con
-              // le nostre: senza questo il server brucia i sottotitoli anche
-              // se l'utente li ha spenti.
+              // The server URL carries *its own* choices (default subtitles
+              // burned in, audio track, StartTimeTicks). We rewrite it with
+              // ours: without this the server burns in the subtitles even
+              // if the user turned them off.
               QUrl u(url);
               QUrlQuery q(u);
               const QStringList managed{
@@ -1329,28 +1329,28 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                QString::number(audioIndex_));
               }
               if (subtitleIndex_ >= 0) {
-                // traccia scelta: unica via possibile sul Link, burn-in
+                // selected track: the only possible way on the Link, burn-in
                 q.addQueryItem(QStringLiteral("SubtitleStreamIndex"),
                                QString::number(subtitleIndex_));
                 q.addQueryItem(QStringLiteral("SubtitleMethod"),
                                QStringLiteral("Encode"));
               } else {
-                // spenti: -1 esplicito, il server non ne sceglie una da solo
+                // off: explicit -1, the server does not pick one on its own
                 q.addQueryItem(QStringLiteral("SubtitleStreamIndex"),
                                QStringLiteral("-1"));
               }
-              // Il decoder del Link arriva a 1920x1080: senza questo limite
-              // Jellyfin puo' mandare 2560x1072 da sorgenti 4K e SLVideo
-              // rifiuta ogni frame con "stream macroblock error".
+              // The Link decoder goes up to 1920x1080: without this limit
+              // Jellyfin can send 2560x1072 from 4K sources and SLVideo
+              // rejects every frame with "stream macroblock error".
               q.addQueryItem(QStringLiteral("MaxWidth"), QStringLiteral("1920"));
               q.addQueryItem(QStringLiteral("MaxHeight"), QStringLiteral("1080"));
-              // Il Link decodifica solo H.264/AAC: forziamo il re-encode per
-              // avere timestamp e pacing prevedibili (il copy faceva scattare).
+              // The Link only decodes H.264/AAC: we force re-encode to
+              // get predictable timestamps and pacing (copy made it stutter).
               q.addQueryItem(QStringLiteral("EnableAutoStreamCopy"), QStringLiteral("false"));
               q.addQueryItem(QStringLiteral("AllowVideoStreamCopy"), QStringLiteral("false"));
               q.addQueryItem(QStringLiteral("AllowAudioStreamCopy"), QStringLiteral("false"));
-              // Il token viaggia nell'header Authorization del player, non
-              // nella query string (che finisce nei log del server/proxy).
+              // The token travels in the player's Authorization header, not
+              // in the query string (which ends up in server/proxy logs).
               q.removeAllQueryItems(QStringLiteral("api_key"));
               q.removeAllQueryItems(QStringLiteral("ApiKey"));
               u.setQuery(q);
@@ -1358,8 +1358,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
             }
             const QString psid = s0.value(QStringLiteral("PlaySessionId")).toString();
             if (!psid.isEmpty()) playSessionId_ = psid;
-            // La dashboard Jellyfin mostra la sessione corretta solo se sa
-            // quale media source e che e' un transcode.
+            // The Jellyfin dashboard shows the correct session only if it knows
+            // which media source it is and that it is a transcode.
             const QString msid = s0.value(QStringLiteral("Id")).toString();
             mediaSourceId_ = msid.isEmpty() ? itemId : msid;
           }
@@ -1370,7 +1370,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                                     startTicks, audioIndex_, subtitleIndex_);
         }
         if (url.isEmpty()) {
-          // Niente player "alla cieca": schermo nero per 8 s e poi chiusura.
+          // No "blind" player: black screen for 8 s and then it closes.
           qWarning("[player] avvio annullato: %s",
                    qPrintable(RedactSecrets(err)));
           playerActive_ = false;
@@ -1386,8 +1386,8 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           emit osdChanged();
           return;
         }
-        // Il server accetta PlayMethod=Transcode solo se il PlaySessionId e'
-        // quello del job di transcodifica, cioe' quello nell'URL del flusso.
+        // The server accepts PlayMethod=Transcode only if the PlaySessionId is
+        // the one of the transcode job, that is, the one in the stream URL.
         {
           const QUrlQuery streamQuery{QUrl(url)};
           const QString urlPsid =
@@ -1432,9 +1432,9 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
                 });
           }
         });
-        // Il player segnala lo stallo dopo 5 s, ma il cartello lo mostra solo
-        // il watchdog a 10 s. Qui usiamo il segnale solo per nasconderlo
-        // appena i dati tornano.
+        // The player reports the stall after 5 s, but only the watchdog
+        // shows the banner at 10 s. Here we use the signal only to hide it
+        // as soon as the data comes back.
         connect(player_, &Player::stalled, this, [this](bool stalled) {
           if (!stalled && playerStalled_) {
             playerStalled_ = false;
@@ -1466,7 +1466,7 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
           nextEpisodeDismissed_ = false;
           emit nextEpisodeChanged();
           emit playerChanged();
-          // la home deve riflettere subito "Continua a guardare" e il prossimo episodio
+          // the home must immediately reflect "Continue watching" and the next episode
           QTimer::singleShot(800, this, &AppController::refreshHome);
         });
 
@@ -1488,13 +1488,21 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
       });
 }
 
-void AppController::teardownPlayer() {
+void AppController::shutdown() {
+  if (teardownPlayer()) {
+    Player::releaseDisplay();
+  } else {
+    qWarning("[shutdown] player thread still running: display release skipped");
+  }
+}
+
+bool AppController::teardownPlayer() {
   ++playbackGen_;
   stallWatch_.stop();
   playerStalled_ = false;
   if (player_ == nullptr) {
     qInfo("[diag] teardownPlayer: nessun player");
-    return;
+    return true;
   }
   QElapsedTimer t;
   t.start();
@@ -1519,6 +1527,7 @@ void AppController::teardownPlayer() {
   emit osdChanged();
   emit playerUiChanged();
   emit playerMenuChanged();
+  return joined;
 }
 
 void AppController::stopPlayback() {
@@ -1545,7 +1554,7 @@ void AppController::cycleAudio(int delta) {
 }
 
 void AppController::cycleSubtitle(int delta) {
-  // -1 = spenti, poi le tracce
+  // -1 = off, then the tracks
   const int count = subtitleTracks_.size() + 1;
   int pos = 0;
   if (subtitleIndex_ >= 0) {
@@ -1572,7 +1581,7 @@ void AppController::showOsd() {
   if (!playerActive_) return;
   if (!seekPending_) seekPreview_ = playerPosition_;
   if (!osdVisible_) {
-    // Entrando nell'OSD il focus parte da play/pausa, non dallo slider.
+    // When entering the OSD the focus starts on play/pause, not on the slider.
     osdVisible_ = true;
     playerFocus_ = 2;
     emit osdChanged();
@@ -1590,7 +1599,7 @@ void AppController::togglePause() {
   if (player_ == nullptr) return;
 
   if (!playerPaused_) {
-    // pausa: fermo l'invio di audio e video, il frame resta congelato
+    // pause: stop sending audio and video, the frame stays frozen
     playerPaused_ = true;
     player_->setPaused(true);
     seekPending_ = false;
@@ -1600,7 +1609,7 @@ void AppController::togglePause() {
     return;
   }
 
-  // ripresa: scongelo il decoder, il flusso e' rimasto aperto.
+  // resume: unfreeze the decoder, the stream has stayed open.
   playerPaused_ = false;
   player_->setPaused(false);
   seekPending_ = false;
@@ -1639,8 +1648,8 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
     emit osdChanged();
   }
 
-  // La barra sta SOPRA i pulsanti: giu' porta ai pulsanti, su dalla barra
-  // nasconde subito l'OSD (solo video, senza aspettare i 5 s).
+  // The bar is ABOVE the buttons: down leads to the buttons, up from the bar
+  // hides the OSD immediately (video only, without waiting 5 s).
   if (!wasHidden) {
     if (dy < 0) {
       if (playerFocus_ == 0) {
@@ -1654,20 +1663,20 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
       }
       playerFocus_ = 0;
     } else if (dy > 0 && playerFocus_ == 0) {
-      // Lasciando lo slider senza OK il seek in sospeso viene annullato.
+      // Leaving the slider without OK cancels the pending seek.
       seekPending_ = false;
       seekPreview_ = playerPosition_;
-      playerFocus_ = 2;   // play/pausa, al centro della riga
+      playerFocus_ = 2;   // play/pause, in the middle of the row
     }
   }
 
   if (dx != 0) {
     if (playerFocus_ == 0) {
-      // Accelerazione: scatti consecutivi nella stessa direzione allargano
-      // il passo. Con lo stick, che ripete, si attraversano anche i film
-      // lunghi senza premere decine di volte.
-      // L'accelerazione scatta solo con l'auto-repeat dello stick.
-      // Una pressione singola (D-pad o stick appena mosso) fa sempre il passo base.
+      // Acceleration: consecutive presses in the same direction widen
+      // the step. With the stick, which repeats, you can move through even
+      // long movies without pressing dozens of times.
+      // Acceleration only kicks in with stick auto-repeat.
+      // A single press (D-pad or stick just moved) always takes the base step.
       if (dx != seekDirection_) {
         seekSteps_ = 0;
         seekDirection_ = dx;
@@ -1678,7 +1687,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
       }
 
       double step;
-      // tetto a 3 minuti: oltre si salta troppo e si perde il punto
+      // cap at 3 minutes: beyond that you jump too far and lose your place
       if (seekSteps_ < 3) step = dx > 0 ? 30.0 : -10.0;
       else if (seekSteps_ < 6) step = dx > 0 ? 60.0 : -60.0;
       else step = dx > 0 ? 180.0 : -180.0;
@@ -1713,7 +1722,7 @@ void AppController::playerConfirm() {
   }
   if (!playerActive_) return;
   if (!osdVisible_) {
-    // Prima le due schede "urgenti": connessione persa e prossimo episodio.
+    // First the two "urgent" cards: connection lost and next episode.
     if (playerStalled_) {
       retryPlayback();
       return;
@@ -1736,7 +1745,7 @@ void AppController::playerConfirm() {
       seekPending_ = true;
       commitSeek();
       break;
-    case 2:  // play / pausa
+    case 2:  // play / pause
       togglePause();
       break;
     case 3:  // +30 s
@@ -1778,8 +1787,8 @@ void AppController::commitSeek() {
 void AppController::playerBack() {
   if (playerMenuOpen_) {
     if (playerMenuMode_ == QLatin1String("avdelay")) {
-      // Anche B chiude confermando: il valore impostato non deve tornare a 0
-      // quando si riapre il popup.
+      // B also closes by confirming: the set value must not go back to 0
+      // when the popup is reopened.
       const bool changed = audioDelayMs_ != audioDelayBeforeMenu_;
       saveDefaults();
       playerMenuClose();

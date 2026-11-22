@@ -43,6 +43,8 @@ only to read the controller. SDL2 is licensed under the zlib license.
 Jellyfin: <https://jellyfin.org>
 
 PolypLink is an independent project, not affiliated with the Jellyfin project.
+It uses Jellyfin's public HTTP API only; no Jellyfin source code is included.
+See [PROVENANCE.md](PROVENANCE.md).
 
 ## Fonts
 

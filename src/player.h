@@ -26,10 +26,10 @@ struct AVCodecContext;
 struct AVCodecParserContext;
 struct SwrContext;
 
-// Motore di riproduzione: HLS -> demux TS -> H.264 a SLVideo, AAC -> PCM a SLAudio.
+// Playback engine: HLS -> TS demux -> H.264 to SLVideo, AAC -> PCM to SLAudio.
 //
-// Gira su un thread dedicato perche' la decodifica audio e il pacing video non
-// devono mai bloccare la UI. Il clock master e' l'audio: il video insegue.
+// It runs on a dedicated thread because audio decoding and video pacing must
+// never block the UI. The master clock is audio: video follows it.
 class Player : public QThread {
   Q_OBJECT
 
@@ -43,7 +43,7 @@ class Player : public QThread {
     qint64 startTicks = 0;
     qint64 durationTicks = 0;
     int maxBitrateKbps = 12000;
-    // Offset manuale audio/video: positivo ritarda l'audio, negativo lo anticipa.
+    // Manual audio/video offset: positive delays the audio, negative advances it.
     int audioDelayMs = 0;
   };
 
@@ -52,6 +52,9 @@ class Player : public QThread {
 
   void begin(const Config& config);
   void requestStop();
+  // Release the process-wide audio context. Call only after the player thread
+  // has stopped; the video context is released per playback by closeStreams().
+  static void releaseDisplay();
   void setPaused(bool paused);
   bool paused() const { return paused_.load(); }
   double positionSeconds() const { return position_.load(); }
@@ -62,7 +65,7 @@ class Player : public QThread {
   void positionChanged(double seconds);
   void failed(const QString& message);
   void finished();
-  // Nessun dato per un po': l'app mostra "connessione persa" senza chiudere.
+  // No data for a while: the app shows "connection lost" without closing.
   void stalled(bool stalled);
   void statsChanged(const QVariantMap& stats);
 
@@ -100,22 +103,22 @@ class Player : public QThread {
   QString playlistUrl_;
   QStringList segmentUrls_;
 
-  // coda dei segmenti scaricati da un thread separato: la rete non deve mai
-  // bloccare la presentazione dei frame
+  // queue of segments downloaded by a separate thread: the network must never
+  // block frame presentation
   std::deque<QByteArray> segmentQueue_;
   std::mutex queueMutex_;
   std::condition_variable queueCv_;
   class ProducerThread;
   ProducerThread* producer_ = nullptr;
   std::atomic<bool> producerFinished_{false};
-  // Solo per il build diagnostico: in che fase si trova il thread di rete.
+  // Diagnostic build only: which phase the network thread is in.
   std::atomic<int> producerState_{0};
   QElapsedTimer lastData_;
   bool stalled_ = false;
   QString producerError_;
   int nextSegment_ = 0;
-  // Il server non applica StartTimeTicks alla playlist: l'avvio a una
-  // posizione si fa partendo dal segmento che copre quel tempo.
+  // The server does not apply StartTimeTicks to the playlist: starting at a
+  // position is done by starting from the segment covering that time.
   bool startApplied_ = false;
   qint64 startOffsetTicks_ = 0;
   bool playlistEnded_ = false;
@@ -126,11 +129,11 @@ class Player : public QThread {
   // video
   std::vector<uint8_t> auBuf_;
   std::vector<std::pair<size_t, int64_t>> auPts_;
-  // scansione incrementale degli access unit (evita O(n^2) per segmento)
+  // incremental scanning of access units (avoids O(n^2) per segment)
   size_t auScanPos_ = 0;
   qint64 auLastStartCode_ = -1;
   bool auHasVcl_ = false;
-  // demux a pezzi: il feed di un segmento intero blocca il player per 100-300 ms
+  // demux in chunks: feeding a whole segment blocks the player for 100-300 ms
   QByteArray demuxBuf_;
   int demuxPos_ = 0;
   QElapsedTimer demuxTimer_;

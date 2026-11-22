@@ -36,6 +36,10 @@
 - Documentation now states explicitly that `--dev-ssh` sets the root password
   to `steamlink123` and installs the personal SSH key, and that the private key
   must stay outside the repository and release archives.
+- Replaced the small overlay-flush workaround derived from Moonlight (GPLv3)
+  with an independent clean-room implementation built only on the public
+  `SLVideo` API. No Moonlight code is included. Added `PROVENANCE.md`;
+  Jellyfin is used only through its public HTTP API.
 
 ### Added
 

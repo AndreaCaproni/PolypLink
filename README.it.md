@@ -267,8 +267,8 @@ meglio mandare i miglioramenti upstream che pubblicare fork vibecoded separati.
 
 Codice: **MIT**, vedi [LICENSE](LICENSE).
 
-Componenti di terze parti: [THIRD_PARTY.md](THIRD_PARTY.md)
-(FFmpeg LGPL 2.1+, SDK Valve, Qt).
+Provenienza e licenze di terze parti: [PROVENANCE.md](PROVENANCE.md) e
+[THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+, SDK Valve, Qt).
 
 I pacchetti di release includono una cartella `licenses/` con licenza MIT,
 testo LGPL di FFmpeg, offerta della sorgente FFmpeg e note di terze parti.

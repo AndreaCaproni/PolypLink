@@ -10,8 +10,8 @@
 #include "jellyfinclient.h"
 #include "player.h"
 
-// Ponte tra l'API Jellyfin e la UI QML. Espone liste gia' pronte per le viste
-// (QVariantList di QVariantMap) per evitare modelli C++ da mantenere.
+// Bridge between the Jellyfin API and the QML UI. It exposes lists ready for the views
+// (QVariantList of QVariantMap) to avoid maintaining C++ models.
 class AppController : public QObject {
   Q_OBJECT
 
@@ -57,11 +57,11 @@ class AppController : public QObject {
   Q_PROPERTY(QVariantList playerMenuItems READ playerMenuItems NOTIFY playerMenuChanged)
   Q_PROPERTY(int playerMenuIndex READ playerMenuIndex NOTIFY playerMenuChanged)
   Q_PROPERTY(int audioDelayMs READ audioDelayMs NOTIFY playerMenuChanged)
-  // OSD del player: visibile per 5 s dopo l'ultimo comando, poi sfuma.
+  // Player OSD: visible for 5 s after the last command, then it fades out.
   Q_PROPERTY(bool osdVisible READ osdVisible NOTIFY osdChanged)
-  // Navigazione dell'OSD: 0 = barra di seek, 1 = -10 s, 2 = play/pausa,
-  // 3 = +30 s, 4 = audio, 5 = sottotitoli, 6 = qualita',
-  // 7 = ritardo audio, 8 = statistiche.
+  // OSD navigation: 0 = seek bar, 1 = -10 s, 2 = play/pause,
+  // 3 = +30 s, 4 = audio, 5 = subtitles, 6 = quality,
+  // 7 = audio delay, 8 = stats.
   Q_PROPERTY(int playerFocus READ playerFocus NOTIFY playerUiChanged)
   Q_PROPERTY(double seekPreview READ seekPreview NOTIFY playerUiChanged)
   Q_PROPERTY(bool seekPending READ seekPending NOTIFY playerUiChanged)
@@ -84,6 +84,9 @@ class AppController : public QObject {
 
  public:
   explicit AppController(QObject* parent = nullptr);
+
+  // Stop playback and release the process-wide display contexts on exit.
+  void shutdown();
 
   QString state() const { return state_; }
   QString statusMessage() const { return status_; }
@@ -182,7 +185,7 @@ class AppController : public QObject {
   Q_INVOKABLE void cycleSubtitle(int delta);
   Q_INVOKABLE void cycleQuality(int delta);
   Q_INVOKABLE void restartPlaybackAtPosition();
-  // OSD navigabile (tasti instradati da main.cpp)
+  // Navigable OSD (keys routed from main.cpp)
   Q_INVOKABLE void playerNavigate(int dx, int dy, bool autoRepeat = false);
   Q_INVOKABLE void playerConfirm();
   Q_INVOKABLE void playerBack();
@@ -229,7 +232,7 @@ class AppController : public QObject {
   void openPlayerMenu(const QString& mode);
   void saveDefaults();
   void playEpisode(const QJsonObject& episode);
-  void teardownPlayer();
+  bool teardownPlayer();
   void loadNextEpisode(const QString& seriesId, const QString& currentId);
   void loadLatest(quint64 gen);
   void commitSeek();
@@ -295,16 +298,16 @@ class AppController : public QObject {
   bool osdVisible_ = false;
   QTimer osdTimer_;
   int playerFocus_ = 0;
-  // scatti consecutivi sulla barra: il passo cresce (30 s -> 1 -> 5 -> 10 min)
+  // consecutive presses on the bar: the step grows (30 s -> 1 -> 5 -> 10 min)
   int seekDirection_ = 0;
   int seekSteps_ = 0;
   double seekPreview_ = 0;
   bool seekPending_ = false;
   bool statsOpen_ = false;
   bool progressInFlight_ = false;
-  // Ogni avvio invalida le callback di PlaybackInfo ancora in volo.
+  // Every start invalidates PlaybackInfo callbacks still in flight.
   quint64 playbackGen_ = 0;
-  // Ogni richiesta asincrona vecchia viene ignorata quando ne parte una nuova.
+  // Every old async request is ignored when a new one starts.
   quint64 itemGen_ = 0;
   quint64 libraryGen_ = 0;
   quint64 homeGen_ = 0;

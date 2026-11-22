@@ -75,6 +75,15 @@ username/password or Quick Connect.
 - `polyplink-@VERSION@.tgz` — the app package only.
 - `SHA256SUMS` — checksums for both assets.
 
+## Licensing
+
+- No Moonlight source code is included. The Steam Link integration uses Valve's
+  SDK headers and API; the display-plane workaround is an independent
+  clean-room implementation built on the public `SLVideo` API.
+- Jellyfin is used only through its public HTTP API. No Jellyfin server, web
+  client or SDK source code is included.
+- See `PROVENANCE.md` in the repository for details.
+
 ## Known limitations
 
 - Transcoding must be enabled on the Jellyfin server.

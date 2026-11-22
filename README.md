@@ -269,8 +269,8 @@ vibecoded forks.
 
 Code: **MIT**, see [LICENSE](LICENSE).
 
-Third-party components: [THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+,
-Valve SDK, Qt).
+Provenance and third-party licensing: [PROVENANCE.md](PROVENANCE.md) and
+[THIRD_PARTY.md](THIRD_PARTY.md) (FFmpeg LGPL 2.1+, Valve SDK, Qt).
 
 Release packages include a `licenses/` folder with the MIT license, the FFmpeg
 LGPL text, the FFmpeg source offer and the third-party notices.

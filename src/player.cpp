@@ -33,8 +33,8 @@ extern "C" {
 
 namespace {
 
-// Traccia su file, indipendente dal sistema di log di Qt: serve quando il
-// thread del player non riesce a scrivere nel log principale.
+// File trace, independent of the Qt logging system: needed when the
+// player thread cannot write to the main log.
 void Trace(const char* fmt, ...) {
   FILE* f = fopen("/tmp/player.trace", "a");
   if (f == nullptr) return;
@@ -108,13 +108,13 @@ void Player::requestStop() {
   qInfo("[diag] requestStop (thread %p, producerState=%d, coda=%d)", tid(),
         producerState_.load(), static_cast<int>(segmentUrls_.size()));
   stop_.store(true);
-  // sveglia subito chi aspetta un segmento: senza questo lo stop poteva
-  // restare appeso fino a 15 s e il thread veniva distrutto ancora attivo.
+  // wake immediately whoever is waiting for a segment: without this the stop could
+  // hang for up to 15 s and the thread was destroyed while still active.
   queueCv_.notify_all();
 }
 
-// Il thread di rete deve essere un QThread: in un std::thread i QTimer (timeout
-// e abort su stop) non funzionano e il player restava bloccato per secondi.
+// The network thread must be a QThread: in a std::thread the QTimers (timeout
+// and abort on stop) do not work and the player stayed stuck for seconds.
 class Player::ProducerThread : public QThread {
  public:
   explicit ProducerThread(Player* owner) : owner_(owner) {}
@@ -126,7 +126,7 @@ class Player::ProducerThread : public QThread {
 void Player::setPaused(bool paused) {
   if (paused_.load() == paused) return;
   if (!paused) {
-    // alla ripresa dai al decoder un pre-roll piu' generoso per 1,5 s
+    // on resume give the decoder a more generous pre-roll for 1.5 s
     struct timespec ts {};
     clock_gettime(CLOCK_MONOTONIC, &ts);
     resumeLeadUntil_ = ts.tv_sec + ts.tv_nsec / 1e9 + 1.5;
@@ -137,8 +137,8 @@ void Player::setPaused(bool paused) {
 bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* out) {
   const QString requestUrl = StripTokenQuery(url);
   QNetworkRequest req{QUrl(requestUrl)};
-  // Nessun redirect: l'header Authorization non deve seguire un Location
-  // verso un altro host.
+  // No redirect: the Authorization header must not follow a Location
+  // to another host.
   req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, false);
   if (!cfg_.authHeader.isEmpty()) {
     req.setRawHeader("Authorization", cfg_.authHeader.toUtf8());
@@ -146,14 +146,14 @@ bool Player::fetch(QNetworkAccessManager& nam, const QString& url, QByteArray* o
 
   QNetworkReply* reply = nam.get(req);
 
-  // Timeout esplicito: Qt 5.14 non ha setTransferTimeout().
+  // Explicit timeout: Qt 5.14 does not have setTransferTimeout().
   QTimer timeout;
   timeout.setSingleShot(true);
   QObject::connect(&timeout, &QTimer::timeout, reply, &QNetworkReply::abort);
   timeout.start(15000);
 
-  // Se ci chiedono di fermarci, la richiesta in corso viene abortita subito:
-  // cosi' il thread esce in fretta e i contesti SLVideo vengono rilasciati.
+  // If we are asked to stop, the current request is aborted immediately:
+  // so the thread exits quickly and playback resources are released.
   QTimer stopper;
   stopper.setInterval(100);
   QObject::connect(&stopper, &QTimer::timeout, reply, [this, reply]() {
@@ -201,9 +201,49 @@ void SlAudioLogCallback(void*, ESLAudioLog level, const char* message) {
 }  // namespace
 
 namespace {
-// Un solo contesto video/audio per tutto il processo: distruggerli e ricrearli
-// a ogni film lascia il display in uno stato in cui il piano video non si
-// riaggancia (il primo film si vedeva, i successivi restavano neri).
+
+constexpr int kOutputWidth = 1280;
+constexpr int kOutputHeight = 720;
+
+// The Marvell compositor keeps the previous plane configuration after a
+// stream is destroyed: the next playback can show the last frame of the old
+// video until the display re-evaluates the plane. A short-lived overlay,
+// presented and hidden before the context is released, forces that refresh.
+// This is a clean-room workaround built only on the public SLVideo API.
+class PlaneRefresh {
+ public:
+  explicit PlaneRefresh(CSLVideoContext* context)
+      : overlay_(context == nullptr
+                     ? nullptr
+                     : SLVideo_CreateOverlay(context, kOutputWidth, kOutputHeight)) {}
+
+  ~PlaneRefresh() { release(); }
+
+  PlaneRefresh(const PlaneRefresh&) = delete;
+  PlaneRefresh& operator=(const PlaneRefresh&) = delete;
+
+  void run() {
+    if (overlay_ == nullptr) return;
+    SLVideo_SetOverlayDisplayFullscreen(overlay_);
+    SLVideo_ShowOverlay(overlay_);
+    SLVideo_HideOverlay(overlay_);
+  }
+
+  // Must be called before the owning video context is freed.
+  void release() {
+    if (overlay_ != nullptr) {
+      SLVideo_FreeOverlay(overlay_);
+      overlay_ = nullptr;
+    }
+  }
+
+ private:
+  CSLVideoOverlay* overlay_ = nullptr;
+};
+
+// One audio context for the whole process: recreating it for every movie
+// leaves the display in a state where the video plane does not reattach.
+// The video context is created and released per playback below.
 CSLAudioContext* g_audioCtx = nullptr;
 }  // namespace
 
@@ -215,8 +255,9 @@ bool Player::openStreams() {
   Trace("openStreams: creo SLVideo");
   qInfo("[player] creo contesto SLVideo");
   CSLVideoContext* videoCtx = nullptr;
-  for (int tentativo = 0; tentativo < 6 && videoCtx == nullptr && !stop_.load(); ++tentativo) {
-    if (tentativo > 0) msleep(300);
+  for (int attempt = 0; attempt < 6 && videoCtx == nullptr && !stop_.load();
+       ++attempt) {
+    if (attempt > 0) msleep(300);
     videoCtx = SLVideo_CreateContext();
   }
   qInfo("[player] SLVideo_CreateContext -> %p", static_cast<void*>(videoCtx));
@@ -225,7 +266,8 @@ bool Player::openStreams() {
     error_ = QStringLiteral("SLVideo_CreateContext fallita");
     return false;
   }
-  // low latency = 1: I/P frame, il caso per cui il decoder e' progettato
+
+  // low latency = 1: I/P frames, the case the decoder is designed for
   CSLVideoStream* stream = SLVideo_CreateStream(videoCtx, k_ESLVideoFormatH264, 1);
   if (stream == nullptr) {
     error_ = QStringLiteral("SLVideo_CreateStream fallita");
@@ -289,18 +331,12 @@ void Player::closeStreams() {
     videoStream_ = nullptr;
   }
   if (videoCtx_ != nullptr) {
-    // HACK (da Moonlight): crea un overlay a schermo intero, mostralo e
-    // nascondilo per forzare il compositore a riconfigurare il piano video.
-    // Senza questo, il film successivo resta congelato sull'ultimo frame.
-    CSLVideoOverlay* flushOverlay =
-        SLVideo_CreateOverlay(static_cast<CSLVideoContext*>(videoCtx_), 1280, 720);
-    if (flushOverlay != nullptr) {
-      SLVideo_SetOverlayDisplayFullscreen(flushOverlay);
-      SLVideo_ShowOverlay(flushOverlay);
-      SLVideo_HideOverlay(flushOverlay);
-      SLVideo_FreeOverlay(flushOverlay);
-    }
-    SLVideo_FreeContext(static_cast<CSLVideoContext*>(videoCtx_));
+    CSLVideoContext* context = static_cast<CSLVideoContext*>(videoCtx_);
+    PlaneRefresh refresh(context);
+    refresh.run();
+    // The overlay must be gone before the context is released.
+    refresh.release();
+    SLVideo_FreeContext(context);
     videoCtx_ = nullptr;
   }
   if (audioStream_ != nullptr) {
@@ -326,6 +362,15 @@ void Player::closeStreams() {
   }
 }
 
+void Player::releaseDisplay() {
+  // The video context is released per playback by closeStreams(); only the
+  // process-wide audio context is left to clean up here.
+  if (g_audioCtx != nullptr) {
+    SLAudio_FreeContext(g_audioCtx);
+    g_audioCtx = nullptr;
+  }
+}
+
 bool Player::loadPlaylist(QNetworkAccessManager& nam) {
   QByteArray body;
   if (!fetch(nam, cfg_.masterUrl, &body)) return false;
@@ -339,7 +384,7 @@ bool Player::loadPlaylist(QNetworkAccessManager& nam) {
       error_ = QStringLiteral("playlist senza varianti");
       return false;
     }
-    // dati della variante, per il pannello statistiche
+    // variant data, for the stats panel
   for (const QString& line : text.split(QLatin1Char('\n'))) {
     if (!line.startsWith(QLatin1String("#EXT-X-STREAM-INF"))) continue;
     const QString res = line.section(QLatin1String("RESOLUTION="), 1, 1).section(QLatin1Char(','), 0, 0);
@@ -388,9 +433,9 @@ bool Player::loadPlaylist(QNetworkAccessManager& nam) {
     segmentUrls_ = fresh;
   }
 
-  // Avvio a una posizione: il server mette in ogni segmento il suo
-  // runtimeTicks assoluto. Si parte dal segmento che copre startTicks e il
-  // server riavvia la transcodifica da li' (verificato: 200 in ~2,5 s).
+  // Starting at a position: the server puts its absolute runtimeTicks in
+  // each segment. We start from the segment covering startTicks and the
+  // server restarts transcoding from there (verified: 200 in ~2.5 s).
   if (!startApplied_ && !segmentUrls_.isEmpty()) {
     startApplied_ = true;
     const qint64 target = cfg_.startTicks;
@@ -434,7 +479,7 @@ bool Player::fetchNextSegment(QNetworkAccessManager& nam, QByteArray* out) {
           ++nextSegment_;
           return true;
         }
-        // 400/404 mentre la transcode sta partendo: riprova
+        // 400/404 while the transcode is starting: retry
         qInfo("[player] segmento %d non pronto, riprovo (%d)", nextSegment_, tentativo + 1);
       }
       return false;
@@ -481,8 +526,8 @@ bool Player::takeSegment(QByteArray* out, int timeoutMs) {
   return true;
 }
 
-// Thread di rete: scarica i segmenti e li mette in coda. Non tocca mai
-// SLVideo/SLAudio, cosi' non puo' far scattare la riproduzione.
+// Network thread: downloads segments and queues them. It never touches
+// SLVideo/SLAudio, so it cannot make playback stutter.
 void Player::producerLoop() {
   qInfo("[diag] producer start (thread %p)", tid());
   producerState_.store(1);
@@ -505,11 +550,11 @@ void Player::producerLoop() {
       pending = segmentQueue_.size();
     }
     if (pending >= 4) {
-      producerState_.store(3);  // coda piena
+      producerState_.store(3);  // queue full
       msleep(50);
       continue;
     }
-    producerState_.store(2);    // scarica segmento
+    producerState_.store(2);    // download segment
 
     QByteArray body;
     if (fetchNextSegment(nam, &body)) {
@@ -536,8 +581,8 @@ void Player::producerLoop() {
 
 void Player::onVideoPacket(const uint8_t* data, size_t size, int64_t pts) {
   if (size == 0) return;
-  // I frame possono essere spezzati su piu' PES (tipico a 1080p): accumulo il
-  // flusso elementare e ricostruisco gli access unit dai NAL, non dai PES.
+  // Frames can be split across multiple PES (typical at 1080p): I accumulate the
+  // elementary stream and rebuild the access units from the NALs, not from the PES.
   auPts_.push_back({auBuf_.size(), pts});
   auBuf_.insert(auBuf_.end(), data, data + size);
   scanAccessUnits();
@@ -550,7 +595,7 @@ void Player::emitAccessUnit(size_t from, size_t to) {
     if (b.first <= from) pts = b.second;
     else break;
   }
-  if (pts < 0) pts = lastVideoPts_ + 3754;  // ~23.976 fps di riserva
+  if (pts < 0) pts = lastVideoPts_ + 3754;  // ~23.976 fps fallback
   lastVideoPts_ = pts;
   videoQueue_.emplace_back(
       std::vector<uint8_t>(auBuf_.begin() + static_cast<long>(from),
@@ -565,8 +610,8 @@ void Player::scanAccessUnits() {
 
   size_t auStart = 0;
   bool hasVcl = auHasVcl_;
-  // ripartiamo dagli ultimi 4 byte gia' visti: una start code puo' essere
-  // spezzata tra due payload. Le start code gia' gestite vengono saltate.
+  // restart from the last 4 bytes already seen: a start code can be
+  // split across two payloads. Already handled start codes are skipped.
   size_t i = auScanPos_ > 4 ? auScanPos_ - 4 : 0;
 
   while (i + 4 < n) {
@@ -587,7 +632,7 @@ void Player::scanAccessUnits() {
     if (type == 9) {
       newAu = i > auStart;                                    // AUD
     } else if (isVcl) {
-      newAu = hasVcl && i + 4 < n && (auBuf_[i + 4] & 0x80);  // prima slice
+      newAu = hasVcl && i + 4 < n && (auBuf_[i + 4] & 0x80);  // first slice
     } else if (type == 6 || type == 7 || type == 8) {
       newAu = hasVcl;                                         // SEI/SPS/PPS
     }
@@ -604,7 +649,7 @@ void Player::scanAccessUnits() {
   const size_t scannedTo = i;
   if (auStart > 0) {
     auBuf_.erase(auBuf_.begin(), auBuf_.begin() + static_cast<long>(auStart));
-    // tieni un solo PTS di riferimento prima del taglio
+    // keep a single PTS of reference before the cut
     size_t keep = 0;
     while (keep + 1 < auPts_.size() && auPts_[keep + 1].first <= auStart) ++keep;
     if (keep > 0) auPts_.erase(auPts_.begin(), auPts_.begin() + static_cast<long>(keep));
@@ -735,7 +780,7 @@ bool Player::pushVideoFrame() {
              static_cast<int>(frame.first.size()));
     ++failedFrames_;
     videoQueue_.pop_front();
-    return true;  // non e' fatale: si prosegue
+    return true;  // it is not fatal: we continue
   }
   videoQueue_.pop_front();
   ++submittedFrames_;
@@ -756,7 +801,7 @@ void Player::run() {
   producer_ = new ProducerThread(this);
   producer_->start();
 
-  // aspetta che il producer abbia playlist e un paio di segmenti
+  // wait until the producer has the playlist and a couple of segments
   {
     std::unique_lock<std::mutex> lock(queueMutex_);
     queueCv_.wait_for(lock, std::chrono::seconds(25), [this] {
@@ -776,12 +821,12 @@ void Player::run() {
     return;
   }
 
-  // Il decoder ha bisogno del framerate atteso: senza, presenta i frame al
-  // suo ritmo interno e il video sembra scattoso anche se i dati sono a posto.
+  // The decoder needs the expected framerate: without it, it presents frames at
+  // its internal pace and the video looks choppy even if the data is fine.
   {
     double fps = stats_.value("framerate").toString().toDouble();
     if (fps <= 1.0) fps = 25.0;
-    // Il decoder del Link vuole un framerate intero (Moonlight passa interi):
+    // The Link decoder wants an integer framerate (Moonlight passes integers):
     // 23.976 -> 24, 29.97 -> 30.
     const unsigned fpsInt = static_cast<unsigned>(fps + 0.5);
     SLVideo_SetStreamTargetFramerate(static_cast<CSLVideoStream*>(videoStream_),
@@ -795,23 +840,23 @@ void Player::run() {
   qInfo("[player] avvio: %s", qPrintable(cfg_.title));
   emit started();
 
-  // Prebuffer: demux dei primi segmenti gia' scaricati dal producer.
+  // Prebuffer: demux of the first segments already downloaded by the producer.
   for (int i = 0; i < 2 && !stop_.load(); ++i) {
     QByteArray segment;
     if (!takeSegment(&segment, 15000)) break;
     demuxSegment(segment);
   }
-  // Allineamento: il clock audio parte dal primo campione inviato, che non e'
-  // per forza il primo frame video. Misuro lo scarto in PTS e lo compenso.
+  // Alignment: the audio clock starts from the first submitted sample, which is
+  // not necessarily the first video frame. I measure the offset in PTS and compensate for it.
   basePts_ = firstVideoPts_;
   if (firstAudioPts_ >= 0 && (basePts_ < 0 || firstAudioPts_ < basePts_)) {
     basePts_ = firstAudioPts_;
   }
   if (basePts_ < 0) basePts_ = 0;
 
-  // Se il primo campione audio cade piu' avanti del primo frame video, la
-  // compensazione corretta e' SILENZIO in testa all'audio: spostare il clock
-  // farebbe saltare i frame video (il video "partiva in ritardo").
+  // If the first audio sample falls later than the first video frame, the
+  // correct compensation is SILENCE at the head of the audio: shifting the clock
+  // would make the video frames skip (the video "started late").
   const double audioDelay =
       (firstAudioPts_ >= 0) ? (firstAudioPts_ - basePts_) / 90000.0 : 0.0;
   const double videoLead =
@@ -876,9 +921,9 @@ void Player::run() {
 
     const size_t pcmFrames = (pcm_.size() - pcmRead_) / kAudioChannels;
 
-    // Demux a pezzi: un segmento intero bloccherebbe il player per 100-300 ms
-    // ogni 3 s (il microlag). Prendiamo il segmento e lo diamo al demuxer in
-    // chunk allineati ai pacchetti TS da 188 byte.
+    // Demux in chunks: a whole segment would block the player for 100-300 ms
+    // every 3 s (the microlag). We take the segment and feed it to the demuxer in
+    // chunks aligned to 188-byte TS packets.
     if (demuxPos_ >= demuxBuf_.size()) {
       demuxBuf_.clear();
       demuxPos_ = 0;
@@ -912,14 +957,14 @@ void Player::run() {
       }
     }
 
-    // Niente nuovi segmenti da 5 s: mostra "connessione persa" senza chiudere.
+    // No new segments for 5 s: show "connection lost" without closing.
     if (!paused_.load() && !stalled_ && lastData_.elapsed() > 5000) {
       stalled_ = true;
       emit stalled(true);
     }
 
-    // Il producer ha chiuso: o e' finito il film, o e' morto per un errore.
-    // In entrambi i casi non si resta sul fermo immagine.
+    // The producer has closed: either the movie ended, or it died from an error.
+    // In both cases we do not stay on the freeze frame.
     if (producerFinished_.load() && !stop_.load()) {
       bool queueEmpty = false;
       {
@@ -937,9 +982,9 @@ void Player::run() {
       }
     }
 
-    // Il tempo lo detta l'orologio di sistema. L'audio serve solo come
-    // correzione lenta di deriva: cosi' i salti del buffer audio non fanno
-    // piu' correre il clock (era la causa degli scarti a raffica).
+    // Time is dictated by the system clock. Audio only serves as a
+    // slow drift correction: so audio buffer jumps no longer make
+    // the clock race (it was the cause of the bursts of drops).
     const double nowWall = wall.elapsed() / 1000.0;
     if (lastWall_ < 0.0) lastWall_ = nowWall;
     const double wallDelta = nowWall - lastWall_;
@@ -973,8 +1018,8 @@ void Player::run() {
       }
     }
 
-    // Video: in low-latency mode GetQueuedVideoMS() restituisce sempre 0,
-    // quindi il ritmo lo detta il tempo: un frame ogni 1/fps.
+    // Video: in low-latency mode GetQueuedVideoMS() always returns 0,
+    // so the pace is dictated by time: one frame every 1/fps.
     if (!videoQueue_.empty() && videoStream_ != nullptr) {
       struct timespec ts {};
       clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -989,7 +1034,7 @@ void Player::run() {
           qInfo("[player] primo frame video a t=%.2f s", nowWall);
         }
         nextVideoTime_ += interval;
-        // se siamo in ritardo di oltre mezzo secondo, riallinea senza accumulare
+        // if we are more than half a second late, resync without accumulating
         if (nextVideoTime_ < nowMono - 0.5) nextVideoTime_ = nowMono;
       }
     }
@@ -1049,8 +1094,8 @@ void Player::run() {
     if (joined) {
       delete producer_;
     } else {
-      // Meglio perdere il thread di rete che far abortire l'app: un QThread
-      // distrutto mentre gira e' un qFatal.
+      // Better to lose the network thread than abort the app: a QThread
+      // destroyed while running is a qFatal.
       qWarning("[player] producer non termina: lo lascio andare");
       producer_->setParent(nullptr);
     }
