@@ -3,10 +3,12 @@ PolypLink @VERSION@ — a native Jellyfin client for the Valve Steam Link (2015)
 No Chromium: Qt Quick/C++ with hardware H.264 decoding (SLVideo) and AAC audio
 (SLAudio). The server transcodes to H.264/AAC over HLS.
 
-This is a **security and reliability release** on top of 0.3.1: fixes for a TS
-demuxer out-of-bounds read, spoofed server discovery, wider log redaction and a
-clearer warning for unencrypted HTTP. The PolypLink rebrand and the player work
-from 0.3.0 are included.
+This is **0.3.3**: it replaces the last Moonlight-derived display workaround
+with an independent clean-room implementation, translates source comments to
+English, and fixes video-plane cleanup between plays and on exit. It includes
+all 0.3.2 security fixes: TS demuxer out-of-bounds read, spoofed server
+discovery, wider log redaction and a clearer warning for unencrypted HTTP. The
+PolypLink rebrand and the player work from 0.3.0 are included.
 
 ## Security
 
