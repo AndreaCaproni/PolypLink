@@ -7,7 +7,7 @@
 
 [![checks](https://github.com/AndreaCaproni/PolypLink/actions/workflows/check.yml/badge.svg)](https://github.com/AndreaCaproni/PolypLink/actions/workflows/check.yml)
 [![release](https://img.shields.io/github/v/release/AndreaCaproni/PolypLink?include_prereleases&label=release)](https://github.com/AndreaCaproni/PolypLink/releases)
-[![license](https://img.shields.io/github/license/AndreaCaproni/PolypLink)](LICENSE)
+[![license](https://img.shields.io/github/license/AndreaCaproni/PolypLink?style=flat)](LICENSE)
 ![platform](https://img.shields.io/badge/platform-Steam%20Link%202015-1b2838)
 
 **A native Jellyfin client for the Valve Steam Link (2015).**
