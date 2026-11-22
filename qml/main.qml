@@ -4,14 +4,14 @@ import "."
 
 Window {
     id: root
-    // La finestra resta visibile: nascondendola, su questo dispositivo EGLFS
-    // spegne il display e il piano video non viene piu' composto.
+    // The window stays visible: hiding it on this EGLFS device
+    // turns off the display and the video plane is no longer composited.
     visible: true
     width: Screen.width > 0 ? Screen.width : 1280
     height: Screen.height > 0 ? Screen.height : 720
     color: app.playerActive ? Theme.transparent : Theme.bg
 
-    // --- navigazione ---------------------------------------------------------
+    // --- navigation ----------------------------------------------------------
     property string page: "home"
     property bool detailOpen: false
     property bool overviewOpen: false
@@ -23,19 +23,19 @@ Window {
     property var settingsChoiceItems: []
     property int settingsChoiceIndex: 0
     property int settingsAudioDelay: 0
-    // Dopo "segna come visto" il pulsante replay puo' sparire: il focus deve
-    // seguire il pulsante Visto, non restare sull'indice numerico.
+    // After "mark as watched" the replay button may disappear: focus must
+    // follow the Watched button, not stay on the numeric index.
     property bool pendingPlayedFocus: false
     property int rowIndex: 0
-    // barra superiore: si raggiunge con "su" dalla prima riga
+    // top bar: reached with "up" from the first row
     property bool navFocus: false
     property int navIndex: 0
-    // pagina stagione: focus sui pulsanti (true) o sugli episodi (false)
+    // season page: focus on the buttons (true) or on the episodes (false)
     property bool seasonActionsFocus: false
     property int seasonAction: 0
 
-    // menu laterali di Impostazioni e Account: voci previste per la versione
-    // stabile, per ora segnaposto.
+    // Settings and Account side menus: entries planned for the stable
+    // version, placeholders for now.
     property int menuIndex: 0
     property string menuHint: ""
 
@@ -83,13 +83,13 @@ Window {
     property int detailFocus: 0
     property int epIndex: 0
 
-    // --- accesso -------------------------------------------------------------
+    // --- login ---------------------------------------------------------------
     property string authStep: "menu"     // menu | credentials
     property int authIndex: 0
     property string credUser: ""
     property string credPass: ""
 
-    // --- tastiera ------------------------------------------------------------
+    // --- keyboard ------------------------------------------------------------
     property bool keyboardOpen: false
     property string kbTarget: ""
 
@@ -184,8 +184,8 @@ Window {
         root.detailOpen = true
     }
 
-    // Come nel client ufficiale: se c'e' una ripresa, accanto a "Riprendi"
-    // compare "Guarda dall'inizio". Gli indici di focus si spostano di uno.
+    // As in the official client: if there is a resume point, next to "Resume"
+    // a "Watch from the beginning" option appears. Focus indices shift by one.
     function hasResume() {
         return app.detail.resumeTicks !== undefined && app.detail.resumeTicks > 0
     }
@@ -194,7 +194,7 @@ Window {
         return app.detail.type === "Series"
     }
 
-    // Episodio: ultimo pulsante "Vai alla serie completa".
+    // Episode: last button "Go to the full series".
     function hasSeriesLink() {
         return app.detail.type === "Episode" &&
                app.detail.seriesId !== undefined &&
@@ -214,9 +214,9 @@ Window {
         return (hasResume() ? 4 : 3) + (hasSeriesLink() ? 1 : 0)
     }
 
-    // Per le serie: 0 Riproduci, 1 Stagioni, 2 Visto, 3 Preferito (niente
-    // impostazioni di riproduzione). Per film/episodi restano gli indici di
-    // prima, con lo slot extra per la serie quando serve.
+    // For series: 0 Play, 1 Seasons, 2 Watched, 3 Favorite (no
+    // playback settings). For movies/episodes the previous indices
+    // remain, with the extra slot for the series when needed.
     function hasOverview() {
         return app.detail.overview !== undefined && app.detail.overview.length > 0
     }
@@ -430,7 +430,7 @@ Window {
             if (app.state === "home" && root.page === "home") {
                 root.focusContent()
             } else if (app.state === "login") {
-                // niente pagina "account" appesa dopo un logout
+                // no "account" page left hanging after a logout
                 root.page = "home"
                 root.detailOpen = false
                 root.navFocus = false
@@ -498,18 +498,18 @@ Window {
     }
 
     function moveGridRow(delta) {
-        // le colonne reali: quelle che il GridView sta disegnando
+        // the real columns: the ones the GridView is drawing
         var cols = libraryPage.columns
         var count = app.libraryItems.length
         if (count === 0) return
 
         var next = gridIndex + delta * cols
-        if (next < 0) {                            // sopra la prima riga: barra
+        if (next < 0) {                            // above the first row: nav bar
             navFocus = true
             navIndex = (page === "favorites") ? 1 : navLibraryIndex()
             return
         }
-        if (next >= count) return                  // non c'e' una riga sotto
+        if (next >= count) return                  // there is no row below
 
         gridIndex = next
         libraryPage.ensureVisible(gridIndex)
@@ -607,10 +607,10 @@ Window {
         Qt.quit()
     }
 
-    // --- tela virtuale 1280x720, scalata sulla risoluzione reale ------------
-    // Tutta la UI e' disegnata in coordinate 1280x720. Qui viene scalata per
-    // riempire lo schermo mantenendo le proporzioni: su un 1080p (o altro)
-    // nulla si rompe e nulla diventa microscopico.
+    // --- virtual canvas 1280x720, scaled to the real resolution ------------
+    // The whole UI is drawn in 1280x720 coordinates. Here it is scaled to
+    // fill the screen while keeping the aspect ratio: on a 1080p (or other)
+    // display nothing breaks and nothing becomes microscopic.
     Item {
         id: canvas
         visible: !app.playerActive
@@ -621,7 +621,7 @@ Window {
         x: Math.round((root.width - width * scale) / 2)
         y: Math.round((root.height - height * scale) / 2)
 
-    // ------------------------------------------------------------------ sfondo
+    // --------------------------------------------------------------- background
     Rectangle {
         anchors.fill: parent
         visible: !app.playerActive
@@ -696,7 +696,7 @@ Window {
         librariesTitle: qsTr("Librerie")
     }
 
-    // ---------------------------------------------------- HOME VUOTA / OFFLINE
+    // ----------------------------------------------------- EMPTY HOME / OFFLINE
     Item {
         anchors.fill: parent
         anchors.topMargin: header.height
@@ -776,7 +776,7 @@ Window {
         }
     }
 
-    // ----------------------------------------------------------------- LIBRERIA
+    // -------------------------------------------------------------------- LIBRARY
     LibraryPage {
         id: libraryPage
         anchors.fill: parent
@@ -792,7 +792,7 @@ Window {
         loading: app.loading
     }
 
-    // -------------------------------------------------------- IMPOSTAZIONI / ACCOUNT
+    // ---------------------------------------------------------- SETTINGS / ACCOUNT
     MenuPage {
         id: menuPage
         anchors.fill: parent
@@ -823,7 +823,7 @@ Window {
         comingSoonLabel: qsTr("Funzionalità in arrivo")
     }
 
-    // ------------------------------------------------------------------ STAGIONE
+    // --------------------------------------------------------------------- SEASON
     EpisodesPage {
         id: episodesPage
         anchors.fill: parent
@@ -848,7 +848,7 @@ Window {
         emptyLabel: qsTr("Nessun episodio in questa stagione")
     }
 
-    // ----------------------------------------------------------------- STAGIONI
+    // -------------------------------------------------------------------- SEASONS
     SeasonsPage {
         id: seasonsPage
         anchors.fill: parent
@@ -864,7 +864,7 @@ Window {
         loading: app.loading
     }
 
-    // ----------------------------------------------------------------- DETTAGLIO
+    // -------------------------------------------------------------------- DETAIL
     DetailPage {
         id: detailPage
         anchors.fill: parent
@@ -907,7 +907,7 @@ Window {
         subtitleLabelText: qsTr("Sottotitoli")
     }
 
-    // ------------------------------------------------------------------ tastiera
+    // ------------------------------------------------------------------ keyboard
     Item {
         anchors.fill: parent
         visible: root.keyboardOpen
@@ -967,7 +967,7 @@ Window {
         }
     }
 
-    // -------------------------------------------------------------------- stato
+    // -------------------------------------------------------------------- status
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -993,7 +993,7 @@ Window {
         bottomOffset: app.playerActive ? 260 : 44
     }
 
-    // ---------------------------------------------------------- TRAMA COMPLETA
+    // ---------------------------------------------------------- FULL SYNOPSIS
     OverviewOverlay {
         id: overviewOverlay
         anchors.fill: parent
@@ -1003,7 +1003,7 @@ Window {
     }
 
     }
-    // ------------------------------------------- SELEZIONE IMPOSTAZIONI
+    // ---------------------------------------------- SETTINGS SELECTION
     SettingsChoiceOverlay {
         id: settingsChoiceOverlay
         anchors.fill: parent
@@ -1016,7 +1016,7 @@ Window {
         audioDelay: root.settingsAudioDelay
     }
 
-    // ------------------------------------------------------- LINGUA INTERFACCIA
+    // ------------------------------------------------------ INTERFACE LANGUAGE
     LanguageOverlay {
         id: languageOverlay
         anchors.fill: parent
@@ -1060,8 +1060,8 @@ Window {
         focus: true
 
         Keys.onPressed: {
-            // Con una tastiera USB i tasti arrivano qui (il controller passa
-            // da main.cpp): stesso OSD, stessi comandi.
+            // With a USB keyboard the keys arrive here (the controller goes
+            // through main.cpp): same OSD, same commands.
             if (app.playerActive) {
                 if (event.key === Qt.Key_Return) { app.playerConfirm() }
                 else if (event.key === Qt.Key_Left) { app.playerNavigate(-1, 0) }
@@ -1074,7 +1074,7 @@ Window {
                 return
             }
 
-            // tastiera aperta: tutto va a lei
+            // keyboard open: everything goes to it
             if (root.keyboardOpen) {
                 if (event.key === Qt.Key_Up) { keyboard.move(0, -1); event.accepted = true; return }
                 if (event.key === Qt.Key_Down) { keyboard.move(0, 1); event.accepted = true; return }
@@ -1088,7 +1088,7 @@ Window {
                 return
             }
 
-            // barra superiore: sinistra/destra scelgono, A apre, giu' torna al contenuto
+            // top bar: left/right select, A opens, down returns to the content
             if (app.state === "home" && root.navFocus) {
                 if (event.key === Qt.Key_Left) { root.navIndex = Math.max(0, root.navIndex - 1); event.accepted = true; return }
                 if (event.key === Qt.Key_Right) { root.navIndex = Math.min(navSettingsIndex(), root.navIndex + 1); event.accepted = true; return }

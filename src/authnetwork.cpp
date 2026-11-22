@@ -26,7 +26,7 @@ class AuthNetworkAccessManager : public QNetworkAccessManager {
         target.port() == base.port()) {
       r.setRawHeader("Authorization", app_->authHeader().toUtf8());
     }
-    // Il token non deve seguire redirect verso altri host.
+    // The token must not follow redirects to other hosts.
     r.setAttribute(QNetworkRequest::FollowRedirectsAttribute, false);
     return QNetworkAccessManager::createRequest(op, r, outgoingData);
   }

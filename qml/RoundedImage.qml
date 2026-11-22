@@ -1,9 +1,9 @@
 import QtQuick 2.14
 import QtGraphicalEffects 1.0
 
-// Immagine con angoli arrotondati veri: Image non può essere ritagliata da un
-// Rectangle con radius (il clip di Qt è rettangolare), quindi si usa una
-// maschera. Il costo è un framebuffer per immagine, accettabile per poche card.
+// Image with real rounded corners: Image cannot be clipped by a
+// Rectangle with radius (Qt's clip is rectangular), so a
+// mask is used. The cost is one framebuffer per image, acceptable for a few cards.
 Item {
     id: ri
 

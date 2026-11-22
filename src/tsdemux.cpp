@@ -17,7 +17,7 @@ void TsDemux::feed(const uint8_t* data, size_t size) {
   while (offset + 188 <= size) {
     const uint8_t* pkt = data + offset;
     if (pkt[0] != 0x47) {
-      ++offset;  // risincronizza
+      ++offset;  // resynchronize
       continue;
     }
     offset += 188;
@@ -27,7 +27,7 @@ void TsDemux::feed(const uint8_t* data, size_t size) {
     const int afc = (pkt[3] >> 4) & 0x03;
 
     size_t payloadOffset = 4;
-    if (afc == 0 || afc == 2) continue;  // niente payload
+    if (afc == 0 || afc == 2) continue;  // no payload
     if (afc == 3) {
       const size_t afLen = pkt[4];
       payloadOffset = 5 + afLen;
@@ -82,7 +82,7 @@ void TsDemux::parsePat(const uint8_t* section, size_t size) {
   if (sectionLength + 3 > size) return;
 
   const uint8_t* p = section + 8;
-  const uint8_t* end = section + 3 + sectionLength - 4;  // senza CRC
+  const uint8_t* end = section + 3 + sectionLength - 4;  // without CRC
   while (p + 4 <= end) {
     const int program = (p[0] << 8) | p[1];
     const int pid = ((p[2] & 0x1F) << 8) | p[3];
@@ -124,9 +124,9 @@ void TsDemux::emitPes(int pid) {
   const size_t headerLength = 9 + pes[8];
   if (headerLength > pes.size()) return;
 
-  // Il flag PTS promette 5 byte a partire da pes[9]: senza questo controllo
-  // un PES troncato (header_data_length piccolo ma flag alzato) farebbe
-  // leggere oltre il buffer. Con PTS+DTS l'header minimo e' 19 byte.
+  // The PTS flag promises 5 bytes starting at pes[9]: without this check
+  // a truncated PES (small header_data_length but flag set) would read
+  // past the buffer. With PTS+DTS the minimum header is 19 bytes.
   if ((flags & 0x80) && headerLength < 14) return;
   if ((flags & 0x40) && headerLength < 19) return;
 

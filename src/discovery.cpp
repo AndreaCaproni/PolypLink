@@ -58,8 +58,8 @@ void Discovery::start() {
   retry_.start();
   timeout_.start();
 
-  // L'UDP di Jellyfin non attraversa Docker/bridge: in parallelo proviamo
-  // tutti gli indirizzi della subnet locale sulla porta 8096.
+  // Jellyfin UDP does not cross Docker/bridge: in parallel we try
+  // all addresses of the local subnet on port 8096.
   scanLan();
 }
 
@@ -91,7 +91,7 @@ void Discovery::scanLan() {
       if (entry.ip().protocol() != QAbstractSocket::IPv4Protocol) continue;
       const quint32 ip = entry.ip().toIPv4Address();
       if (ip == 0) continue;
-      const quint32 net = ip & 0xFFFFFF00u;  // la /24 dell'indirizzo locale
+      const quint32 net = ip & 0xFFFFFF00u;  // the /24 of the local address
       if (nets.contains(net)) continue;
       nets.insert(net);
       for (int host = 1; host < 255; ++host) {
@@ -164,8 +164,8 @@ void Discovery::onReadyRead() {
     const QString advertised = o.value(QStringLiteral("Address")).toString();
     if (advertised.isEmpty()) continue;
 
-    // L'UDP non e' autenticato: l'host pubblicizzato non e' attendibile.
-    // Usiamo l'IP del mittente e teniamo solo schema, porta e path.
+    // UDP is not authenticated: the advertised host is not trustworthy.
+    // We use the sender's IP and keep only scheme, port and path.
     const QString address =
         NormalizeDiscoveredAddress(advertised, datagram.senderAddress());
     if (address.isEmpty()) {

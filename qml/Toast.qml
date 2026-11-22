@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Toast comune a tutta l'app.
+// Toast shared by the whole app.
 Rectangle {
     id: toast
 

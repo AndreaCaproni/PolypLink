@@ -14,8 +14,8 @@ struct LanguageEntry {
   const char* name;
 };
 
-// Nome della lingua nella lingua stessa: cosi' il selettore resta leggibile
-// anche quando l'interfaccia e' in una lingua che non conosci.
+// Language name in the language itself: so the selector stays readable
+// even when the UI is in a language you do not know.
 const LanguageEntry kLanguages[] = {
     {"it", "Italiano"},
     {"en", "English"},
@@ -47,7 +47,7 @@ const LanguageEntry* FindLanguage(const QString& code) {
   return nullptr;
 }
 
-// Alla prima apertura segue la lingua del sistema, se disponibile.
+// On first launch it follows the system language, if available.
 QString DetectSystemLanguage() {
   const QStringList uiLanguages = QLocale::system().uiLanguages();
   for (QString tag : uiLanguages) {

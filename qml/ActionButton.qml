@@ -1,8 +1,8 @@
 import QtQuick 2.14
 import "."
 
-// Pulsante azione compatto: solo icona quando non ha il focus, icona + testo
-// quando lo ha. Icone disegnate (niente font di simboli).
+// Compact action button: icon only when it is not focused, icon + text
+// when it is. Hand-drawn icons (no symbol fonts).
 Rectangle {
     id: button
 
@@ -54,8 +54,8 @@ Rectangle {
                 ctx.closePath()
                 ctx.fill()
             } else if (button.icon === "replay") {
-                // cerchio aperto in alto + punta attaccata; specchiato perche'
-                // il "revert time" deve girare in senso antiorario.
+                // open circle at the top + attached arrowhead; mirrored because
+                // the "revert time" must turn counterclockwise.
                 ctx.save()
                 ctx.translate(24, 0)
                 ctx.scale(-1, 1)

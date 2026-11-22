@@ -1,9 +1,9 @@
 pragma Singleton
 import QtQuick 2.14
 
-// Palette e misure condivise. Un solo posto da cambiare per colori e spaziature.
+// Shared palette and metrics. A single place to change colors and spacing.
 QtObject {
-    // Sfondo
+    // Background
     readonly property color bg: "#0b0f14"
     readonly property color bgAlt: "#101922"
     readonly property color bgDeep: "#0a1118"
@@ -15,7 +15,7 @@ QtObject {
     readonly property color panelAlternate: "#121c26"
     readonly property color statusBar: "#0d151d"
 
-    // Selezione e bordi
+    // Selection and borders
     readonly property color selected: "#123243"
     readonly property color chip: "#182430"
     readonly property color border: "#1e2b38"
@@ -27,7 +27,7 @@ QtObject {
     readonly property color primaryActive: "#1d5a75"
     readonly property color key: "#18232e"
 
-    // Testo
+    // Text
     readonly property color text: "#ffffff"
     readonly property color textSoft: "#dbe5ef"
     readonly property color textMuted: "#9fb0c0"
@@ -37,7 +37,7 @@ QtObject {
     readonly property color textSubtleAlt: "#5f7c8f"
     readonly property color accentText: "#00121a"
 
-    // Accento e stati
+    // Accent and states
     readonly property color accent: "#00a4dc"
     readonly property color accentSoft: "#7fd9ff"
     readonly property color accentGlow: "#2200a4dc"
@@ -50,7 +50,7 @@ QtObject {
     readonly property color track: "#55ffffff"
     readonly property color transparent: "#00000000"
 
-    // Overlay
+    // Overlays
     readonly property color overlay: "#f20b0f14"
     readonly property color overlayLight: "#cc0b0f14"
     readonly property color overlayPanel: "#ee0b0f14"
@@ -62,7 +62,7 @@ QtObject {
     readonly property color toastBg: "#e6123243"
     readonly property color toastText: "#e6f7ff"
 
-    // Misure
+    // Metrics
     readonly property int designWidth: 1280
     readonly property int designHeight: 720
     readonly property int headerHeight: 56

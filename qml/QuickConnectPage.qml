@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Codice Quick Connect: l'utente lo inserisce dal pannello Jellyfin.
+// Quick Connect code: the user enters it from the Jellyfin panel.
 Item {
     property string code: ""
     property string status: ""

@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Griglia di una libreria o dei preferiti.
+// Grid of a library or of favorites.
 Item {
     id: libraryPage
 

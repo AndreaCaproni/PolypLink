@@ -1,5 +1,5 @@
-// Test del demuxer TS: verifica che un PES troncato non faccia leggere il PTS
-// oltre il buffer e che i PES malformati non arrivino al decoder.
+// TS demuxer test: verifies that a truncated PES does not cause the PTS to be
+// read past the buffer and that malformed PES packets never reach the decoder.
 #include "tsdemux.h"
 
 #include <cstdio>
@@ -17,9 +17,9 @@ void check(bool ok, const char* what) {
   }
 }
 
-// Pacchetto TS da 188 byte con esattamente il payload indicato. Se e' piu'
-// corto di 184 byte usa un adaptation field, cosi' possiamo costruire PES
-// troncati a piacere.
+// 188-byte TS packet with exactly the given payload. If it is shorter than
+// 184 bytes it uses an adaptation field, so we can build truncated PES packets
+// at will.
 std::vector<uint8_t> tsPacket(int pid, bool pusi,
                               const std::vector<uint8_t>& payload) {
   std::vector<uint8_t> pkt(188, 0xFF);
@@ -28,7 +28,7 @@ std::vector<uint8_t> tsPacket(int pid, bool pusi,
   pkt[2] = static_cast<uint8_t>(pid & 0xFF);
 
   if (payload.size() == 184) {
-    pkt[3] = 0x10;  // solo payload
+    pkt[3] = 0x10;  // payload only
     std::memcpy(pkt.data() + 4, payload.data(), payload.size());
   } else {
     const size_t afLen = 183 - payload.size();
@@ -108,26 +108,26 @@ struct Sink {
   }
 };
 
-// PES valido: PTS = 90000 e 5 byte di payload.
+// Valid PES: PTS = 90000 and 5 bytes of payload.
 std::vector<uint8_t> validPes() {
   std::vector<uint8_t> pes = {0x00, 0x00, 0x01, 0xE0,  // start code + video
                               0x00, 0x0D,              // packet_length
-                              0x80, 0x80, 0x05};       // PTS presente, header 5
+                              0x80, 0x80, 0x05};       // PTS present, header 5
   const std::vector<uint8_t> pts = {0x21, 0x00, 0x05, 0xBF, 0x21};
   pes.insert(pes.end(), pts.begin(), pts.end());
   pes.insert(pes.end(), {0x00, 0x00, 0x00, 0x01, 0x65});
   return pes;
 }
 
-// PES troncato: 9 byte in tutto, header_data_length = 0 ma flag PTS alzato.
-// Il vecchio codice leggeva pes[9..13] fuori dal buffer.
+// Truncated PES: 9 bytes in total, header_data_length = 0 but PTS flag set.
+// The old code read pes[9..13] past the end of the buffer.
 std::vector<uint8_t> truncatedPes() {
   return {0x00, 0x00, 0x01, 0xE0, 0x00, 0x00, 0x80, 0x80, 0x00};
 }
 
-// PES con header_data_length = 0 e 5 byte di payload: senza il controllo
-// sull'header minimo, i byte di payload verrebbero letti come PTS e consegnati
-// al decoder come se fossero il PES corretto.
+// PES with header_data_length = 0 and 5 bytes of payload: without the minimum
+// header check, the payload bytes would be read as the PTS and delivered to the
+// decoder as if they were the correct PES.
 std::vector<uint8_t> shortHeaderPes() {
   std::vector<uint8_t> pes = {0x00, 0x00, 0x01, 0xE0, 0x00, 0x08,
                               0x80, 0x80, 0x00};

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Controlli rapidi senza compilare: sintassi degli script e QML.
+# Quick checks without compiling: script syntax and QML.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

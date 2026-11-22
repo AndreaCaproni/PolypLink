@@ -1,8 +1,8 @@
 import QtQuick 2.14
 import "."
 
-// Play/pausa con simboli disegnati (niente glifi da font): due barre per la
-// pausa, triangolo per il play. Stessa pillola degli altri pulsanti OSD.
+// Play/pause with hand-drawn symbols (no font glyphs): two bars for
+// pause, a triangle for play. Same pill as the other OSD buttons.
 Rectangle {
     id: button
 

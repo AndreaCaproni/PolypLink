@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Messaggio centrato per librerie, stagioni ed episodi vuoti.
+// Centered message for empty libraries, seasons and episodes.
 Text {
     property string label: ""
 

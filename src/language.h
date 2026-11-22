@@ -7,8 +7,8 @@
 
 class QQmlApplicationEngine;
 
-// Gestisce la lingua dell'interfaccia: carica il file .qm dalla risorsa e
-// chiede al motore QML di rivalutare le stringhe qsTr() senza riavviare.
+// Manages the UI language: loads the .qm file from the resource and
+// asks the QML engine to re-evaluate qsTr() strings without restarting.
 class Language : public QObject {
   Q_OBJECT
 

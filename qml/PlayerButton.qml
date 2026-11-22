@@ -1,8 +1,8 @@
 import QtQuick 2.14
 import "."
 
-// Pulsante dell'OSD del player. Pillola come il resto della UI, con lo stesso
-// linguaggio visivo dei comandi del client Jellyfin.
+// Player OSD button. Pill like the rest of the UI, with the same
+// visual language as the Jellyfin client's controls.
 Rectangle {
     id: button
 

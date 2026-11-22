@@ -6,8 +6,8 @@
 class AppController;
 class QNetworkAccessManager;
 
-// Rete per le immagini QML: aggiunge l'header Authorization alle richieste
-// verso il server Jellyfin, così il token non deve stare nell'URL.
+// Network for QML images: adds the Authorization header to requests
+// to the Jellyfin server, so the token does not have to be in the URL.
 class AuthNetworkAccessManagerFactory : public QQmlNetworkAccessManagerFactory {
  public:
   explicit AuthNetworkAccessManagerFactory(AppController* app) : app_(app) {}

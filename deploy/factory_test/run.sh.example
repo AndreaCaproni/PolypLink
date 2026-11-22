@@ -1,19 +1,19 @@
 #!/bin/sh
-# Hook di boot per PolypLink (esempio, senza dati personali).
+# Boot hook for PolypLink (example, without personal data).
 #
-# Il firmware lo esegue come root all'avvio, mentre la chiavetta e' montata.
-# Serve solo a tenere abilitato SSH. Per usarlo:
+# The firmware runs it as root at boot, while the USB stick is mounted.
+# It only serves to keep SSH enabled. To use it:
 #
 #   cp run.sh.example run.sh
-#   # aggiungi la tua chiave pubblica nel blocco qui sotto
+#   # add your public key in the block below
 #
-# run.sh e' ignorato da git: conterra' la tua chiave (e, se vuoi, la password).
+# run.sh is ignored by git: it will contain your key (and, if you want, the password).
 
 mkdir -p /home/steam/.ssh /root/.ssh 2>/dev/null
 
-# --- la tua chiave pubblica, una sola riga -------------------------------
+# --- your public key, a single line --------------------------------------
 # cat > /root/.ssh/authorized_keys <<'KEY'
-# ssh-ed25519 AAAA... tu@esempio
+# ssh-ed25519 AAAA... you@example
 # KEY
 # cp -f /root/.ssh/authorized_keys /home/steam/.ssh/authorized_keys 2>/dev/null
 
@@ -21,7 +21,7 @@ chmod 700 /home/steam/.ssh /root/.ssh 2>/dev/null
 chmod 600 /home/steam/.ssh/authorized_keys /root/.ssh/authorized_keys 2>/dev/null
 chmod go-w /home/steam /root 2>/dev/null
 
-# Mantiene SSH abilitato anche dopo un factory reset
+# Keeps SSH enabled even after a factory reset
 touch /mnt/config/system/enable_ssh.txt 2>/dev/null
 
 exit 0

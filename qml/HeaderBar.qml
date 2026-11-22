@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Barra superiore: logo, schede Home/Preferiti, utente e impostazioni.
+// Top bar: logo, Home/Favorites tabs, user and settings.
 Rectangle {
     id: header
 
@@ -21,7 +21,7 @@ Rectangle {
     height: 56
     color: Theme.header
 
-    // logo PolypLink + nome dell'app
+    // PolypLink logo + app name
     Row {
         x: 24
         anchors.verticalCenter: parent.verticalCenter
@@ -71,7 +71,7 @@ Rectangle {
         }
     }
 
-    // schede: Home, Preferiti e librerie Jellyfin nello stesso ordine
+    // tabs: Home, Favorites and Jellyfin libraries in the same order
     Row {
         id: navTabs
         x: 220
@@ -150,7 +150,7 @@ Rectangle {
         text: appState === "login" ? qsTr("scegli il server") : serverLabel
     }
 
-    // account: avatar + nome utente, pillola che cresce verso sinistra
+    // account: avatar + user name, pill that grows to the left
     Rectangle {
         id: accountBtn
         height: 40
@@ -199,7 +199,7 @@ Rectangle {
         }
     }
 
-    // ingranaggio impostazioni
+    // settings gear icon
     Rectangle {
         id: settingsBtn
         width: 40

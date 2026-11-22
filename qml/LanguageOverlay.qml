@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Selettore della lingua dell'interfaccia.
+// Interface language selector.
 Item {
     id: languageOverlay
 

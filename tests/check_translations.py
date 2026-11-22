@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Controlli sulle traduzioni PolypLink, senza dipendere da lrelease."""
+"""PolypLink translation checks that do not depend on lrelease."""
 import glob
 import os
 import re

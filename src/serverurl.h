@@ -3,16 +3,16 @@
 
 #include <QString>
 
-// Normalizza l'indirizzo del server Jellyfin.
+// Normalizes the Jellyfin server address.
 //
-// Se lo schema manca, usa HTTPS per host pubblici e HTTP per host della rete
-// locale (IP privati, localhost, nomi .local/.lan/.home/.internal o nomi senza
-// dominio). Un server LAN tipico ascolta su HTTP:8096; un server pubblico deve
-// usare HTTPS per non spedire credenziali e token in chiaro.
+// If the scheme is missing, it uses HTTPS for public hosts and HTTP for local
+// network hosts (private IPs, localhost, .local/.lan/.home/.internal names or
+// names without a domain). A typical LAN server listens on HTTP:8096; a public
+// server must use HTTPS so credentials and tokens are not sent in the clear.
 QString NormalizeServerUrl(QString url);
 
-// Vero se l'URL usa HTTP verso un host che non e' il loopback: in quel caso
-// password e token viaggiano in chiaro sulla rete e la UI deve avvisare.
+// True if the URL uses HTTP to a host that is not loopback: in that case
+// passwords and tokens travel in the clear over the network and the UI must warn.
 bool IsInsecureHttpUrl(const QString& url);
 
 #endif  // SERVERURL_H

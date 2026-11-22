@@ -1,8 +1,8 @@
 import QtQuick 2.14
 import "."
 
-// OSD del player, menu tracce/qualità, statistiche, prossimo episodio e
-// schermata di connessione persa.
+// Player OSD, track/quality menus, statistics, next episode and
+// lost connection screen.
 Item {
     id: playerLayer
 
@@ -28,8 +28,8 @@ Item {
     x: Math.round((screenWidth - width * scale) / 2)
     y: Math.round((screenHeight - height * scale) / 2)
 
-    // OSD del player, sul modello Jellyfin: barra di seek con cursore,
-    // pulsanti di trasporto e tracce. Sfuma dopo 5 s.
+    // Player OSD, modeled on Jellyfin: seek bar with knob,
+    // transport buttons and tracks. Fades out after 5 s.
     Item {
         id: osdLayer
         anchors.fill: parent
@@ -75,7 +75,7 @@ Item {
                   "  /  " + formatTime(app.playerDuration)
         }
 
-        // barra di seek: bianco = destinazione, azzurro = gia' visto
+        // seek bar: white = target, light blue = already watched
         Item {
             id: osdBar
             anchors.left: parent.left
@@ -125,7 +125,7 @@ Item {
                    : 0
             }
 
-            // fumetto con il tempo di destinazione
+            // tooltip with the target time
             Rectangle {
                 visible: app.seekPending
                 width: 120
@@ -148,7 +148,7 @@ Item {
                 }
             }
 
-            // focus sulla barra
+            // focus on the bar
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: -8
@@ -188,7 +188,7 @@ Item {
 
     }
 
-    // ---------------------------------------- MENU AUDIO/SOTTOTITOLI/QUALITA'
+    // ---------------------------------------- AUDIO/SUBTITLES/QUALITY MENU
     Rectangle {
         id: playerMenu
         visible: app.playerMenuOpen && app.playerMenuMode !== "avdelay"
@@ -275,7 +275,7 @@ Item {
         }
     }
 
-    // ------------------------------------------------ RITARDO AUDIO
+    // ------------------------------------------------ AUDIO DELAY
     Rectangle {
         id: playerDelayPopup
         visible: app.playerMenuOpen && app.playerMenuMode === "avdelay"
@@ -331,7 +331,7 @@ Item {
         }
     }
 
-    // ---------------------------------------------------- CONNESSIONE PERSA
+    // ---------------------------------------------------- CONNECTION LOST
     Rectangle {
         id: stalledCard
         visible: app.playerStalled && app.playerActive
@@ -404,7 +404,7 @@ Item {
         }
     }
 
-    // ---------------------------------------------------- PROSSIMO EPISODIO
+    // ---------------------------------------------------- NEXT EPISODE
     Rectangle {
         id: nextCard
         visible: app.nextEpisodeVisible && !app.playerPaused && !app.osdVisible &&
@@ -499,7 +499,7 @@ Item {
         }
     }
 
-    // simbolo pausa: due barre, nessun glifo da font
+    // pause symbol: two bars, no font glyph
     Row {
         anchors.centerIn: parent
         spacing: 14
@@ -509,7 +509,7 @@ Item {
         Rectangle { width: 16; height: 52; radius: 3; color: Theme.text }
     }
 
-    // statistiche di transcodifica (tasto Start/Menu)
+    // transcoding statistics (Start/Menu key)
     Rectangle {
         visible: app.statsOpen
         z: 6

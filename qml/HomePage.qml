@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Home: righe Continue watching, Next up, Recently added e librerie.
+// Home: Continue watching, Next up, Recently added and libraries rows.
 Item {
     id: homePage
 

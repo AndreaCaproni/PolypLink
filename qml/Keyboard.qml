@@ -1,9 +1,9 @@
 import QtQuick 2.14
 import "."
 
-// Tastiera a schermo: serve perche' su una console non c'e' tastiera fisica.
-// Include lettere (con maiuscole), cifre e i simboli che servono per un URL o
-// una password. Layout ridotto ma completo per l'uso reale.
+// On-screen keyboard: needed because a console has no physical keyboard.
+// Includes letters (with uppercase), digits and the symbols needed for a URL or
+// a password. Reduced but complete layout for real use.
 Item {
     id: kb
 

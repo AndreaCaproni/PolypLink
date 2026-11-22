@@ -1,13 +1,13 @@
-# artefatti di build e pacchetti
+# build artifacts and packages
 /build/
 /dist/
 src/buildstamp.h
 
-# dati personali: NON devono finire nel repository
+# personal data: must NOT end up in the repository
 /keys/
 deploy/factory_test/run.sh
 
-# file di sistema / editor
+# system / editor files
 *.o
 *.d
 *.qmlc

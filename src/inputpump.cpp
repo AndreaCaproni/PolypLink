@@ -76,7 +76,7 @@ void InputPump::handleAxis(int value, int negativeKey, int positiveKey, qint64 n
   }
   if (value != *lastDir) {
     *lastDir = value;
-    *nextRepeat = now + 350;  // pausa prima dell'auto-repeat
+    *nextRepeat = now + 350;  // pause before auto-repeat
     sendKey(value < 0 ? negativeKey : positiveKey, false);
     return;
   }

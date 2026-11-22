@@ -10,12 +10,12 @@
 #include <QVariantList>
 #include <QVariantMap>
 
-// Scoperta automatica del server Jellyfin sulla rete locale.
-// Il server risponde su UDP 7359 alla domanda "Who is JellyfinServer?" con un
-// JSON {"Address":"http://ip:8096","Id":"...","Name":"..."}.
+// Automatic discovery of the Jellyfin server on the local network.
+// The server answers on UDP 7359 to the question "Who is JellyfinServer?" with
+// the JSON {"Address":"http://ip:8096","Id":"...","Name":"..."}.
 //
-// Perche' serve: su una console non c'e' tastiera, e digitare l'URL del server
-// col telecomando e' improponibile.
+// Why it is needed: a console has no keyboard, and typing the server URL
+// with the remote control is impractical.
 class Discovery : public QObject {
   Q_OBJECT
   Q_PROPERTY(QVariantList servers READ servers NOTIFY serversChanged)
@@ -38,7 +38,7 @@ class Discovery : public QObject {
  private:
   void onReadyRead();
   void finish();
-  // scansione della subnet locale: i server Jellyfin ascoltano su 8096
+  // local subnet scan: Jellyfin servers listen on 8096
   void scanLan();
   void startNextProbes();
   void probeHost(const QString& ip);

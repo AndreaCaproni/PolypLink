@@ -10,16 +10,16 @@ class QQuickWindow;
 struct _SDL_GameController;
 typedef struct _SDL_GameController SDL_GameController;
 
-// Legge il controller via SDL e lo traduce in eventi tastiera Qt, cosi' la UI
-// QML resta agnostica sull'input (frecce, Invio, Esc).
+// Reads the controller via SDL and translates it into Qt keyboard events, so the
+// QML UI stays agnostic about input (arrows, Enter, Esc).
 //
-// Nota: e' il pattern raccomandato da Valve per lo Steam Controller ("SDL game
-// controller API"), ed e' quello che usa Moonlight su questo stesso hardware.
+// Note: this is the pattern recommended by Valve for the Steam Controller ("SDL game
+// controller API"), and it is the one Moonlight uses on this same hardware.
 class InputPump : public QObject {
   Q_OBJECT
 
  signals:
-  // autoRepeat=true solo per l'auto-repeat dello stick analogico.
+  // autoRepeat=true only for analog stick auto-repeat.
   void keyPressed(int qtKey, bool autoRepeat);
 
  public:

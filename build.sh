@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# build.sh — compila il client Qt Quick per lo Steam Link e prepara il pacchetto USB
+# build.sh — builds the Qt Quick client for the Steam Link and prepares the USB package
 #
 #   ./build.sh
 #   ./build.sh --sdk ~/steamlink-sdk
@@ -59,8 +59,8 @@ set -u
 [[ -n "${MARVELL_ROOTFS:-}" && -d "$MARVELL_ROOTFS" ]] || die "rootfs dello SDK non valida"
 command -v qmake >/dev/null || die "qmake non trovato: setenv.sh non ha aggiunto Qt al PATH"
 
-# Le traduzioni .ts sono la fonte; il .qm va rigenerato prima di qmake,
-# cosi' la risorsa compilata nel binario e' sempre aggiornata.
+# The .ts translations are the source; the .qm must be regenerated before
+# qmake, so the resource compiled into the binary is always up to date.
 if [[ -d "$ROOT/i18n" ]] && compgen -G "$ROOT/i18n/*.ts" >/dev/null; then
   LRELEASE_BIN="${LRELEASE:-$(command -v lrelease || true)}"
   if [[ -n "$LRELEASE_BIN" ]]; then
@@ -96,7 +96,7 @@ rm -rf "$STAGE"
 mkdir -p "$APP/bin"
 cp "$BUILD/$APPNAME" "$APP/bin/$APPNAME"
 
-# librerie ffmpeg con il nome SONAME richiesto dal linker dinamico
+# ffmpeg libraries with the SONAME name required by the dynamic linker
 mkdir -p "$APP/lib"
 for lib in "$ROOT/third_party/ffmpeg/lib/"*.so; do
   soname=$(readelf -d "$lib" 2>/dev/null | sed -n 's/.*SONAME.*\[\(.*\)\].*/\1/p')
@@ -109,7 +109,7 @@ cp "$ROOT/scripts/migrate-settings.sh" "$APP/migrate-settings.sh"
 chmod +x "$APP/run.sh" "$APP/migrate-settings.sh"
 cp "$ROOT/packaging/icon.png" "$APP/icon.png"
 
-# Note di licenza che devono viaggiare con il binario.
+# License notices that must travel with the binary.
 mkdir -p "$APP/licenses"
 cp "$ROOT/LICENSE" "$APP/licenses/LICENSE"
 cp "$ROOT/THIRD_PARTY.md" "$APP/licenses/THIRD_PARTY.md"
@@ -123,16 +123,16 @@ icon=icon.png
 run=run.sh
 EOF
 
-# Formato identico a quello usato dal port Kodi: un .tgz dentro steamlink/apps/
-# con la cartella dell'app alla radice. E' il formato che l'installer del Link
-# gestisce di sicuro (una cartella nuda non viene installata).
+# Same format as the one used by the Kodi port: a .tgz inside steamlink/apps/
+# with the app folder at the root. It is the format the Link installer
+# definitely handles (a bare folder is not installed).
 rm -rf "$DIST"
 mkdir -p "$DIST/steamlink/apps"
 ( cd "$STAGE" && tar -czf "$DIST/steamlink/apps/$APPNAME.tgz" "$APPNAME" )
 
-# SSH e hook personale NON sono parte del kit di default: il build normale
-# deve poter essere copiato/condiviso senza chiavi o password. Servono solo
-# per lo sviluppo sul dispositivo, quindi richiedono --dev-ssh.
+# SSH and the personal hook are NOT part of the default kit: the normal build
+# must be copyable/shareable without keys or passwords. They are only needed
+# for development on the device, so they require --dev-ssh.
 if [[ $DEV_SSH -eq 1 ]]; then
   mkdir -p "$DIST/steamlink/config/system" "$DIST/steamlink/factory_test"
   echo 1 > "$DIST/steamlink/config/system/enable_ssh.txt"

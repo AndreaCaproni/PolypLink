@@ -1,6 +1,6 @@
 #pragma once
 
-// Nome visibile e versione dell'app. La versione compare nel log di avvio,
-// nella pagina Impostazioni e nel changelog.
+// App display name and version. The version appears in the startup log,
+// on the Settings page and in the changelog.
 #define APP_NAME "PolypLink"
 #define APP_VERSION "0.3.2-beta"

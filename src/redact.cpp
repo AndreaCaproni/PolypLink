@@ -3,25 +3,25 @@
 #include <QRegularExpression>
 
 QString RedactSecrets(QString text) {
-  // Credenziali in un URL (http://utente:password@host): non devono finire
-  // nei log, anche se l'app non le usa.
+  // Credentials in a URL (http://user:password@host): they must not end up
+  // in the logs, even if the app does not use them.
   static const QRegularExpression userInfo(
       QStringLiteral("(?i)(https?://)([^/@\\s]+):([^/@\\s]+)@"));
   text.replace(userInfo, QStringLiteral("\\1\\2:***@"));
 
-  // Token="..." nell'header MediaBrowser. Va fatto prima della regex sulle
-  // query string, altrimenti il valore tra virgolette viene tagliato male.
+  // Token="..." in the MediaBrowser header. It must be done before the
+  // query string regex, otherwise the quoted value is cut off incorrectly.
   static const QRegularExpression tokenField(
       QStringLiteral("(?i)(\\bToken\\s*=\\s*)(\"?)([^\"\\s,;&]+)(\\2)"));
   text.replace(tokenField, QStringLiteral("\\1\\2***\\4"));
 
-  // Header alternativo usato da alcune integrazioni Jellyfin/Emby.
+  // Alternative header used by some Jellyfin/Emby integrations.
   static const QRegularExpression embyToken(
       QStringLiteral("(?i)(x-(?:emby|mediabrowser)-token\\s*:\\s*)([^\\r\\n]+)"));
   text.replace(embyToken, QStringLiteral("\\1***"));
 
-  // Campi JSON: "AccessToken": "abc", "Password": "..." (anche con spazio
-  // dopo i due punti, come nelle risposte di alcuni server/proxy).
+  // JSON fields: "AccessToken": "abc", "Password": "..." (even with a space
+  // after the colon, as in responses from some servers/proxies).
   static const QRegularExpression jsonField(
       QStringLiteral("(?i)(\"(?:access[_-]?token|token|api[_-]?key|secret|"
                      "password|pw)\"\\s*:\\s*\")([^\"]*)(\")"));

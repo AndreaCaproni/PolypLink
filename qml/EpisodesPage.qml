@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Pagina di una stagione: intestazione, azioni ed elenco episodi.
+// Page for a season: header, actions and episode list.
 Item {
     id: episodesPage
 

@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Scelta del server Jellyfin: server salvato, server trovati in rete o URL manuale.
+// Jellyfin server selection: saved server, servers found on the network or manual URL.
 Item {
     property var servers: []
     property bool searching: false
@@ -39,7 +39,7 @@ Item {
                      : qsTr("Premi A per connetterti."))
         }
 
-        // server già salvato: si rientra senza ridigitare l'indirizzo
+        // already saved server: you get back in without retyping the address
         Rectangle {
             width: parent.width
             height: 62

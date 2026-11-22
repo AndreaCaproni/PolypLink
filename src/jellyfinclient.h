@@ -9,9 +9,9 @@
 #include <QUrl>
 #include <functional>
 
-// Client HTTP per l'API Jellyfin. Volutamente minimale: copre solo le chiamate
-// che servono a un client da salotto (autenticazione, viste, item, immagini,
-// avanzamento). Replica i parametri usati da jellyfin-web, non il suo codice.
+// HTTP client for the Jellyfin API. Deliberately minimal: it covers only the
+// calls needed by a living-room client (authentication, views, items, images,
+// progress). It replicates the parameters used by jellyfin-web, not its code.
 class JellyfinClient : public QObject {
   Q_OBJECT
 
@@ -54,8 +54,8 @@ class JellyfinClient : public QObject {
   void fetchPlaybackInfo(const QString& itemId, qint64 startTicks, int audioIndex,
                          int subtitleIndex, int qualityKbps, JsonCallback cb);
 
-  // Registra la sessione di riproduzione sul server (cronologia, "continua a
-  // guardare"). Chiamate fire-and-forget: gli errori non bloccano il player.
+  // Registers the playback session on the server (history, "continue
+  // watching"). Fire-and-forget calls: errors do not block the player.
   void reportPlaybackStart(const QString& itemId, const QString& playSessionId,
                            qint64 positionTicks, const QString& mediaSourceId,
                            int audioIndex = -1, int subtitleIndex = -1);
@@ -66,8 +66,8 @@ class JellyfinClient : public QObject {
   void reportPlaybackStopped(const QString& itemId, const QString& playSessionId,
                              qint64 positionTicks, const QString& mediaSourceId);
 
-  // Header di autorizzazione completo: serve anche al player, che scarica
-  // playlist e segmenti con richieste proprie.
+  // Full authorization header: also needed by the player, which downloads
+  // playlists and segments with its own requests.
   QString authHeader() const;
   QString userImageUrl() const;
   void fetchItemCount(const QString& includeTypes, const QString& filters, JsonCallback cb);
@@ -79,13 +79,13 @@ class JellyfinClient : public QObject {
                       qint64 startTicks = 0, int audioIndex = -1,
                       int subtitleIndex = -1) const;
 
-  // Salva/carica la sessione (token, utente, server) sul disco.
+  // Saves/loads the session (token, user, server) to disk.
   void load();
   void save() const;
   void logout();
 
  signals:
-  // Il token non e' piu' valido (401): l'app deve tornare al login.
+  // The token is no longer valid (401): the app must return to login.
   void unauthorized();
 
  private:

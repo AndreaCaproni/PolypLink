@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Pagina condivisa da Impostazioni e Account: elenco a sinistra, dettaglio a destra.
+// Page shared by Settings and Account: list on the left, detail on the right.
 Item {
     id: menuPage
 
@@ -44,7 +44,7 @@ Item {
         if (visible) menuList.positionViewAtIndex(0, ListView.Beginning)
     }
 
-    // --- colonna sinistra: elenco
+    // --- left column: list
     Text {
         x: 40
         y: 12
@@ -109,7 +109,7 @@ Item {
         }
     }
 
-    // --- colonna destra: dettaglio della voce selezionata
+    // --- right column: detail of the selected entry
     Rectangle {
         x: 620
         y: 16
@@ -130,7 +130,7 @@ Item {
             visible: !accountMode
         }
 
-        // profilo utente
+        // user profile
         Row {
             x: 28
             y: 24
@@ -180,7 +180,7 @@ Item {
             }
         }
 
-        // statistiche
+        // statistics
         Row {
             x: 28
             y: 124

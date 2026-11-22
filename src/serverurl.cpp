@@ -14,10 +14,10 @@ bool IsLocalHostName(const QString& host) {
       h.endsWith(QLatin1String(".internal"))) {
     return true;
   }
-  // Un IPv6 contiene ':' e va valutato da QHostAddress, non con l'euristica
-  // dei nomi senza dominio.
+  // An IPv6 contains ':' and must be evaluated by QHostAddress, not with the
+  // domain-less name heuristic.
   if (h.contains(QLatin1Char(':'))) return false;
-  // Nome singolo senza dominio: quasi sempre un host della LAN.
+  // Single name without a domain: almost always a LAN host.
   return !h.contains(QLatin1Char('.'));
 }
 

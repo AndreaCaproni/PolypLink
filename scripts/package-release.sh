@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Crea gli asset di release da packaging/release/ e calcola i checksum.
+# Creates the release assets from packaging/release/ and computes the checksums.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,9 +16,9 @@ mkdir -p "$RELEASE/usb/steamlink/apps"
 cp "$ROOT/dist/steamlink/apps/$APP.tgz" "$RELEASE/usb/steamlink/apps/"
 cp "$ROOT/dist/steamlink/apps/$APP.tgz" "$RELEASE/$APP-$VERSION.tgz"
 
-# Copie delle licenze anche fuori dal pacchetto, per chi apre lo zip USB.
-# NON copiare factory_test/ o config/: possono contenere chiavi SSH e URL
-# personali usati per lo sviluppo sul dispositivo.
+# License copies also outside the package, for those who open the USB zip.
+# Do NOT copy factory_test/ or config/: they may contain SSH keys and personal
+# URLs used for development on the device.
 mkdir -p "$RELEASE/usb/licenses"
 cp "$ROOT/LICENSE" "$RELEASE/usb/licenses/LICENSE"
 cp "$ROOT/THIRD_PARTY.md" "$RELEASE/usb/licenses/THIRD_PARTY.md"

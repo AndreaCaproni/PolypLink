@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Accesso: scelta del metodo (credenziali o Quick Connect) e campi credenziali.
+// Login: method selection (credentials or Quick Connect) and credential fields.
 Item {
     property string serverLabel: ""
     property bool insecureHttp: false
@@ -48,7 +48,7 @@ Item {
             text: qsTr("Attenzione: connessione non cifrata. Password e token viaggiano in chiaro.")
         }
 
-        // --- menu scelta metodo ---
+        // --- method selection menu ---
         Column {
             width: parent.width
             spacing: 12
@@ -86,7 +86,7 @@ Item {
 
         }
 
-        // --- credenziali ---
+        // --- credentials ---
         Column {
             width: parent.width
             spacing: 12

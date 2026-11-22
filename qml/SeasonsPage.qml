@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Pagina delle stagioni di una serie.
+// Page with the seasons of a series.
 Item {
     id: seasonsPage
 

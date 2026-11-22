@@ -5,12 +5,12 @@
 #include <QString>
 #include <QUrl>
 
-// L'UDP di Jellyfin non e' autenticato: chiunque sulla LAN puo' rispondere al
-// broadcast e dichiarare un Address arbitrario. Per non trasformare la
-// scoperta in un modo per puntare l'app verso un altro host, teniamo solo
-// schema, porta e path e sostituiamo l'host con l'IP del mittente.
+// Jellyfin UDP is not authenticated: anyone on the LAN can answer the
+// broadcast and advertise an arbitrary Address. To keep discovery from
+// becoming a way to point the app at another host, we keep only the
+// scheme, port and path and replace the host with the sender's IP.
 //
-// Ritorna una stringa vuota se la risposta non e' un indirizzo http(s) valido.
+// Returns an empty string if the response is not a valid http(s) address.
 inline QString NormalizeDiscoveredAddress(const QString& advertised,
                                           const QHostAddress& sender) {
   if (sender.isNull() || sender == QHostAddress(QHostAddress::AnyIPv4) ||
@@ -18,7 +18,7 @@ inline QString NormalizeDiscoveredAddress(const QString& advertised,
     return QString();
   }
 
-  // Un mittente IPv4-mapped (::ffff:a.b.c.d) va trattato come IPv4.
+  // An IPv4-mapped sender (::ffff:a.b.c.d) must be treated as IPv4.
   QHostAddress host = sender;
   bool isIpv4 = false;
   const quint32 v4 = sender.toIPv4Address(&isIpv4);

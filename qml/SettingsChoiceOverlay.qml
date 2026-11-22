@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Popup condiviso per la scelta di un valore nelle Impostazioni.
+// Shared popup for choosing a value in Settings.
 Item {
     id: choiceOverlay
 

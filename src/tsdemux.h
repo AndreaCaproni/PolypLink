@@ -6,9 +6,9 @@
 #include <functional>
 #include <vector>
 
-// Demuxer MPEG-TS minimale: estrae H.264 (Annex-B) e AAC (ADTS) da un segmento
-// HLS. Non usa ffmpeg per il demux: PAT/PMT/PES sono pochi byte di header e
-// tenerli qui evita di portare libavformat sul dispositivo.
+// Minimal MPEG-TS demuxer: extracts H.264 (Annex-B) and AAC (ADTS) from an HLS
+// segment. It does not use ffmpeg for demuxing: PAT/PMT/PES are just a few header
+// bytes, and keeping them here avoids shipping libavformat on the device.
 class TsDemux {
  public:
   using PacketCallback =

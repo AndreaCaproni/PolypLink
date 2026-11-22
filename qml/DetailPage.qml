@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Scheda dettaglio di film, serie o episodio.
+// Detail page for a movie, series or episode.
 Item {
     id: detailPage
 
@@ -110,7 +110,7 @@ Item {
                 }
             }
 
-            // azioni: solo icona, si allargano con il focus
+            // actions: icon only, they expand when focused
             Row {
                 spacing: 10
 
@@ -179,7 +179,7 @@ Item {
                 text: detailPage.detail.overview !== undefined ? detailPage.detail.overview : ""
             }
 
-            // impostazioni di riproduzione
+            // playback settings
             Column {
                 spacing: 8
                 visible: !detailPage.isSeries

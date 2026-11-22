@@ -27,7 +27,7 @@ static void checkInsecure(const QString& input, bool expected) {
 int main(int argc, char** argv) {
   QCoreApplication app(argc, argv);
 
-  // LAN: HTTP e porta 8096 gestita dal chiamante.
+  // LAN: HTTP and port 8096 handled by the caller.
   check(QStringLiteral("192.168.1.199"), QStringLiteral("http://192.168.1.199"));
   check(QStringLiteral("192.168.1.199:8096"),
         QStringLiteral("http://192.168.1.199:8096"));
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   check(QStringLiteral("jellyfin.local"), QStringLiteral("http://jellyfin.local"));
   check(QStringLiteral("jellyfin"), QStringLiteral("http://jellyfin"));
 
-  // Host pubblici: HTTPS di default.
+  // Public hosts: HTTPS by default.
   check(QStringLiteral("jellyfin.example.com"),
         QStringLiteral("https://jellyfin.example.com"));
   check(QStringLiteral("jellyfin.example.com:8443"),
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
   check(QStringLiteral("[fc00::1]"), QStringLiteral("http://[fc00::1]"));
   check(QStringLiteral("[::1]"), QStringLiteral("http://[::1]"));
 
-  // Schema esplicito: non va cambiato.
+  // Explicit scheme: must not be changed.
   check(QStringLiteral("https://jellyfin.example.com/"),
         QStringLiteral("https://jellyfin.example.com"));
   check(QStringLiteral("http://192.168.1.10:8096/"),
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
         QStringLiteral("https://jellyfin.example.com"));
   check(QString(), QString());
 
-  // Avviso HTTP in chiaro: solo per host raggiungibili in rete, non loopback.
+  // Plain HTTP warning: only for hosts reachable over the network, not loopback.
   checkInsecure(QStringLiteral("http://192.168.1.10:8096"), true);
   checkInsecure(QStringLiteral("http://jellyfin.example.com"), true);
   checkInsecure(QStringLiteral("http://jellyfin.local:8096"), true);

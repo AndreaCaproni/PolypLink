@@ -11,13 +11,13 @@ Item {
     property real progress: 0
     property bool played: false
     property bool active: false
-    // card 16:9 per le righe "Continua a guardare" / "Prossimo episodio"
+    // 16:9 card for the "Continue watching" / "Next episode" rows
     property bool wide: false
 
     width: 150
     height: wide ? 250 : 278
 
-    // alone dell'elemento selezionato
+    // glow of the selected item
     Rectangle {
         anchors.fill: frame
         anchors.margins: -5
@@ -56,7 +56,7 @@ Item {
             visible: card.image.length === 0
         }
 
-        // avanzamento della visione
+        // watch progress
         Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
@@ -75,7 +75,7 @@ Item {
             }
         }
 
-        // badge "visto"
+        // "watched" badge
         Rectangle {
             anchors.top: parent.top
             anchors.left: parent.left
@@ -97,7 +97,7 @@ Item {
             }
         }
 
-        // bordo di selezione, SOPRA l'immagine
+        // selection border, ABOVE the image
         Rectangle {
             anchors.fill: parent
             radius: 8
@@ -132,7 +132,7 @@ Item {
         visible: card.subtitle.length > 0
     }
 
-    // da quale libreria arriva (per distinguere doppioni e serie)
+    // which library it comes from (to tell duplicates and series apart)
     Text {
         anchors.top: frame.bottom
         anchors.topMargin: 70

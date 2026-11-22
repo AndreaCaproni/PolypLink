@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import "."
 
-// Trama completa a schermo intero.
+// Full synopsis in full screen.
 Item {
     id: overviewOverlay
 

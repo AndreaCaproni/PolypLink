@@ -1,5 +1,5 @@
-// Verifica che l'indirizzo pubblicizzato via UDP non possa puntare a un host
-// diverso da quello che ha inviato il datagramma.
+// Verify that the address advertised over UDP cannot point to a host other
+// than the one that sent the datagram.
 #include "discoveryaddress.h"
 
 #include <cstdio>
@@ -28,13 +28,13 @@ int main() {
   expect("http://192.168.1.50:8096", sender, "http://192.168.1.50:8096");
   expect("http://192.168.1.50:8096/", sender, "http://192.168.1.50:8096");
 
-  // Host arbitrario: viene sostituito con il mittente.
+  // Arbitrary host: replaced with the sender.
   expect("http://evil.example:8096", sender, "http://192.168.1.50:8096");
   expect("http://192.168.1.99:8096", sender, "http://192.168.1.50:8096");
   expect("https://jellyfin.local:8920/jellyfin/", sender,
          "https://192.168.1.50:8920/jellyfin");
 
-  // Risposte non accettabili.
+  // Unacceptable responses.
   expect("http://user:pass@192.168.1.50:8096", sender, "");
   expect("ftp://192.168.1.50:8096", sender, "");
   expect("javascript:alert(1)", sender, "");

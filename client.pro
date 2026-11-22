@@ -1,19 +1,19 @@
 QT += quick qml network
 CONFIG += c++17
 
-# SDL2 per il controller (presente nel firmware). Il percorso viene dallo SDK.
+# SDL2 for the controller (present in the firmware). The path comes from the SDK.
 isEmpty(MARVELL_ROOTFS) {
     MARVELL_ROOTFS = $$(MARVELL_ROOTFS)
 }
 INCLUDEPATH += $$MARVELL_ROOTFS/usr/include/SDL2
 LIBS += -lSDL2
 
-# ffmpeg minimale (solo decoder AAC + resampler), compilato per il dispositivo.
+# minimal ffmpeg (AAC decoder + resampler only), built for the device.
 FFMPEG = $$PWD/third_party/ffmpeg
 INCLUDEPATH += $$FFMPEG/include
 LIBS += -L$$FFMPEG/lib -lavcodec -lswresample -lavutil
 
-# API hardware del dispositivo
+# device hardware API
 LIBS += -L$$MARVELL_ROOTFS/usr/lib -lSLVideo -lSLAudio
 CONFIG -= app_bundle
 
@@ -48,7 +48,7 @@ HEADERS += src/inputpump.h \
 
 RESOURCES += qml.qrc
 
-# La UI e' compilata dentro il binario: nessun file sparso da copiare.
+# The UI is compiled into the binary: no loose files to copy.
 QMAKE_CXXFLAGS += -Wall -Wextra -Wno-unused-parameter
 
 target.path = /usr/local/bin
