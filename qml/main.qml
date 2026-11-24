@@ -1126,7 +1126,8 @@ Window {
                 if (event.key === Qt.Key_Left) { keyboard.move(-1, 0); event.accepted = true; return }
                 if (event.key === Qt.Key_Right) { keyboard.move(1, 0); event.accepted = true; return }
                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                    keyboard.press(); event.accepted = true; return
+                    if (!event.isAutoRepeat) keyboard.press()
+                    event.accepted = true; return
                 }
                 if (event.key === Qt.Key_Backspace) { keyboard.backspace(); event.accepted = true; return }
                 if (event.key === Qt.Key_Escape) { root.keyboardOpen = false; event.accepted = true; return }
@@ -1140,12 +1141,19 @@ Window {
             if (app.playerActive) {
                 // Space is always play/pause; Enter confirms the focused item.
                 if (event.key === Qt.Key_Space) {
-                    if (app.playerMenuOpen) app.playerConfirm()
-                    else app.togglePause()
+                    if (!event.isAutoRepeat) {
+                        if (app.playerMenuOpen) app.playerConfirm()
+                        else app.togglePause()
+                    }
                     event.accepted = true
                     return
                 }
                 var pkey = root.normalizeKey(event.key)
+                if (event.isAutoRepeat && pkey !== Qt.Key_Left && pkey !== Qt.Key_Right
+                        && pkey !== Qt.Key_Up && pkey !== Qt.Key_Down) {
+                    event.accepted = true
+                    return
+                }
                 if (pkey === Qt.Key_Return) { app.playerConfirm() }
                 else if (pkey === Qt.Key_Left) { app.playerNavigate(-1, 0) }
                 else if (pkey === Qt.Key_Right) { app.playerNavigate(1, 0) }
@@ -1158,6 +1166,14 @@ Window {
             }
 
             var key = root.normalizeKey(event.key)
+
+            // Only the arrows may auto-repeat; holding Enter/Space/Esc must not
+            // toggle pause or navigate back over and over.
+            if (event.isAutoRepeat && key !== Qt.Key_Left && key !== Qt.Key_Right
+                    && key !== Qt.Key_Up && key !== Qt.Key_Down) {
+                event.accepted = true
+                return
+            }
 
             // top bar: left/right select, A opens, down returns to the content
             if (app.state === "home" && root.navFocus) {
