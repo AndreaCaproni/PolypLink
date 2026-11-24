@@ -37,6 +37,15 @@ PlaybackController::PlaybackController(JellyfinClient* client,
       stallWatch_.stop();
       return;
     }
+    if (player_ != nullptr && player_->endOfStream()) {
+      if (stalled_) {
+        stalled_ = false;
+        status_.clear();
+        emit playerChanged();
+      }
+      stallWatch_.stop();
+      return;
+    }
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
     if (paused_) {
       lastProgressMs_ = now;

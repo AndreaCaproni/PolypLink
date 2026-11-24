@@ -168,6 +168,10 @@ bool Player::hasProducerError() const {
   return !producerError_.isEmpty();
 }
 
+bool Player::endOfStream() const {
+  return producerFinished_.load() && !hasProducerError();
+}
+
 QString Player::producerErrorText() const {
   std::lock_guard<std::mutex> lock(stateMutex_);
   return producerError_;
@@ -1186,7 +1190,8 @@ void Player::run() {
     }
 
     // No new segments for 5 s: show "connection lost" without closing.
-    if (!paused_.load() && !stalled_ && lastData_.elapsed() > 5000) {
+    if (!paused_.load() && !stalled_ && !producerFinished_.load() &&
+        lastData_.elapsed() > 5000) {
       stalled_ = true;
       emit stalled(true);
     }

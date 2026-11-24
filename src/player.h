@@ -63,6 +63,9 @@ class Player : public QThread {
   bool paused() const { return paused_.load(); }
   double positionSeconds() const { return position_.load(); }
   QString lastError() const { return error_; }
+  // Producer reached the end of the playlist without an error. The player may
+  // still be draining its video/audio queue, so this is not "connection lost".
+  bool endOfStream() const;
 
  signals:
   void started();
