@@ -1155,10 +1155,10 @@ Window {
                     return
                 }
                 if (pkey === Qt.Key_Return) { app.playerConfirm() }
-                else if (pkey === Qt.Key_Left) { app.playerNavigate(-1, 0) }
-                else if (pkey === Qt.Key_Right) { app.playerNavigate(1, 0) }
-                else if (pkey === Qt.Key_Up) { app.playerNavigate(0, -1) }
-                else if (pkey === Qt.Key_Down) { app.playerNavigate(0, 1) }
+                else if (pkey === Qt.Key_Left) { app.playerNavigate(-1, 0, event.isAutoRepeat) }
+                else if (pkey === Qt.Key_Right) { app.playerNavigate(1, 0, event.isAutoRepeat) }
+                else if (pkey === Qt.Key_Up) { app.playerNavigate(0, -1, event.isAutoRepeat) }
+                else if (pkey === Qt.Key_Down) { app.playerNavigate(0, 1, event.isAutoRepeat) }
                 else if (pkey === Qt.Key_Escape) { app.playerBack() }
                 else if (pkey === Qt.Key_Menu) { app.toggleStats() }
                 event.accepted = true
@@ -1167,10 +1167,10 @@ Window {
 
             var key = root.normalizeKey(event.key)
 
-            // Only the arrows may auto-repeat; holding Enter/Space/Esc must not
-            // toggle pause or navigate back over and over.
-            if (event.isAutoRepeat && key !== Qt.Key_Left && key !== Qt.Key_Right
-                    && key !== Qt.Key_Up && key !== Qt.Key_Down) {
+            // Navigation is atomic: holding a stick or a key must not run
+            // through the whole grid. The player seek bar keeps its own
+            // acceleration in AppController.
+            if (event.isAutoRepeat) {
                 event.accepted = true
                 return
             }

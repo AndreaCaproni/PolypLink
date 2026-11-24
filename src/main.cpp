@@ -262,8 +262,10 @@ int main(int argc, char** argv) {
       }
       return;
     }
-    QCoreApplication::postEvent(window, new QKeyEvent(QEvent::KeyPress, key, Qt::NoModifier));
-    QCoreApplication::postEvent(window, new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
+    QCoreApplication::postEvent(
+        window, new QKeyEvent(QEvent::KeyPress, key, Qt::NoModifier, QString(), autoRepeat));
+    QCoreApplication::postEvent(
+        window, new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier, QString(), false));
   });
 
   qInfo("[avvio] finestra %dx%d, inizio", window->width(), window->height());

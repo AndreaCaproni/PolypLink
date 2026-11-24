@@ -100,6 +100,9 @@ visible while the seek bar has focus.
 Buttons: **-10 s**, **play/pause**, **+30 s**, **Audio**, **Subtitles**,
 **Quality**, **Audio delay**, **Stats**.
 
+On the buttons, one press moves one step: holding the stick does not run
+through the row. Only the seek bar keeps the hold-to-accelerate behaviour.
+
 **Audio delay** opens a popup with the current offset. Left/right change it in
 50 ms steps from `-2000` to `+2000` ms; **A** or **B** close the popup, save the
 value and apply it by restarting the stream. The same value is the default in

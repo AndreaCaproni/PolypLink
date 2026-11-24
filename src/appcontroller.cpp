@@ -11,6 +11,12 @@
 #include <QJsonObject>
 #include <QVariantMap>
 
+namespace {
+// Keep a small margin from the end: starting a transcode on the last second
+// makes the server produce segments past the media end.
+constexpr double kEndGuardSec = 5.0;
+}  // namespace
+
 AppController::AppController(QObject* parent) : QObject(parent) {
   auth_ = std::make_unique<AuthController>(&client_);
   connect(auth_.get(), &AuthController::stateRequested, this,
@@ -633,7 +639,13 @@ void AppController::startPlaybackAt(const QString& itemId, qint64 startTicks,
       durationSec > 0.0
           ? durationSec
           : library_->detail().value(QStringLiteral("runtimeTicks")).toDouble() / 1e7;
-  playback_->startPlaybackAt(itemId, startTicks, resolvedTitle, resolvedDuration,
+  qint64 safeStartTicks = startTicks;
+  if (resolvedDuration > 1.0) {
+    const qint64 maxTicks = static_cast<qint64>(
+        std::max(0.0, resolvedDuration - kEndGuardSec) * 1e7);
+    safeStartTicks = std::min(safeStartTicks, maxTicks);
+  }
+  playback_->startPlaybackAt(itemId, safeStartTicks, resolvedTitle, resolvedDuration,
                              audioIndex_, subtitleIndex_, qualityKbps_);
   if (newItem && !nextSeriesId.isEmpty()) {
     loadNextEpisode(nextSeriesId, itemId);
@@ -729,6 +741,13 @@ void AppController::toggleStats() {
 }
 
 void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
+  if (autoRepeat) {
+    const bool seekRepeat =
+        osdVisible_ && !playerMenuOpen_ && playerFocus_ == ActionSeek && dx != 0;
+    const bool delayRepeat = playerMenuOpen_ &&
+                             playerMenuMode_ == QLatin1String("avdelay") && dx != 0;
+    if (!seekRepeat && !delayRepeat) return;
+  }
   if (playerMenuOpen_) {
     if (playerMenuMode_ == QLatin1String("avdelay")) {
       if (dx != 0) {
@@ -796,7 +815,9 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
       else if (seekSteps_ < 6) step = dx > 0 ? 60.0 : -60.0;
       else step = dx > 0 ? 180.0 : -180.0;
 
-      const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
+      const double maxPos = playback_->duration() > 1.0
+                               ? std::max(0.0, playback_->duration() - kEndGuardSec)
+                               : 0.0;
       seekPreview_ = qBound(0.0, seekPreview_ + step, maxPos);
       if (qAbs(seekPreview_ - playback_->position()) < 0.4) {
         seekPending_ = false;
@@ -839,7 +860,9 @@ void AppController::playerConfirm() {
   }
   if (!osdVisible_) playerNavigate(0, 0);
 
-  const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
+  const double maxPos = playback_->duration() > 1.0
+                           ? std::max(0.0, playback_->duration() - kEndGuardSec)
+                           : 0.0;
   switch (playerFocus_) {
     case ActionSeek:
       if (seekPending_) commitSeek();
