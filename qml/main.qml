@@ -125,6 +125,7 @@ Window {
         case Qt.Key_NumPad4: return Qt.Key_Left
         case Qt.Key_NumPad6: return Qt.Key_Right
         case Qt.Key_Enter: return Qt.Key_Return
+        case Qt.Key_Select: return Qt.Key_Return
         case Qt.Key_Space: return Qt.Key_Return
         case Qt.Key_Backspace: return Qt.Key_Escape
         default: return k
@@ -1125,7 +1126,8 @@ Window {
                 if (event.key === Qt.Key_Down) { keyboard.move(0, 1); event.accepted = true; return }
                 if (event.key === Qt.Key_Left) { keyboard.move(-1, 0); event.accepted = true; return }
                 if (event.key === Qt.Key_Right) { keyboard.move(1, 0); event.accepted = true; return }
-                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter ||
+                        event.key === Qt.Key_Select) {
                     if (!event.isAutoRepeat) keyboard.press()
                     event.accepted = true; return
                 }

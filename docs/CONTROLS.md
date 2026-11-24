@@ -122,7 +122,7 @@ delay it.
 | Key | Action |
 |---|---|
 | arrows / **WASD** / numpad **8 4 6 2** | move |
-| **Enter** / numpad Enter | select (**A**) |
+| **Enter** / numpad Enter / **Select** | select (**A**) |
 | **Space** | select in the UI; play/pause in the player |
 | **Esc** / **Backspace** | back (**B**) |
 | **Y** | mark watched / favorite where available |
