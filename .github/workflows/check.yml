@@ -75,6 +75,14 @@ jobs:
           "$OUT"
           rm -f "$OUT"
 
+      - name: Input map
+        run: |
+          OUT="$(mktemp "$RUNNER_TEMP/test_inputmap.XXXXXX")"
+          g++ -std=c++17 -fPIC -Isrc tests/test_inputmap.cpp src/inputmap.cpp \
+            $(pkg-config --cflags --libs Qt5Core) -o "$OUT"
+          "$OUT"
+          rm -f "$OUT"
+
       - name: TS demux safety
         run: |
           OUT="$(mktemp "$RUNNER_TEMP/test_tsdemux.XXXXXX")"

@@ -111,23 +111,6 @@ Window {
         }
     }
 
-    // Physical keyboard: the numeric keypad acts as arrows; Space selects and
-    // Backspace goes back. The on-screen keyboard is handled before this, so
-    // letters still type normally there.
-    function normalizeKey(k) {
-        switch (k) {
-        case Qt.Key_NumPad8: return Qt.Key_Up
-        case Qt.Key_NumPad2: return Qt.Key_Down
-        case Qt.Key_NumPad4: return Qt.Key_Left
-        case Qt.Key_NumPad6: return Qt.Key_Right
-        case Qt.Key_Enter: return Qt.Key_Return
-        case Qt.Key_Select: return Qt.Key_Return
-        case Qt.Key_Space: return Qt.Key_Return
-        case Qt.Key_Backspace: return Qt.Key_Escape
-        default: return k
-        }
-    }
-
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)) }
 
     function fmtTime(seconds) {
@@ -1135,58 +1118,14 @@ Window {
             }
 
             // With a USB keyboard the keys arrive here (the controller goes
-            // through main.cpp): same OSD, same commands.
+            // through main.cpp): one shared player-key implementation in C++.
             if (app.playerActive) {
-                // Space is always play/pause; Enter confirms the focused item.
-                if (event.key === Qt.Key_Space) {
-                    if (!event.isAutoRepeat) {
-                        if (app.playerMenuOpen) app.playerConfirm()
-                        else app.togglePause()
-                    }
-                    event.accepted = true
-                    return
-                }
-                if (event.key === Qt.Key_MediaTogglePlayPause ||
-                        event.key === Qt.Key_MediaPlay ||
-                        event.key === Qt.Key_MediaPause) {
-                    if (!event.isAutoRepeat) {
-                        if (event.key === Qt.Key_MediaPlay) {
-                            if (app.playerPaused) app.togglePause()
-                        } else if (event.key === Qt.Key_MediaPause) {
-                            if (!app.playerPaused) app.togglePause()
-                        } else {
-                            app.togglePause()
-                        }
-                    }
-                    event.accepted = true
-                    return
-                }
-                if (event.key === Qt.Key_AudioForward ||
-                        event.key === Qt.Key_AudioRewind) {
-                    if (!event.isAutoRepeat) {
-                        app.playerSkip(event.key === Qt.Key_AudioForward ? 30 : -10)
-                    }
-                    event.accepted = true
-                    return
-                }
-                var pkey = root.normalizeKey(event.key)
-                if (event.isAutoRepeat && pkey !== Qt.Key_Left && pkey !== Qt.Key_Right
-                        && pkey !== Qt.Key_Up && pkey !== Qt.Key_Down) {
-                    event.accepted = true
-                    return
-                }
-                if (pkey === Qt.Key_Return) { app.playerConfirm() }
-                else if (pkey === Qt.Key_Left) { app.playerNavigate(-1, 0, event.isAutoRepeat) }
-                else if (pkey === Qt.Key_Right) { app.playerNavigate(1, 0, event.isAutoRepeat) }
-                else if (pkey === Qt.Key_Up) { app.playerNavigate(0, -1, event.isAutoRepeat) }
-                else if (pkey === Qt.Key_Down) { app.playerNavigate(0, 1, event.isAutoRepeat) }
-                else if (pkey === Qt.Key_Escape) { app.playerBack() }
-                else if (pkey === Qt.Key_Menu) { app.toggleStats() }
+                app.handlePlayerKey(event.key, event.isAutoRepeat, event.modifiers)
                 event.accepted = true
                 return
             }
 
-            var key = root.normalizeKey(event.key)
+            var key = app.normalizeKey(event.key, event.modifiers)
 
             // Navigation is atomic: holding a stick or a key must not run
             // through the whole grid. The player seek bar keeps its own
@@ -1219,8 +1158,7 @@ Window {
                     } else if (key === Qt.Key_Right) {
                         root.settingsAudioDelay = Math.min(2000, root.settingsAudioDelay + 50)
                     } else if (key === Qt.Key_Return ||
-                               key === Qt.Key_Escape ||
-                               key === Qt.Key_Backspace) {
+                               key === Qt.Key_Escape) {
                         root.confirmSettingsChoice()
                     }
                     event.accepted = true
@@ -1236,8 +1174,7 @@ Window {
                 } else if (key === Qt.Key_Return) {
                     root.confirmSettingsChoice()
                 } else if (key === Qt.Key_Escape ||
-                           key === Qt.Key_Left ||
-                           key === Qt.Key_Backspace) {
+                           key === Qt.Key_Left) {
                     root.settingsChoiceOpen = false
                 }
                 event.accepted = true
@@ -1263,8 +1200,7 @@ Window {
                     }
                     root.languageOpen = false
                 } else if (key === Qt.Key_Escape ||
-                           key === Qt.Key_Left ||
-                           key === Qt.Key_Backspace) {
+                           key === Qt.Key_Left) {
                     root.languageOpen = false
                 }
                 event.accepted = true
@@ -1273,7 +1209,7 @@ Window {
 
             if (root.overviewOpen) {
                 if (key === Qt.Key_Escape || key === Qt.Key_Return ||
-                    key === Qt.Key_Left || key === Qt.Key_Backspace) {
+                    key === Qt.Key_Left) {
                     root.overviewOpen = false
                 } else if (key === Qt.Key_Down) {
                     overviewOverlay.scrollBy(120)

@@ -247,19 +247,8 @@ int main(int argc, char** argv) {
   QObject::connect(input, &InputPump::keyPressed, window,
                    [window, &controller](int key, bool autoRepeat) {
     if (controller.playerActive()) {
-      switch (key) {
-        // Navigable OSD as in the Jellyfin client: the bar and the buttons
-        // receive focus, the seek starts on confirmation or at the end of the range.
-        case Qt::Key_Return: controller.playerConfirm(); break;
-        case Qt::Key_Left: controller.playerNavigate(-1, 0, autoRepeat); break;
-        case Qt::Key_Right: controller.playerNavigate(1, 0, autoRepeat); break;
-        case Qt::Key_Up: controller.playerNavigate(0, -1, autoRepeat); break;
-        case Qt::Key_Down: controller.playerNavigate(0, 1, autoRepeat); break;
-        case Qt::Key_Escape:
-        case Qt::Key_Backspace: controller.playerBack(); break;
-        case Qt::Key_Menu: controller.toggleStats(); break;
-        default: break;
-      }
+      // Shared with the physical keyboard: one implementation for the OSD.
+      controller.handlePlayerKey(key, autoRepeat, Qt::NoModifier);
       return;
     }
     QCoreApplication::postEvent(

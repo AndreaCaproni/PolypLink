@@ -1,5 +1,6 @@
 #include "appcontroller.h"
 
+#include "inputmap.h"
 #include "redact.h"
 #include "quality.h"
 #include "serverurl.h"
@@ -728,10 +729,83 @@ void AppController::toggleStats() {
   emit playerUiChanged();
 }
 
+int AppController::normalizeKey(int key, int modifiers) const {
+  return InputMap::NormalizeKey(key, modifiers, true);
+}
+
+bool AppController::handlePlayerKey(int key, bool autoRepeat, int modifiers) {
+  if (!playback_->active()) return false;
+
+  if (key == Qt::Key_Space) {
+    if (!autoRepeat) {
+      if (playerMenuOpen_) playerConfirm();
+      else togglePause();
+    }
+    return true;
+  }
+
+  switch (key) {
+    case Qt::Key_MediaTogglePlayPause:
+      if (!autoRepeat) togglePause();
+      return true;
+    case Qt::Key_MediaPlay:
+      if (!autoRepeat && playback_->paused()) togglePause();
+      return true;
+    case Qt::Key_MediaPause:
+      if (!autoRepeat && !playback_->paused()) togglePause();
+      return true;
+    case Qt::Key_AudioForward:
+      if (!autoRepeat) playerSkip(30);
+      return true;
+    case Qt::Key_AudioRewind:
+      if (!autoRepeat) playerSkip(-10);
+      return true;
+    default:
+      break;
+  }
+
+  const int normalized = InputMap::NormalizeKey(key, modifiers, false);
+  if (autoRepeat && !InputMap::IsArrow(normalized)) return true;
+
+  switch (normalized) {
+    case Qt::Key_Return:
+      playerConfirm();
+      break;
+    case Qt::Key_Left:
+      playerNavigate(-1, 0, autoRepeat);
+      break;
+    case Qt::Key_Right:
+      playerNavigate(1, 0, autoRepeat);
+      break;
+    case Qt::Key_Up:
+      playerNavigate(0, -1, autoRepeat);
+      break;
+    case Qt::Key_Down:
+      playerNavigate(0, 1, autoRepeat);
+      break;
+    case Qt::Key_Escape:
+      playerBack();
+      break;
+    case Qt::Key_Menu:
+      toggleStats();
+      break;
+    default:
+      break;
+  }
+  return true;
+}
+
+double AppController::maxSeekPosition() const {
+  return playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
+}
+
+bool AppController::isSeekBarFocused() const {
+  return osdVisible_ && !playerMenuOpen_ && playerFocus_ == ActionSeek;
+}
+
 void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
   if (autoRepeat) {
-    const bool seekRepeat =
-        osdVisible_ && !playerMenuOpen_ && playerFocus_ == ActionSeek && dx != 0;
+    const bool seekRepeat = isSeekBarFocused() && dx != 0;
     const bool delayRepeat = playerMenuOpen_ &&
                              playerMenuMode_ == QLatin1String("avdelay") && dx != 0;
     if (!seekRepeat && !delayRepeat) return;
@@ -803,7 +877,7 @@ void AppController::playerNavigate(int dx, int dy, bool autoRepeat) {
       else if (seekSteps_ < 6) step = dx > 0 ? 60.0 : -60.0;
       else step = dx > 0 ? 180.0 : -180.0;
 
-      const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
+      const double maxPos = maxSeekPosition();
       seekPreview_ = qBound(0.0, seekPreview_ + step, maxPos);
       if (qAbs(seekPreview_ - playback_->position()) < 0.4) {
         seekPending_ = false;
@@ -846,7 +920,7 @@ void AppController::playerConfirm() {
   }
   if (!osdVisible_) playerNavigate(0, 0);
 
-  const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
+  const double maxPos = maxSeekPosition();
   switch (playerFocus_) {
     case ActionSeek:
       if (seekPending_) commitSeek();
@@ -889,7 +963,7 @@ void AppController::playerConfirm() {
 void AppController::playerSkip(int seconds) {
   if (!playback_->active() || playerMenuOpen_) return;
   showOsd();
-  const double maxPos = playback_->duration() > 1.0 ? playback_->duration() - 1.0 : 0.0;
+  const double maxPos = maxSeekPosition();
   seekPreview_ = qBound(0.0, playback_->position() + seconds, maxPos);
   if (qAbs(seekPreview_ - playback_->position()) < 0.4) {
     seekPending_ = false;

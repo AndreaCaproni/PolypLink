@@ -209,6 +209,9 @@ class AppController : public QObject {
   Q_INVOKABLE void playerConfirm();
   Q_INVOKABLE void playerSkip(int seconds);
   Q_INVOKABLE void playerBack();
+  // Input mapping lives outside QML so it is one testable implementation.
+  Q_INVOKABLE int normalizeKey(int key, int modifiers) const;
+  Q_INVOKABLE bool handlePlayerKey(int key, bool autoRepeat, int modifiers);
   Q_INVOKABLE void toggleStats();
   Q_INVOKABLE void retryPlayback();
   Q_INVOKABLE void playNextEpisode();
@@ -253,6 +256,8 @@ class AppController : public QObject {
   void playEpisode(const QJsonObject& episode);
   void loadNextEpisode(const QString& seriesId, const QString& currentId);
   void commitSeek();
+  double maxSeekPosition() const;
+  bool isSeekBarFocused() const;
   void updateTracksFromItem(const QJsonObject& item);
   void setState(const QString& s);
   void setStatus(const QString& s);

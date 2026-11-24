@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += src/main.cpp \
            src/inputpump.cpp \
+           src/inputmap.cpp \
            src/authnetwork.cpp \
            src/authcontroller.cpp \
            src/librarycontroller.cpp \
@@ -39,6 +40,7 @@ SOURCES += src/main.cpp \
            src/player.cpp
 
 HEADERS += src/inputpump.h \
+           src/inputmap.h \
            src/authnetwork.h \
            src/authcontroller.h \
            src/librarycontroller.h \

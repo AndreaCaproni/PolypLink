@@ -32,31 +32,33 @@ PlaybackController::PlaybackController(JellyfinClient* client,
     : QObject(parent), client_(client), settings_(settings) {
   // The player reports a stall after 5 s; the banner appears after 10 s.
   stallWatch_.setInterval(kStallCheckMs);
-  connect(&stallWatch_, &QTimer::timeout, this, [this]() {
-    if (!active_) {
-      stallWatch_.stop();
-      return;
-    }
-    if (player_ != nullptr && player_->endOfStream()) {
-      if (stalled_) {
-        stalled_ = false;
-        status_.clear();
-        emit playerChanged();
-      }
-      stallWatch_.stop();
-      return;
-    }
-    const qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if (paused_) {
-      lastProgressMs_ = now;
-      return;
-    }
-    if (now - lastProgressMs_ > kStallTimeoutMs && !stalled_) {
-      stalled_ = true;
-      status_ = TranslateApp("Connessione persa… riprovo");
+  connect(&stallWatch_, &QTimer::timeout, this, &PlaybackController::checkStall);
+}
+
+void PlaybackController::checkStall() {
+  if (!active_) {
+    stallWatch_.stop();
+    return;
+  }
+  if (player_ != nullptr && player_->endOfStream()) {
+    if (stalled_) {
+      stalled_ = false;
+      status_.clear();
       emit playerChanged();
     }
-  });
+    stallWatch_.stop();
+    return;
+  }
+  const qint64 now = QDateTime::currentMSecsSinceEpoch();
+  if (paused_) {
+    lastProgressMs_ = now;
+    return;
+  }
+  if (now - lastProgressMs_ > kStallTimeoutMs && !stalled_) {
+    stalled_ = true;
+    status_ = TranslateApp("Connessione persa… riprovo");
+    emit playerChanged();
+  }
 }
 
 bool PlaybackController::stopPlayerThread() {

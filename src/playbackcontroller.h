@@ -50,6 +50,7 @@ class PlaybackController : public QObject {
  private:
   bool stopPlayerThread();
   bool teardownPlayer();
+  void checkStall();
 
   JellyfinClient* client_;
   SettingsController* settings_;

@@ -42,6 +42,12 @@ if command -v g++ >/dev/null 2>&1 && command -v pkg-config >/dev/null 2>&1 &&
       $(pkg-config --cflags --libs Qt5Core Qt5Network) -o "$OUT"
   "$OUT"
   rm -f "$OUT"
+
+  OUT="$(mktemp "${TMPDIR:-/tmp}/test_inputmap.XXXXXX")"
+  g++ -std=c++17 -fPIC -I"$ROOT/src" "$ROOT/tests/test_inputmap.cpp" \
+      "$ROOT/src/inputmap.cpp" $(pkg-config --cflags --libs Qt5Core) -o "$OUT"
+  "$OUT"
+  rm -f "$OUT"
 else
   echo "    server URL: salto (Qt5 host non disponibile)"
 fi
