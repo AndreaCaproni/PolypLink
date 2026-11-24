@@ -1150,6 +1150,29 @@ Window {
                     event.accepted = true
                     return
                 }
+                if (event.key === Qt.Key_MediaTogglePlayPause ||
+                        event.key === Qt.Key_MediaPlay ||
+                        event.key === Qt.Key_MediaPause) {
+                    if (!event.isAutoRepeat) {
+                        if (event.key === Qt.Key_MediaPlay) {
+                            if (app.playerPaused) app.togglePause()
+                        } else if (event.key === Qt.Key_MediaPause) {
+                            if (!app.playerPaused) app.togglePause()
+                        } else {
+                            app.togglePause()
+                        }
+                    }
+                    event.accepted = true
+                    return
+                }
+                if (event.key === Qt.Key_AudioForward ||
+                        event.key === Qt.Key_AudioRewind) {
+                    if (!event.isAutoRepeat) {
+                        app.playerSkip(event.key === Qt.Key_AudioForward ? 30 : -10)
+                    }
+                    event.accepted = true
+                    return
+                }
                 var pkey = root.normalizeKey(event.key)
                 if (event.isAutoRepeat && pkey !== Qt.Key_Left && pkey !== Qt.Key_Right
                         && pkey !== Qt.Key_Up && pkey !== Qt.Key_Down) {

@@ -902,6 +902,23 @@ void AppController::playerConfirm() {
   emit playerUiChanged();
 }
 
+void AppController::playerSkip(int seconds) {
+  if (!playback_->active() || playerMenuOpen_) return;
+  showOsd();
+  const double maxPos = playback_->duration() > 1.0
+                           ? std::max(0.0, playback_->duration() - kEndGuardSec)
+                           : 0.0;
+  seekPreview_ = qBound(0.0, playback_->position() + seconds, maxPos);
+  if (qAbs(seekPreview_ - playback_->position()) < 0.4) {
+    seekPending_ = false;
+    emit playerUiChanged();
+    return;
+  }
+  seekPending_ = true;
+  commitSeek();
+  emit playerUiChanged();
+}
+
 void AppController::commitSeek() {
   seekSteps_ = 0;
   seekDirection_ = 0;

@@ -127,6 +127,9 @@ delay it.
 | **Esc** / **Backspace** | back (**B**) |
 | **Y** | mark watched / favorite where available |
 | **Menu** | player statistics |
+| **Play/Pause** media key | play/pause in the player |
+| **Fast forward** media key | +30 seconds |
+| **Rewind** media key | -10 seconds |
 
 In text fields the physical keyboard types directly: WASD, Space and Backspace
 keep their normal text-editing behaviour there.

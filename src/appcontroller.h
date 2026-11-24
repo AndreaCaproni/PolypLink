@@ -207,6 +207,7 @@ class AppController : public QObject {
   // Navigable OSD (keys routed from main.cpp)
   Q_INVOKABLE void playerNavigate(int dx, int dy, bool autoRepeat = false);
   Q_INVOKABLE void playerConfirm();
+  Q_INVOKABLE void playerSkip(int seconds);
   Q_INVOKABLE void playerBack();
   Q_INVOKABLE void toggleStats();
   Q_INVOKABLE void retryPlayback();
