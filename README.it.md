@@ -166,6 +166,7 @@ Elenco completo in **[docs/CONTROLS.md](docs/CONTROLS.md)**. In sintesi:
 | Home | frecce per muoversi, **A** apre, **B** indietro, **su** dalla prima riga va alla barra superiore |
 | Barra superiore | sinistra/destra scelgono Home/Preferiti/Account/Impostazioni, **A** apre, **giù** torna al contenuto |
 | Player | **A** conferma/seleziona, **sinistra/destra** spostano il cursore, **su** nasconde l'OSD, **giù** va ai pulsanti, **B** nasconde/esce, **Start** statistiche |
+| Tastiera USB | frecce/WASD/tastierino per muoversi, **Invio/Spazio** seleziona, **Esc/Backspace** indietro |
 
 ---
 

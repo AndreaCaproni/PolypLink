@@ -116,5 +116,14 @@ delay it.
 
 ## USB keyboard
 
-Arrows, **Enter** (A), **Esc** (B), **Y**, **Menu**. In text fields the physical
-keyboard types directly.
+| Key | Action |
+|---|---|
+| arrows / **WASD** / numpad **8 4 6 2** | move |
+| **Enter** / numpad Enter | select (**A**) |
+| **Space** | select in the UI; play/pause in the player |
+| **Esc** / **Backspace** | back (**B**) |
+| **Y** | mark watched / favorite where available |
+| **Menu** | player statistics |
+
+In text fields the physical keyboard types directly: WASD, Space and Backspace
+keep their normal text-editing behaviour there.

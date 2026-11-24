@@ -111,6 +111,26 @@ Window {
         }
     }
 
+    // Physical keyboard: WASD and the numeric keypad act as arrows; Space
+    // selects and Backspace goes back. The on-screen keyboard is handled
+    // before this, so letters still type normally there.
+    function normalizeKey(k) {
+        switch (k) {
+        case Qt.Key_W: return Qt.Key_Up
+        case Qt.Key_S: return Qt.Key_Down
+        case Qt.Key_A: return Qt.Key_Left
+        case Qt.Key_D: return Qt.Key_Right
+        case Qt.Key_NumPad8: return Qt.Key_Up
+        case Qt.Key_NumPad2: return Qt.Key_Down
+        case Qt.Key_NumPad4: return Qt.Key_Left
+        case Qt.Key_NumPad6: return Qt.Key_Right
+        case Qt.Key_Enter: return Qt.Key_Return
+        case Qt.Key_Space: return Qt.Key_Return
+        case Qt.Key_Backspace: return Qt.Key_Escape
+        default: return k
+        }
+    }
+
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)) }
 
     function fmtTime(seconds) {
@@ -1099,27 +1119,15 @@ Window {
         focus: true
 
         Keys.onPressed: {
-            // With a USB keyboard the keys arrive here (the controller goes
-            // through main.cpp): same OSD, same commands.
-            if (app.playerActive) {
-                if (event.key === Qt.Key_Return) { app.playerConfirm() }
-                else if (event.key === Qt.Key_Left) { app.playerNavigate(-1, 0) }
-                else if (event.key === Qt.Key_Right) { app.playerNavigate(1, 0) }
-                else if (event.key === Qt.Key_Up) { app.playerNavigate(0, -1) }
-                else if (event.key === Qt.Key_Down) { app.playerNavigate(0, 1) }
-                else if (event.key === Qt.Key_Escape) { app.playerBack() }
-                else if (event.key === Qt.Key_Menu) { app.toggleStats() }
-                event.accepted = true
-                return
-            }
-
-            // keyboard open: everything goes to it
+            // Keyboard open: everything goes to it as raw keys, so WASD types.
             if (root.keyboardOpen) {
                 if (event.key === Qt.Key_Up) { keyboard.move(0, -1); event.accepted = true; return }
                 if (event.key === Qt.Key_Down) { keyboard.move(0, 1); event.accepted = true; return }
                 if (event.key === Qt.Key_Left) { keyboard.move(-1, 0); event.accepted = true; return }
                 if (event.key === Qt.Key_Right) { keyboard.move(1, 0); event.accepted = true; return }
-                if (event.key === Qt.Key_Return) { keyboard.press(); event.accepted = true; return }
+                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                    keyboard.press(); event.accepted = true; return
+                }
                 if (event.key === Qt.Key_Backspace) { keyboard.backspace(); event.accepted = true; return }
                 if (event.key === Qt.Key_Escape) { root.keyboardOpen = false; event.accepted = true; return }
                 if (event.text.length === 1) { keyboard.appendChar(event.text); event.accepted = true; return }
@@ -1127,48 +1135,72 @@ Window {
                 return
             }
 
+            // With a USB keyboard the keys arrive here (the controller goes
+            // through main.cpp): same OSD, same commands.
+            if (app.playerActive) {
+                // Space is always play/pause; Enter confirms the focused item.
+                if (event.key === Qt.Key_Space) {
+                    if (app.playerMenuOpen) app.playerConfirm()
+                    else app.togglePause()
+                    event.accepted = true
+                    return
+                }
+                var pkey = root.normalizeKey(event.key)
+                if (pkey === Qt.Key_Return) { app.playerConfirm() }
+                else if (pkey === Qt.Key_Left) { app.playerNavigate(-1, 0) }
+                else if (pkey === Qt.Key_Right) { app.playerNavigate(1, 0) }
+                else if (pkey === Qt.Key_Up) { app.playerNavigate(0, -1) }
+                else if (pkey === Qt.Key_Down) { app.playerNavigate(0, 1) }
+                else if (pkey === Qt.Key_Escape) { app.playerBack() }
+                else if (pkey === Qt.Key_Menu) { app.toggleStats() }
+                event.accepted = true
+                return
+            }
+
+            var key = root.normalizeKey(event.key)
+
             // top bar: left/right select, A opens, down returns to the content
             if (app.state === "home" && root.navFocus) {
-                if (event.key === Qt.Key_Left) { root.navIndex = Math.max(0, root.navIndex - 1); event.accepted = true; return }
-                if (event.key === Qt.Key_Right) { root.navIndex = Math.min(navSettingsIndex(), root.navIndex + 1); event.accepted = true; return }
-                if (event.key === Qt.Key_Down) {
+                if (key === Qt.Key_Left) { root.navIndex = Math.max(0, root.navIndex - 1); event.accepted = true; return }
+                if (key === Qt.Key_Right) { root.navIndex = Math.min(navSettingsIndex(), root.navIndex + 1); event.accepted = true; return }
+                if (key === Qt.Key_Down) {
                     root.navFocus = false
                     if (page === "home") focusContent()
                     event.accepted = true
                     return
                 }
-                if (event.key === Qt.Key_Return) { activateNav(); event.accepted = true; return }
-                if (event.key === Qt.Key_Escape) { root.navFocus = false; event.accepted = true; return }
+                if (key === Qt.Key_Return) { activateNav(); event.accepted = true; return }
+                if (key === Qt.Key_Escape) { root.navFocus = false; event.accepted = true; return }
                 event.accepted = false
                 return
             }
 
             if (root.settingsChoiceOpen) {
                 if (root.settingsChoiceAction === "audiodelay") {
-                    if (event.key === Qt.Key_Left) {
+                    if (key === Qt.Key_Left) {
                         root.settingsAudioDelay = Math.max(-2000, root.settingsAudioDelay - 50)
-                    } else if (event.key === Qt.Key_Right) {
+                    } else if (key === Qt.Key_Right) {
                         root.settingsAudioDelay = Math.min(2000, root.settingsAudioDelay + 50)
-                    } else if (event.key === Qt.Key_Return ||
-                               event.key === Qt.Key_Escape ||
-                               event.key === Qt.Key_Backspace) {
+                    } else if (key === Qt.Key_Return ||
+                               key === Qt.Key_Escape ||
+                               key === Qt.Key_Backspace) {
                         root.confirmSettingsChoice()
                     }
                     event.accepted = true
                     return
                 }
-                if (event.key === Qt.Key_Up) {
+                if (key === Qt.Key_Up) {
                     root.settingsChoiceIndex = Math.max(0, root.settingsChoiceIndex - 1)
                     settingsChoiceOverlay.ensureVisible(root.settingsChoiceIndex)
-                } else if (event.key === Qt.Key_Down) {
+                } else if (key === Qt.Key_Down) {
                     root.settingsChoiceIndex = Math.min(root.settingsChoiceItems.length - 1,
                                                        root.settingsChoiceIndex + 1)
                     settingsChoiceOverlay.ensureVisible(root.settingsChoiceIndex)
-                } else if (event.key === Qt.Key_Return) {
+                } else if (key === Qt.Key_Return) {
                     root.confirmSettingsChoice()
-                } else if (event.key === Qt.Key_Escape ||
-                           event.key === Qt.Key_Left ||
-                           event.key === Qt.Key_Backspace) {
+                } else if (key === Qt.Key_Escape ||
+                           key === Qt.Key_Left ||
+                           key === Qt.Key_Backspace) {
                     root.settingsChoiceOpen = false
                 }
                 event.accepted = true
@@ -1177,25 +1209,25 @@ Window {
 
             if (root.languageOpen) {
                 var langCols = 3
-                if (event.key === Qt.Key_Left) {
+                if (key === Qt.Key_Left) {
                     root.languageIndex = Math.max(0, root.languageIndex - 1)
-                } else if (event.key === Qt.Key_Right) {
+                } else if (key === Qt.Key_Right) {
                     root.languageIndex = Math.min(language.available.length - 1,
                                                   root.languageIndex + 1)
-                } else if (event.key === Qt.Key_Up) {
+                } else if (key === Qt.Key_Up) {
                     root.languageIndex = Math.max(0, root.languageIndex - langCols)
-                } else if (event.key === Qt.Key_Down) {
+                } else if (key === Qt.Key_Down) {
                     root.languageIndex = Math.min(language.available.length - 1,
                                                   root.languageIndex + langCols)
-                } else if (event.key === Qt.Key_Return) {
+                } else if (key === Qt.Key_Return) {
                     if (root.languageIndex >= 0 &&
                         root.languageIndex < language.available.length) {
                         language.setCurrent(language.available[root.languageIndex].code)
                     }
                     root.languageOpen = false
-                } else if (event.key === Qt.Key_Escape ||
-                           event.key === Qt.Key_Left ||
-                           event.key === Qt.Key_Backspace) {
+                } else if (key === Qt.Key_Escape ||
+                           key === Qt.Key_Left ||
+                           key === Qt.Key_Backspace) {
                     root.languageOpen = false
                 }
                 event.accepted = true
@@ -1203,12 +1235,12 @@ Window {
             }
 
             if (root.overviewOpen) {
-                if (event.key === Qt.Key_Escape || event.key === Qt.Key_Return ||
-                    event.key === Qt.Key_Left || event.key === Qt.Key_Backspace) {
+                if (key === Qt.Key_Escape || key === Qt.Key_Return ||
+                    key === Qt.Key_Left || key === Qt.Key_Backspace) {
                     root.overviewOpen = false
-                } else if (event.key === Qt.Key_Down) {
+                } else if (key === Qt.Key_Down) {
                     overviewOverlay.scrollBy(120)
-                } else if (event.key === Qt.Key_Up) {
+                } else if (key === Qt.Key_Up) {
                     overviewOverlay.scrollBy(-120)
                 }
                 event.accepted = true
@@ -1219,122 +1251,122 @@ Window {
 
             if (app.state === "login") {
                 var serverTotal = app.servers.length + savedServerRow()
-                if (event.key === Qt.Key_Up) { serverIndex = Math.max(0, serverIndex - 1) }
-                else if (event.key === Qt.Key_Down) { serverIndex = Math.min(serverTotal, serverIndex + 1) }
-                else if (event.key === Qt.Key_Return) { activate() }
-                else if (event.key === Qt.Key_R || event.key === Qt.Key_X) { app.discover() }
-                else if (event.key === Qt.Key_Escape) { Qt.quit() }
+                if (key === Qt.Key_Up) { serverIndex = Math.max(0, serverIndex - 1) }
+                else if (key === Qt.Key_Down) { serverIndex = Math.min(serverTotal, serverIndex + 1) }
+                else if (key === Qt.Key_Return) { activate() }
+                else if (key === Qt.Key_R || key === Qt.Key_X) { app.discover() }
+                else if (key === Qt.Key_Escape) { Qt.quit() }
                 else handled = false
             } else if (app.state === "auth") {
                 if (authStep === "menu") {
-                    if (event.key === Qt.Key_Up) { authIndex = 0 }
-                    else if (event.key === Qt.Key_Down) { authIndex = 1 }
-                    else if (event.key === Qt.Key_Return) { activate() }
-                    else if (event.key === Qt.Key_Escape) { goBack() }
+                    if (key === Qt.Key_Up) { authIndex = 0 }
+                    else if (key === Qt.Key_Down) { authIndex = 1 }
+                    else if (key === Qt.Key_Return) { activate() }
+                    else if (key === Qt.Key_Escape) { goBack() }
                     else handled = false
                 } else {
-                    if (event.key === Qt.Key_Up) { authIndex = Math.max(0, authIndex - 1) }
-                    else if (event.key === Qt.Key_Down) { authIndex = Math.min(2, authIndex + 1) }
-                    else if (event.key === Qt.Key_Return) { activate() }
-                    else if (event.key === Qt.Key_Escape) { goBack() }
+                    if (key === Qt.Key_Up) { authIndex = Math.max(0, authIndex - 1) }
+                    else if (key === Qt.Key_Down) { authIndex = Math.min(2, authIndex + 1) }
+                    else if (key === Qt.Key_Return) { activate() }
+                    else if (key === Qt.Key_Escape) { goBack() }
                     else handled = false
                 }
             } else if (app.state === "quickconnect") {
-                if (event.key === Qt.Key_Escape) { goBack() }
+                if (key === Qt.Key_Escape) { goBack() }
                 else handled = false
             } else if (detailOpen) {
                 var s = root.settingsStart()
                 var lastAction = (s >= 0) ? s - 1
                                  : (root.readMoreIndex() >= 0 ? root.readMoreIndex() : 3)
-                if (event.key === Qt.Key_Up) {
+                if (key === Qt.Key_Up) {
                     if (s >= 0 && detailFocus > s) detailFocus = detailFocus - 1
                     else if (s >= 0 && detailFocus === s) detailFocus = root.favoriteIndex()
                     else detailFocus = Math.max(0, detailFocus - 1)
-                } else if (event.key === Qt.Key_Down) {
+                } else if (key === Qt.Key_Down) {
                     if (s >= 0) {
                         if (detailFocus < s) detailFocus = s
                         else detailFocus = Math.min(s + 2, detailFocus + 1)
                     }
-                } else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right) {
-                    var d = (event.key === Qt.Key_Left) ? -1 : 1
+                } else if (key === Qt.Key_Left || key === Qt.Key_Right) {
+                    var d = (key === Qt.Key_Left) ? -1 : 1
                     if (s < 0 || detailFocus < s) detailFocus = Math.max(0, Math.min(lastAction, detailFocus + d))
                     else if (detailFocus === s) app.cycleQuality(d)
                     else if (detailFocus === s + 1) app.cycleAudio(d)
                     else app.cycleSubtitle(d)
-                } else if (event.key === Qt.Key_Return) {
+                } else if (key === Qt.Key_Return) {
                     detailAction()
-                } else if (event.key === Qt.Key_Escape) { goBack() }
+                } else if (key === Qt.Key_Escape) { goBack() }
                 else handled = false
             } else if (page === "seasons") {
                 var scols = seasonsPage.columns
-                if (event.key === Qt.Key_Left) {
+                if (key === Qt.Key_Left) {
                     seasonIndex = Math.max(0, seasonIndex - 1)
                     seasonsPage.ensureVisible(seasonIndex)
-                } else if (event.key === Qt.Key_Right) {
+                } else if (key === Qt.Key_Right) {
                     seasonIndex = Math.min(app.seasons.length - 1, seasonIndex + 1)
                     seasonsPage.ensureVisible(seasonIndex)
-                } else if (event.key === Qt.Key_Up) {
+                } else if (key === Qt.Key_Up) {
                     if (seasonIndex - scols >= 0) {
                         seasonIndex -= scols
                         seasonsPage.ensureVisible(seasonIndex)
                     }
-                } else if (event.key === Qt.Key_Down) {
+                } else if (key === Qt.Key_Down) {
                     if (seasonIndex + scols < app.seasons.length) {
                         seasonIndex += scols
                         seasonsPage.ensureVisible(seasonIndex)
                     }
-                } else if (event.key === Qt.Key_Y) {
+                } else if (key === Qt.Key_Y) {
                     if (app.seasons.length > 0 && seasonIndex >= 0 && seasonIndex < app.seasons.length)
                         app.toggleSeasonPlayed(app.seasons[seasonIndex].id)
-                } else if (event.key === Qt.Key_Return) {
+                } else if (key === Qt.Key_Return) {
                     openSeasonNow()
-                } else if (event.key === Qt.Key_Escape) {
+                } else if (key === Qt.Key_Escape) {
                     goBack()
                 } else handled = false
             } else if (page === "episodes") {
                 if (root.seasonActionsFocus) {
-                    if (event.key === Qt.Key_Left) moveSeasonAction(-1)
-                    else if (event.key === Qt.Key_Right) moveSeasonAction(1)
-                    else if (event.key === Qt.Key_Down) { seasonActionsFocus = false }
-                    else if (event.key === Qt.Key_Return) { seasonActionConfirm() }
-                    else if (event.key === Qt.Key_Escape) { goBack() }
+                    if (key === Qt.Key_Left) moveSeasonAction(-1)
+                    else if (key === Qt.Key_Right) moveSeasonAction(1)
+                    else if (key === Qt.Key_Down) { seasonActionsFocus = false }
+                    else if (key === Qt.Key_Return) { seasonActionConfirm() }
+                    else if (key === Qt.Key_Escape) { goBack() }
                     else handled = false
                 } else {
-                    if (event.key === Qt.Key_Up) {
+                    if (key === Qt.Key_Up) {
                         if (epIndex === 0) {
                             seasonActionsFocus = true
                         } else {
                             epIndex = Math.max(0, epIndex - 1)
                             episodesPage.ensureVisible(epIndex)
                         }
-                    } else if (event.key === Qt.Key_Down) {
+                    } else if (key === Qt.Key_Down) {
                         if (app.episodes.length > 0) {
                             epIndex = Math.min(app.episodes.length - 1, epIndex + 1)
                             episodesPage.ensureVisible(epIndex)
                         }
-                    } else if (event.key === Qt.Key_Return) {
+                    } else if (key === Qt.Key_Return) {
                         if (app.episodes.length > 0) openDetail(app.episodes[epIndex].id)
-                    } else if (event.key === Qt.Key_Escape) {
+                    } else if (key === Qt.Key_Escape) {
                         goBack()
                     } else handled = false
                 }
             } else if (page === "library" || page === "favorites") {
                 var cols = libraryPage.columns
-                if (event.key === Qt.Key_Left) { moveCol(-1) }
-                else if (event.key === Qt.Key_Right) { moveCol(1) }
-                else if (event.key === Qt.Key_Up) {
+                if (key === Qt.Key_Left) { moveCol(-1) }
+                else if (key === Qt.Key_Right) { moveCol(1) }
+                else if (key === Qt.Key_Up) {
                     if (gridIndex < cols) {
                         navFocus = true
                         navIndex = (page === "favorites") ? 1 : navLibraryIndex()
                     } else moveGridRow(-1)
                 }
-                else if (event.key === Qt.Key_Down) { moveGridRow(1) }
-                else if (event.key === Qt.Key_Return) { activate() }
-                else if (event.key === Qt.Key_Escape) { goBack() }
+                else if (key === Qt.Key_Down) { moveGridRow(1) }
+                else if (key === Qt.Key_Return) { activate() }
+                else if (key === Qt.Key_Escape) { goBack() }
                 else handled = false
             } else if (page === "settings" || page === "account") {
                 var entries = (page === "settings") ? settingsMenu : accountMenu
-                if (event.key === Qt.Key_Up) {
+                if (key === Qt.Key_Up) {
                     if (menuIndex === 0) {
                         var back = (page === "settings") ? navSettingsIndex() : navAccountIndex()
                         page = "home"
@@ -1344,10 +1376,10 @@ Window {
                         menuIndex = menuIndex - 1
                         menuPage.ensureVisible(menuIndex)
                     }
-                } else if (event.key === Qt.Key_Down) {
+                } else if (key === Qt.Key_Down) {
                     menuIndex = Math.min(entries.length - 1, menuIndex + 1)
                     menuPage.ensureVisible(menuIndex)
-                } else if (event.key === Qt.Key_Return) {
+                } else if (key === Qt.Key_Return) {
                     var entry = entries[menuIndex]
                     var action = entry.action
                     if (action === "logout" || action === "switchserver") {
@@ -1370,25 +1402,25 @@ Window {
                         menuHint = qsTr("Funzionalità in arrivo")
                         menuHintTimer.restart()
                     }
-                } else if (event.key === Qt.Key_Escape || event.key === Qt.Key_Left) {
+                } else if (key === Qt.Key_Escape || key === Qt.Key_Left) {
                     var back = (page === "settings") ? navSettingsIndex() : navAccountIndex()
                     page = "home"
                     navFocus = true
                     navIndex = back
                 } else handled = false
             } else {
-                if (event.key === Qt.Key_Left) { moveCol(-1) }
-                else if (event.key === Qt.Key_Right) { moveCol(1) }
-                else if (event.key === Qt.Key_Up) {
+                if (key === Qt.Key_Left) { moveCol(-1) }
+                else if (key === Qt.Key_Right) { moveCol(1) }
+                else if (key === Qt.Key_Up) {
                     if (rowIndex <= firstRow()) { navFocus = true; navIndex = 0 }
                     else moveRow(-1)
                 }
-                else if (event.key === Qt.Key_Down) { moveRow(1) }
-                else if (event.key === Qt.Key_Return) {
+                else if (key === Qt.Key_Down) { moveRow(1) }
+                else if (key === Qt.Key_Return) {
                     if (root.homeEmpty() && app.statusMessage.length > 0) app.refreshHome()
                     else activate()
                 }
-                else if (event.key === Qt.Key_Escape) { goBack() }
+                else if (key === Qt.Key_Escape) { goBack() }
                 else handled = false
             }
 
