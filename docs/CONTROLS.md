@@ -121,7 +121,7 @@ delay it.
 
 | Key | Action |
 |---|---|
-| arrows / **WASD** / numpad **8 4 6 2** | move |
+| arrows / numpad **8 4 6 2** | move |
 | **Enter** / numpad Enter / **Select** | select (**A**) |
 | **Space** | select in the UI; play/pause in the player |
 | **Esc** / **Backspace** | back (**B**) |
@@ -131,5 +131,5 @@ delay it.
 | **Fast forward** media key | +30 seconds |
 | **Rewind** media key | -10 seconds |
 
-In text fields the physical keyboard types directly: WASD, Space and Backspace
-keep their normal text-editing behaviour there.
+In text fields the physical keyboard types directly: letters, Space and
+Backspace keep their normal text-editing behaviour there.

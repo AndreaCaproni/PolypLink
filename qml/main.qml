@@ -111,15 +111,11 @@ Window {
         }
     }
 
-    // Physical keyboard: WASD and the numeric keypad act as arrows; Space
-    // selects and Backspace goes back. The on-screen keyboard is handled
-    // before this, so letters still type normally there.
+    // Physical keyboard: the numeric keypad acts as arrows; Space selects and
+    // Backspace goes back. The on-screen keyboard is handled before this, so
+    // letters still type normally there.
     function normalizeKey(k) {
         switch (k) {
-        case Qt.Key_W: return Qt.Key_Up
-        case Qt.Key_S: return Qt.Key_Down
-        case Qt.Key_A: return Qt.Key_Left
-        case Qt.Key_D: return Qt.Key_Right
         case Qt.Key_NumPad8: return Qt.Key_Up
         case Qt.Key_NumPad2: return Qt.Key_Down
         case Qt.Key_NumPad4: return Qt.Key_Left
@@ -1120,7 +1116,7 @@ Window {
         focus: true
 
         Keys.onPressed: {
-            // Keyboard open: everything goes to it as raw keys, so WASD types.
+            // Keyboard open: everything goes to it as raw keys, so typing works.
             if (root.keyboardOpen) {
                 if (event.key === Qt.Key_Up) { keyboard.move(0, -1); event.accepted = true; return }
                 if (event.key === Qt.Key_Down) { keyboard.move(0, 1); event.accepted = true; return }

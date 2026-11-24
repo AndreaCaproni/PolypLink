@@ -164,7 +164,7 @@ Full list in **[docs/CONTROLS.md](docs/CONTROLS.md)**. Quick summary:
 | Home | arrows to move, **A** opens, **B** back, **up** from the first row goes to the top bar |
 | Top bar | left/right selects Home/Favorites/Account/Settings, **A** opens, **down** returns to content |
 | Player | **A** confirms/selects, **left/right** move the cursor, **up** hides the OSD, **down** goes to the buttons, **B** hides/exits, **Start** stats |
-| USB keyboard | arrows/WASD/numpad move, **Enter/Space** select, **Esc/Backspace** back |
+| USB keyboard | arrows/numpad move, **Enter/Space** select, **Esc/Backspace** back |
 
 ---
 
