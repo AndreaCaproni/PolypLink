@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.4.3-beta — 2026-11-25
+
+### Added
+
+- Physical keyboard support: arrows, numeric keypad, **Enter/Select/Space** to
+  confirm and **Esc/Backspace** to go back. WASD is intentionally not mapped.
+- Media keys: **play/pause**, **fast forward** (+30 s) and **rewind** (-10 s).
+- A shared C++ input layer used by both the keyboard and the controller, with
+  automated tests for the key mapping.
+
+### Changed
+
+- Navigation is atomic: holding a direction no longer runs through menus or
+  buttons. Auto-repeat remains only on the seek bar and the audio-delay slider.
+- The numeric keypad is mapped correctly through `KeypadModifier`.
+- `main.qml` no longer contains the player/media-key logic; it calls the shared
+  `AppController` implementation.
+- Seek limits and the stall watchdog are centralized in helpers.
+- The project uses public launch templates, security policy and contributor
+  documentation.
+
+### Fixed
+
+- At the normal end of a stream, the player no longer shows the false
+  "connection lost" banner while it drains the last queued frames.
+- **Select** is mapped to confirm, including in the on-screen keyboard.
+
 ## 0.4.2-beta — 2026-11-22
 
 ### Fixed

@@ -3,20 +3,32 @@ PolypLink @VERSION@ — a native Jellyfin client for the Valve Steam Link (2015)
 No Chromium: Qt Quick/C++ with hardware H.264 decoding (SLVideo) and AAC audio
 (SLAudio). The server transcodes to H.264/AAC over HLS.
 
-This is **0.4.2**: it fixes the QML translation contexts so the top bar,
-sign-in, server, Quick Connect, keyboard and poster components follow the
-selected language (including the **Favorites** tab), translates the favorites
-title when the page opens, and hides the profile initial once the avatar has
-loaded. The README now shows real screenshots from the public Jellyfin demo,
-with the full set in `docs/SCREENSHOTS.md`. It includes the 0.4.1 CA bundle and
+This is **0.4.3**: it adds physical-keyboard navigation, media keys and a
+shared input layer for the keyboard and controller. Enter/Select/Space confirm,
+Esc/Backspace go back, the numeric keypad works as arrows, and holding a
+direction no longer runs through menus. It also fixes the false "connection
+lost" banner at the normal end of a stream and includes the 0.4.2 translation
+context/avatar fixes and real demo screenshots, the 0.4.1 CA bundle and
 back-to-server-list fix, the 0.4.0 refactor and playback hardening, the 0.3.3
 licensing/display fixes, and the 0.3.2 security fixes. The PolypLink rebrand
 and the player work from 0.3.0 are included.
+
+## Input
+
+- USB keyboard: arrows, numeric keypad, **Enter/Select/Space** to confirm,
+  **Esc/Backspace** to go back. WASD is intentionally not mapped.
+- Media keys: **play/pause**, **fast forward** (+30 s) and **rewind** (-10 s).
+- Keyboard and controller share one C++ player-input implementation.
+- Navigation is atomic: auto-repeat is ignored outside the seek bar and the
+  audio-delay slider.
+- The numeric keypad uses `KeypadModifier`; the mapping has automated tests.
 
 ## Refactor
 
 - `AppController` is now a facade over `AuthController`, `LibraryController`,
   `PlaybackController` and `SettingsController`.
+- Shared `InputMap` module and `handlePlayerKey`; seek limits and stall checks
+  are centralized.
 - Player OSD and season actions use named action IDs.
 - Source comments are English; shared translation/quality/OSD constants.
 
@@ -56,6 +68,8 @@ and the player work from 0.3.0 are included.
 
 ## Reliability and packaging
 
+- At the normal end of a stream, the player no longer reports a false
+  "connection lost" while the last queued frames drain.
 - QML components have correct per-component translation contexts, so the top
   bar **Favorites** tab and the sign-in, server, Quick Connect, keyboard and
   poster strings follow the selected language.
