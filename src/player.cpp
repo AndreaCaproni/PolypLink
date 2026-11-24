@@ -1223,15 +1223,6 @@ void Player::run() {
       continue;
     }
 
-    // Do not keep feeding the decoder past the end of the media. Starting a
-    // transcode near the end can make the server append segments beyond the
-    // duration; the Link must stop here instead of playing them.
-    const double durationSec = cfg_.durationTicks / 1e7;
-    if (durationSec > 1.0 && position_.load() >= durationSec - 0.5) {
-      qInfo("[player] fine media a %.1f s", position_.load());
-      break;
-    }
-
     // audio
     if (queuedAudioFrames() < 4800 && pcmFrames >= static_cast<size_t>(kAudioBlockFrames)) {
       const bool firstAudioBlock = audioFramesSubmitted_ == 0;
